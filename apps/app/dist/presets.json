@@ -17764,6 +17764,19 @@
     "additionalInstructions": ""
   },
   {
+    "name": "PHINEAS AND FERB",
+    "category": [
+      "CARTOON",
+      "TV",
+      "ANIMATION",
+      "ADVENTURE"
+    ],
+    "message": "Take a picture and transform the image into the distinctive animation style of Phineas and Ferb.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "STYLE REQUIREMENTS (CRITICAL):\n• Bold, vibrant colors with cel-shaded appearance\n• Clean vector-style line art\n• Angular geometric character designs\n• Exaggerated proportions and shapes\n• High-contrast shading with defined edges\n• Energetic, dynamic poses\n• Triangular and rectangular shapes dominate character design\n• Simplified but expressive facial features\n\nSUBJECT TRANSFORMATION:\n• Transform subject into Phineas and Ferb animation style\n• Preserve recognizable features with geometric simplification\n• Large expressive eyes with simple pupils\n• Triangular or angular head shapes\n• Simplified hair as geometric blocks or shapes\n• Stylized clothing with bold colors and minimal folds\n• Dynamic, action-ready pose\n\nCHARACTERS FROM THE SHOW (MANDATORY):\n• Include 2-4 recognizable characters from Phineas and Ferb naturally integrated into the scene\n• Characters maintain their show-accurate designs: distinctive head shapes, signature clothing, recognizable silhouettes\n• Characters should be actively engaged in the scene or project\n• Examples: inventors, friends, siblings, neighbors, pets, authority figures from the show\n• Characters sized and positioned appropriately\n\nSETTING:\n• Place scene in a Phineas and Ferb location: backyard with the tree, basement workshop, neighborhood street, school, or fantastical invention environment\n• Include inventive/creative elements typical of the show: elaborate contraptions, oversized projects, impossible physics, summer adventure vibes\n• Background elements: suburban houses, trees, blue skies, or sci-fi/fantasy elements if invention-related\n\nCOMPOSITION:\n• Energetic, inventive, optimistic atmosphere\n• Summer day lighting\n• Dynamic angles and perspective\n• Clear action or activity in progress\n• Sense of adventure and creativity\n• Clean, organized visual hierarchy\n\nTONE:\n• Fun, ambitious, can-do spirit\n• Sense of impossible projects made possible\n• Friendship and teamwork\n• Boundless creativity\n\nFINAL RESULT:\nThe final image must look like an authentic frame from Phineas and Ferb, with the subject transformed into a character seamlessly integrated into the show's world, surrounded by recognizable characters from the series engaged in a summer adventure or inventive project."
+  },
+  {
     "name": "PHOTOBOMB",
     "category": [
       "HUMOR",
@@ -27027,5 +27040,80 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
-  }
+  },
+  {
+    "name": "ZORK",
+    "category": [
+      "OPTIONS",
+      "GAME",
+      "TEXT ADVENTURE",
+      "RETRO",
+      "FANTASY"
+    ],
+    "message": "Take a picture and place the subject within an iconic location from the classic text adventure game Zork, captured as if it were a vivid fantasy illustration accompanying the text-based adventure.",
+    "optionGroups": [
+      {
+        "title": "LOCATION",
+        "options": [
+          { "id": "001", "text": "West of House — standing west of a white house with boarded windows and a small mailbox nearby" },
+          { "id": "002", "text": "South of House — positioned south of the white house with a forest visible in the background" },
+          { "id": "003", "text": "Behind House — standing at the rear of the white house near a window slightly ajar" },
+          { "id": "004", "text": "Forest Path — deep in a dimly lit forest with towering trees and winding dirt paths" },
+          { "id": "005", "text": "North of House — at the front door of the white house with a path leading north" },
+          { "id": "006", "text": "Kitchen — inside the rustic kitchen of the white house with old wooden furniture and dim lighting" },
+          { "id": "007", "text": "Living Room — standing in the dusty living room near a large trophy case displaying artifacts" },
+          { "id": "008", "text": "Attic — in a cramped attic with exposed beams, old boxes, and a coil of rope hanging" },
+          { "id": "009", "text": "Cellar — in a dark stone cellar with a heavy wooden trap door set in the floor" },
+          { "id": "010", "text": "Beneath Trap Door — descending stone stairs beneath the trap door into underground darkness" },
+          { "id": "011", "text": "Troll Room — in a crude stone chamber where a massive stone bridge crosses a chasm" },
+          { "id": "012", "text": "Maze of Twisty Passages — surrounded by identical winding tunnels in every direction" },
+          { "id": "013", "text": "Round Room — standing in a perfectly circular stone chamber with multiple exits" },
+          { "id": "014", "text": "Loud Room — in an echoing chamber where every sound reverberates intensely" },
+          { "id": "015", "text": "Dome Room — beneath a grand underground dome with ancient architecture" },
+          { "id": "016", "text": "Torch Room — in a chamber lit by flickering wall-mounted torches casting dancing shadows" },
+          { "id": "017", "text": "Temple — within a vast underground temple with towering stone columns and an altar" },
+          { "id": "018", "text": "Treasure Room — surrounded by piles of gleaming treasure: jewels, coins, golden artifacts" },
+          { "id": "019", "text": "Grating — standing before a metal grating that leads underground, partially concealed by leaves" },
+          { "id": "020", "text": "Dam — at the controls of a massive dam structure overlooking a reservoir" },
+          { "id": "021", "text": "Reservoir — standing near the edge of a large underground reservoir with still dark water" },
+          { "id": "022", "text": "Stream — beside a flowing underground stream with the sound of rushing water echoing" },
+          { "id": "023", "text": "Rainbow Room — in a mystical chamber where a shimmering rainbow arcs through the air" },
+          { "id": "024", "text": "Canyon View — standing at the edge of a deep rocky canyon with steep walls" },
+          { "id": "025", "text": "Frigid River — on the bank of an icy underground river with mist rising from the water" }
+        ]
+      },
+      {
+        "title": "ACTION",
+        "options": [
+          { "id": "001", "text": "Opening the mailbox with anticipation" },
+          { "id": "002", "text": "Reading a weathered leaflet held in hand" },
+          { "id": "003", "text": "Holding a lit brass lantern aloft to illuminate the surroundings" },
+          { "id": "004", "text": "Examining the trophy case closely with interest" },
+          { "id": "005", "text": "Opening the trap door with effort, revealing darkness below" },
+          { "id": "006", "text": "Descending ancient stone stairs into the unknown" },
+          { "id": "007", "text": "Wielding a gleaming sword defensively in a combat stance" },
+          { "id": "008", "text": "Turning a heavy valve or dam control lever" },
+          { "id": "009", "text": "Picking up a scattered treasure item from the ground" },
+          { "id": "010", "text": "Climbing a sturdy rope that hangs from above" },
+          { "id": "011", "text": "Opening a creaky wooden window with both hands" },
+          { "id": "012", "text": "Reading mysterious engravings carved into the stone wall" },
+          { "id": "013", "text": "Drinking from a flask or stream cupped in hands" },
+          { "id": "014", "text": "Peering into a dark passage or doorway ahead" },
+          { "id": "015", "text": "Fighting or confronting a lurking troll near the bridge" },
+          { "id": "016", "text": "Lighting the brass lantern with a match or flame" },
+          { "id": "017", "text": "Unlocking or opening the metal grating with a key" },
+          { "id": "018", "text": "Crossing a narrow stone bridge carefully" },
+          { "id": "019", "text": "Kneeling in prayer at an ancient altar" },
+          { "id": "020", "text": "Attempting to move or push a heavy stone object" },
+          { "id": "021", "text": "Waving a hand or wand to test for magic or illusions" },
+          { "id": "022", "text": "Looking upward at the dome or ceiling in awe" },
+          { "id": "023", "text": "Navigating carefully through a twisting maze corridor" },
+          { "id": "024", "text": "Shielding eyes from bright light or rainbow glow" },
+          { "id": "025", "text": "Climbing a tree or rocky surface hand over hand" }
+        ]
+      }
+    ],
+    "randomizeOptions": true,
+    "additionalInstructions": "VISUAL STYLE (MANDATORY):\n• Fantasy illustration style reminiscent of 1980s text adventure game artwork\n• Rich, painterly detail with dramatic lighting\n• Subject clearly visible and engaged in the selected action\n• Mysterious, adventurous, slightly ominous atmosphere\n• Subject wearing explorer or adventurer attire: leather boots, cloak, belt with pouches, practical clothing\n• Props visible: brass lantern, sword, rope, sack of treasures, map, or tools as appropriate to action\n\nCOMMAND LINE INTERFACE (CRITICAL):\n• At the bottom of the image, include a retro terminal-style command prompt bar\n• Black or dark background with green or amber monospaced text\n• Format: \"> [COMMAND]\" where [COMMAND] matches the scene\n• Examples: \"> GO NORTH\", \"> OPEN MAILBOX\", \"> LIGHT LANTERN\", \"> TAKE SWORD\", \"> EXAMINE TROPHY CASE\", \"> READ LEAFLET\", \"> CLIMB TREE\"\n• Command should logically match the location and action displayed\n• Text should look like authentic 1980s terminal font (monospace, pixelated, glowing)\n• Prompt must be readable even on small screens\n\nCOMPOSITION:\n• Subject positioned naturally within the environment\n• Clear sense of place and action\n• Appropriate depth and scale\n• Subject is the clear focal point but environment is richly detailed\n\nATMOSPHERE:\n• Mysterious, adventurous, slightly dangerous\n• Sense of exploration and discovery\n• Underground cavern ambiance or exterior forest mystery\n• Dramatic lighting: lantern glow, torch flicker, dim natural light, or magical luminescence\n\nFINAL RESULT:\nThe final image must look like classic Zork game artwork brought to life, with the subject clearly identifiable as an adventurer engaged in the selected action at the selected location, with a retro command prompt at the bottom that matches the scene, creating an authentic text adventure illustration that is readable and evocative on small screens."
+  },
 ]
