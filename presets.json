@@ -1568,6 +1568,19 @@
     "additionalInstructions": ""
   },
   {
+    "name": "BENDY AND THE INK MACHINE",
+    "category": [
+      "CARTOON",
+      "HORROR",
+      "GAME",
+      "ANIMATION"
+    ],
+    "message": "Take a picture and transform the image into the art style of Bendy and the Ink Machine. Convert everything into a 1930s rubber hose cartoon aesthetic drenched in black ink. Apply heavy black outlines, stark black-and-white contrast with sepia undertones, and dripping ink effects on surfaces and edges. Transform subjects into exaggerated cartoon characters with large round eyes, simple curved shapes, and fluid rubbery limbs. Add ink splatter stains, film grain, scratches, and a worn vintage animation cel texture. The overall mood should feel like a creepy, abandoned cartoon studio frozen in time.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": ""
+  },
+  {
     "name": "BERENSTAIN BEARS",
     "category": [
       "CARTOON",
