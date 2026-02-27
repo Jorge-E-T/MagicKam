@@ -3783,7 +3783,7 @@ button:disabled {
     box-sizing: border-box;
 }
 
-.option-item input {
+.option-item input[type="text"] {
     flex: 1;
     min-width: 0;
     height: 8vw;
@@ -3798,7 +3798,7 @@ button:disabled {
     font-family: inherit;
 }
 
-.option-item input:focus {
+.option-item input[type="text"]:focus {
     outline: none;
     border-color: #FE5F00;
 }

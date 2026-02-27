@@ -3093,20 +3093,31 @@ function updateStyleSelectionTypeVisibility() {
   }
 }
 
-function addStyleSingleOption(text = '') {
+function addStyleSingleOption(text = '', enabled = true) {
   const list = document.getElementById('style-single-options-list');
   const div = document.createElement('div');
   div.className = 'option-item';
+  div.style.cssText = 'display:flex; align-items:center; gap:0;';
+  
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  checkbox.checked = enabled;
+  checkbox.title = 'Include this option';
+  checkbox.className = 'style-option-checkbox';
+  checkbox.style.cssText = 'margin:0; padding:0; flex-shrink:0;';
+  checkbox.dataset.role = 'option-enabled';
   
   const input = document.createElement('input');
   input.type = 'text';
   input.placeholder = 'Option description';
   input.value = text;
+  input.style.cssText = 'flex:1; min-width:0;';
   
   const removeBtn = document.createElement('button');
   removeBtn.textContent = 'Remove';
   removeBtn.onclick = () => div.remove();
   
+  div.appendChild(checkbox);
   div.appendChild(input);
   div.appendChild(removeBtn);
   list.appendChild(div);
@@ -3151,29 +3162,40 @@ function addStyleOptionGroup(title = '', options = []) {
   container.appendChild(groupDiv);
   
   if (options.length > 0) {
-    options.forEach(opt => addStyleGroupOption(groupId, opt.text));
+    options.forEach(opt => addStyleGroupOption(groupId, opt.text, opt.enabled !== false));
   } else {
     addStyleGroupOption(groupId);
   }
 }
 
-function addStyleGroupOption(groupId, text = '') {
+function addStyleGroupOption(groupId, text = '', enabled = true) {
   const group = document.querySelector(`[data-group-id="${groupId}"]`);
   if (!group) return;
   
   const optionsContainer = group.querySelector('[data-role="group-options"]');
   const div = document.createElement('div');
   div.className = 'option-item';
+  div.style.cssText = 'display:flex; align-items:center; gap:0;';
+  
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  checkbox.checked = enabled;
+  checkbox.title = 'Include this option';
+  checkbox.className = 'style-option-checkbox';
+  checkbox.style.cssText = 'margin:0; padding:0; flex-shrink:0;';
+  checkbox.dataset.role = 'option-enabled';
   
   const input = document.createElement('input');
   input.type = 'text';
   input.placeholder = 'Option description';
   input.value = text;
+  input.style.cssText = 'flex:1; min-width:0;';
   
   const removeBtn = document.createElement('button');
   removeBtn.textContent = 'Remove';
   removeBtn.onclick = () => div.remove();
   
+  div.appendChild(checkbox);
   div.appendChild(input);
   div.appendChild(removeBtn);
   optionsContainer.appendChild(div);
@@ -3181,12 +3203,14 @@ function addStyleGroupOption(groupId, text = '') {
 
 function collectStyleSingleOptions() {
   const list = document.getElementById('style-single-options-list');
-  const items = list.querySelectorAll('.option-item input');
+  const items = list.querySelectorAll('.option-item');
   const options = [];
-  items.forEach((input, index) => {
-    const text = input.value.trim();
+  items.forEach((div, index) => {
+    const input = div.querySelector('input[type="text"]');
+    const checkbox = div.querySelector('input[type="checkbox"]');
+    const text = input ? input.value.trim() : '';
     if (text) {
-      options.push({ id: String(index + 1).padStart(3, '0'), text });
+      options.push({ id: String(index + 1).padStart(3, '0'), text, enabled: checkbox ? checkbox.checked : true });
     }
   });
   return options;
@@ -3200,11 +3224,13 @@ function collectStyleOptionGroups() {
     const titleInput = group.querySelector('[data-role="group-title"]');
     const title = titleInput.value.trim().toUpperCase();
     if (!title) return;
-    const optionInputs = group.querySelectorAll('[data-role="group-options"] .option-item input');
+    const optionDivs = group.querySelectorAll('[data-role="group-options"] .option-item');
     const options = [];
-    optionInputs.forEach((input, index) => {
-      const text = input.value.trim();
-      if (text) options.push({ id: String(index + 1).padStart(3, '0'), text });
+    optionDivs.forEach((div, index) => {
+      const input = div.querySelector('input[type="text"]');
+      const checkbox = div.querySelector('input[type="checkbox"]');
+      const text = input ? input.value.trim() : '';
+      if (text) options.push({ id: String(index + 1).padStart(3, '0'), text, enabled: checkbox ? checkbox.checked : true });
     });
     if (options.length > 0) optionGroups.push({ title, options });
   });
@@ -7232,9 +7258,13 @@ function parsePresetOptions(preset) {
   // NEW FORMAT: Check if preset has optionGroups (multi-selection like FRIENDS)
   if (preset.optionGroups && preset.optionGroups.length > 0) {
     preset.optionGroups.forEach(group => {
+      const activeOptions = group.options
+        .map((opt, index) => ({ opt, index }))
+        .filter(({ opt }) => opt.enabled !== false);
+      const pool = activeOptions.length > 0 ? activeOptions : group.options.map((opt, index) => ({ opt, index }));
       sections.push({
         title: group.title,
-        options: group.options.map((opt, index) => ({
+        options: pool.map(({ opt, index }) => ({
           value: index,
           label: `${index}: ${opt.text}`
         }))
@@ -7245,9 +7275,13 @@ function parsePresetOptions(preset) {
   
   // NEW FORMAT: Check if preset has options array (single-selection)
   if (preset.options && preset.options.length > 0) {
+    const activeOptions = preset.options
+      .map((opt, index) => ({ opt, index }))
+      .filter(({ opt }) => opt.enabled !== false);
+    const pool = activeOptions.length > 0 ? activeOptions : preset.options.map((opt, index) => ({ opt, index }));
     sections.push({
       title: 'SELECT',
-      options: preset.options.map((opt, index) => ({
+      options: pool.map(({ opt, index }) => ({
         value: index,
         label: `${index}: ${opt.text}`
       }))
@@ -7323,15 +7357,19 @@ function buildRandomOptionsText(preset) {
   // Multi-selection preset
   if (preset.optionGroups && preset.optionGroups.length > 0) {
     preset.optionGroups.forEach((group, index) => {
-      const selectedIndex = (seed + index * 13) % group.options.length;
-      const selectedOption = group.options[selectedIndex];
+      const activeOptions = group.options.filter(o => o.enabled !== false);
+      const pool = activeOptions.length > 0 ? activeOptions : group.options;
+      const selectedIndex = (seed + index * 13) % pool.length;
+      const selectedOption = pool[selectedIndex];
       text += `• ${group.title}: ${selectedOption.text}\n`;
     });
   }
   // Single selection preset
   else if (preset.options && preset.options.length > 0) {
-    const selectedIndex = seed % preset.options.length;
-    const selectedOption = preset.options[selectedIndex];
+    const activeOptions = preset.options.filter(o => o.enabled !== false);
+    const pool = activeOptions.length > 0 ? activeOptions : preset.options;
+    const selectedIndex = seed % pool.length;
+    const selectedOption = pool[selectedIndex];
     text += `• ${selectedOption.text}`;
   }
   
@@ -7667,7 +7705,7 @@ function editStyle(index) {
       selectionTypeEl.value = 'single';
       document.getElementById('style-single-options-container').style.display = 'block';
       document.getElementById('style-multi-options-container').style.display = 'none';
-      preset.options.forEach(opt => addStyleSingleOption(opt.text));
+      preset.options.forEach(opt => addStyleSingleOption(opt.text, opt.enabled !== false));
     }
   }
   
