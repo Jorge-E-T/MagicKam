@@ -16833,6 +16833,40 @@
     "additionalInstructions": ""
   },
   {
+    "name": "ONLINE NEWS",
+    "category": [
+      "NEWS",
+      "CREATIVE",
+      "FUNNY",
+      "SOCIAL"
+    ],
+    "message": "BEFORE rendering anything, visit the selected news website and study its current layout, color scheme, typography, logo, navigation bar, headline style, and overall design exactly as it appears today. Use only what you find on that live site as your visual reference. Do not guess or reimagine the site design. Take a picture and recreate the selected news website as a realistic screenshot with the subject placed as the main story. Create a funny, dramatic, or outrageous breaking news headline that fits the subject. Include the site logo, navigation elements, headline text, a large hero image of the subject, a byline, and supporting flavor text below the headline as it would appear on that site. Make it look exactly like a real screenshot of that website with the subject as the top story.",
+    "options": [
+      {"id": "001", "text": "Visit msn.com and recreate its current layout with the subject as the top breaking news story", "enabled": true},
+      {"id": "002", "text": "Visit foxnews.com and recreate its current layout with the subject as the top breaking news story", "enabled": true},
+      {"id": "003", "text": "Visit yahoo.com and recreate its current layout with the subject as the top breaking news story", "enabled": true},
+      {"id": "004", "text": "Visit tmz.com and recreate its current layout with the subject as the top breaking news story", "enabled": true},
+      {"id": "005", "text": "Visit cnn.com and recreate its current layout with the subject as the top breaking news story", "enabled": true},
+      {"id": "006", "text": "Visit nbcnews.com and recreate its current layout with the subject as the top breaking news story", "enabled": true},
+      {"id": "007", "text": "Visit buzzfeed.com and recreate its current layout with the subject as the top breaking news story", "enabled": true},
+      {"id": "008", "text": "Visit people.com and recreate its current layout with the subject as the top breaking news story", "enabled": true},
+      {"id": "009", "text": "Visit eonline.com and recreate its current layout with the subject as the top breaking news story", "enabled": true},
+      {"id": "010", "text": "Visit dailymail.co.uk and recreate its current layout with the subject as the top breaking news story", "enabled": true},
+      {"id": "011", "text": "Visit usatoday.com and recreate its current layout with the subject as the top breaking news story", "enabled": true},
+      {"id": "012", "text": "Visit nypost.com and recreate its current layout with the subject as the top breaking news story", "enabled": true},
+      {"id": "013", "text": "Visit huffpost.com and recreate its current layout with the subject as the top breaking news story", "enabled": true},
+      {"id": "014", "text": "Visit insider.com and recreate its current layout with the subject as the top breaking news story", "enabled": true},
+      {"id": "015", "text": "Visit thesun.co.uk and recreate its current layout with the subject as the top breaking news story", "enabled": true},
+      {"id": "016", "text": "Visit pagesix.com and recreate its current layout with the subject as the top breaking news story", "enabled": true},
+      {"id": "017", "text": "Visit entertainmentweekly.com and recreate its current layout with the subject as the top breaking news story", "enabled": true},
+      {"id": "018", "text": "Visit aol.com and recreate its current layout with the subject as the top breaking news story", "enabled": true},
+      {"id": "019", "text": "Visit abcnews.go.com and recreate its current layout with the subject as the top breaking news story", "enabled": true},
+      {"id": "020", "text": "Visit mirror.co.uk and recreate its current layout with the subject as the top breaking news story", "enabled": true}
+    ],
+    "randomizeOptions": true,
+    "additionalInstructions": "The final image must look like a genuine screenshot of the real website. Match the exact fonts, colors, logo, and layout found on the live site. The headline and flavor text must be funny, dramatic, or outrageous and relevant to the subject in the photo."
+  },
+  {
     "name": "OOMPA LOOMPA",
     "category": [
       "MOVIES",
