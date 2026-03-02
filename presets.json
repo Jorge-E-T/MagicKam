@@ -994,6 +994,25 @@
     "additionalInstructions": ""
   },
   {
+    "name": "ANDREW SCOTT STYLE",
+    "category": [
+      "ART",
+      "EXPERIMENTAL",
+      "CREATIVE",
+      "FINE ART"
+    ],
+    "message": "Take a picture and transform it into the style of Andrew Scott, an American interdisciplinary artist celebrated for his viral frame experiments. Treat the physical picture frame as an integral and active part of the composition rather than a passive border. Break, burn, distort, shatter, or physically manipulate the frame so that the subject's action or emotion bursts through, escapes, or destroys the boundary between the image and the space beyond it. The frame should feel like it is being overwhelmed by the force of what is inside it. Amplify the emotional power of the image by extending the subject's action, energy, or feeling beyond the traditional picture plane into the space outside the frame. The treatment of materials should feel inventive and physical, as if the frame itself is a real object being acted upon by real forces. Make the viewer feel that the boundary between the artwork and their own space is breaking down.",
+    "options": [
+      {"id": "001", "text": "The frame is burning and the subject bursts through the flames beyond the picture plane, evoking themes of empowerment and transformation", "enabled": true},
+      {"id": "002", "text": "The frame is shattering like glass and the subject explodes outward through the broken pieces, evoking themes of release and tension", "enabled": true},
+      {"id": "003", "text": "The frame is bending and warping under the weight of the subject pushing against it from inside, evoking themes of escapism and longing", "enabled": true},
+      {"id": "004", "text": "The frame is crumbling and decaying around the edges while the subject reaches desperately beyond it, evoking themes of loneliness and personal transformation", "enabled": true},
+      {"id": "005", "text": "The frame is being torn apart from the inside as the subject forces their way through it, evoking themes of raw power and emotional release", "enabled": true}
+    ],
+    "randomizeOptions": true,
+    "additionalInstructions": "The frame must never be treated as a passive decorative border. It must always be an active physical element of the composition that is being acted upon, destroyed, escaped from, or overwhelmed by the subject and their emotional force. The extension of action beyond the picture plane is essential to every rendering."
+  },
+  {
     "name": "ANDROID",
     "category": [
       "OPTIONS",
@@ -21179,6 +21198,25 @@
     "additionalInstructions": ""
   },
   {
+    "name": "SPOTIFY TOP CHARTS",
+    "category": [
+      "MUSIC",
+      "SOCIAL",
+      "CREATIVE",
+      "HUMOR"
+    ],
+    "message": "BEFORE rendering anything, determine the target date first: If an external master prompt specifies a date, USE THAT date to research charts from that specific date. If no date is specified, use today's actual current date. Once you have determined the target date, visit open.spotify.com/charts and research the actual chart data from the target date. Note the number one artist and song, their visual branding, album art style, and color palette. Also note at least 5 other real charting artists and songs from the same target date. Take a picture and recreate Spotify's artist page layout with the subject replacing the selected charting artist. The subject should appear as a superstar musician styled consistently with that artist's real visual branding. Include real song titles, real chart positions, and real streaming counts from the target date. All surrounding charting artists must be real artists from the target date chart, never fabricated.",
+    "options": [
+      {"id": "001", "text": "Research the number one artist on Spotify Global Top 50 on the target date and recreate the subject as that number one artist", "enabled": true},
+      {"id": "002", "text": "Research the number one artist on Spotify US Top 50 on the target date and recreate the subject as that number one artist", "enabled": true},
+      {"id": "003", "text": "Research the number one artist on Spotify Viral Global chart on the target date and recreate the subject as that viral number one artist", "enabled": true},
+      {"id": "004", "text": "Research the most streamed artist overall on Spotify on the target date and recreate the subject as that most streamed artist of all time", "enabled": true},
+      {"id": "005", "text": "Research the fastest rising artist on Spotify on the target date and recreate the subject as that breakout rising star", "enabled": true}
+    ],
+    "randomizeOptions": true,
+    "additionalInstructions": "The final image must look like a genuine Spotify artist or chart page. Match Spotify's exact dark background, green accent color, circular artist photo format, and typography. All chart data, song titles, streaming numbers, and surrounding artists must be real data from the target date, never fabricated."
+  },
+  {
     "name": "STADIUM CROWD SIGN",
     "category": [
       "HUMOR",
@@ -26986,6 +27024,25 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "YOUTUBE TRENDING",
+    "category": [
+      "SOCIAL",
+      "CREATIVE",
+      "HUMOR",
+      "VIDEO"
+    ],
+    "message": "BEFORE rendering anything, determine the target date first: If an external master prompt specifies a date, USE THAT date to research YouTube trending data from that specific date. If no date is specified, use today's actual current date. Once you have determined the target date, visit youtube.com/feed/trending and research the actual trending videos from the target date. Note the number one trending video title, thumbnail style, creator, view count, like count, and visual style. Also note at least 5 other real trending videos and their thumbnails from the same target date. Take a picture and recreate a YouTube video page with the subject as the creator of a viral trending video. Design the thumbnail in the exact style of real YouTube viral thumbnails with the subject prominently featured, bold dramatic text overlay, and exaggerated expression. Include real view counts, like counts, and real surrounding trending videos from the target date. All data must be real from the target date, never fabricated.",
+    "options": [
+      {"id": "001", "text": "Research the number one trending video on YouTube Trending Now on the target date and place the subject as the creator of that top trending video", "enabled": true},
+      {"id": "002", "text": "Research the number one trending video on YouTube Music on the target date and place the subject as the star of that top trending music video", "enabled": true},
+      {"id": "003", "text": "Research the number one trending video on YouTube Gaming on the target date and place the subject as the top trending gaming creator", "enabled": true},
+      {"id": "004", "text": "Research the number one trending video on YouTube Movies on the target date and place the subject as the star of that top trending movie trailer", "enabled": true},
+      {"id": "005", "text": "Research the most viewed YouTube short on the target date and place the subject as the creator of that viral YouTube short", "enabled": true}
+    ],
+    "randomizeOptions": true,
+    "additionalInstructions": "The final image must look like a genuine YouTube video page or trending page. Match YouTube's exact white background, red accent color, thumbnail grid layout, and typography. All view counts, like counts, video titles, and surrounding trending videos must be real data from the target date, never fabricated. Thumbnails must follow real YouTube viral thumbnail conventions with bold text, bright colors, and expressive faces."
   },
   {
     "name": "ZODIAC SIGN",
