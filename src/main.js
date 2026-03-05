@@ -223,6 +223,7 @@ const NO_MAGIC_MODE_KEY = 'r1_camera_no_magic_mode';
 // Manual Options mode
 let manualOptionsMode = false;
 const MANUAL_OPTIONS_KEY = 'r1_camera_manual_options';
+const TOUR_PROGRESS_KEY = 'r1_camera_tour_progress';
 let manuallySelectedOption = null;
 
 // Track if we entered Master Prompt from gallery
@@ -4522,6 +4523,188 @@ function updateTutorialGlossarySelection() {
   }
 }
 
+// =============================================
+// GUIDED TOUR ENGINE
+// =============================================
+
+let tourCurrentStep = 0;
+let tourActive = false;
+
+const TOUR_STEPS = [
+  { section: 'Welcome', title: '👋 Welcome to the Guided Tour!', body: 'This tour walks you through every feature of Magic Kamera MDRE. Use Next and Back to navigate, or your scroll wheel. Tap Skip Tour at any time to exit.' },
+  { section: 'Basic Controls', title: '📸 Side Button — Take a Photo', body: 'Press the physical side button on your R1 to capture a photo. It is instantly sent for AI transformation using the active preset.' },
+  { section: 'Basic Controls', title: '🔄 Scroll Wheel — Change Presets', body: 'Rotate the scroll wheel up or down to cycle through all 800 plus AI presets. The current preset name is shown at the bottom of the screen.', target: 'style-reveal' },
+  { section: 'Basic Controls', title: '📷 Camera Switch Button', body: 'Tap the camera icon to toggle between front selfie and back camera at any time before taking a photo.', target: 'camera-button' },
+  { section: 'Basic Controls', title: '☰ Menu Button', body: 'Opens the main menu where you access all settings, preset management, import tools, and this tutorial.', target: 'menu-button' },
+  { section: 'Basic Controls', title: '🖼️ Gallery Button', body: 'Opens your saved photo gallery. View, edit, re-prompt, batch process, or delete your images from here.', target: 'gallery-button' },
+  { section: 'Basic Controls', title: '🔁 New Photo Button', body: 'After a photo is captured and processed, tap New Photo or press the side button again to return to the live camera view.', target: 'reset-button' },
+  { section: 'AI Presets', title: '✨ What Are AI Presets?', body: 'Presets are AI transformation instructions. Each one tells the AI how to reimagine your photo — as a comic book cover, oil painting, 3D print, and 800 more styles.' },
+  { section: 'AI Presets', title: '⭐ Favorites', body: 'In the main menu, tap the star next to any preset to mark it as a favorite. Favorites are used by Random Mode when favorites are selected.' },
+  { section: 'AI Presets', title: '🔍 Filter Presets', body: 'Use the search box in the main menu to quickly find presets by name or category. Tap a category tag at the bottom to filter by style.', target: 'style-filter' },
+  { section: 'AI Presets', title: '🔊 Hear Preset Info', body: 'When browsing presets in the Import screen, tap any preset name to hear its description read aloud. Use the mute button in the header to toggle audio on or off.' },
+  { section: 'Special Modes', title: '🎯 Special Modes — How to Access', body: 'Swipe left from the right edge of the main screen to reveal the Special Modes carousel.', target: 'mode-carousel' },
+  { section: 'Special Modes', title: '🎲 Random Mode', body: 'Picks a random preset for every photo you take. If you have favorites selected it draws only from those, otherwise from all presets.', target: 'random-toggle' },
+  { section: 'Special Modes', title: '⏱️ Timer Mode', body: 'Set a countdown of 3, 5, or 10 seconds before each shot. Enable repeat mode so it automatically keeps taking photos at a set interval.', target: 'timer-toggle' },
+  { section: 'Special Modes', title: '📸⚡ Burst Mode', body: 'Captures 3 to 10 photos rapidly in one press. Choose slow, medium, or fast burst speed in Settings. Great for action shots or getting multiple variations.', target: 'burst-toggle' },
+  { section: 'Special Modes', title: '👁️ Motion Detection', body: 'Automatically captures when movement is detected in frame. Set sensitivity, start delay, and cooldown interval. The eye icon pulses when motion is triggered.', target: 'motion-toggle' },
+  { section: 'Gallery', title: '🖼️ Viewing Photos', body: 'Tap any image in the gallery to view it full-screen. Pinch to zoom in and out.' },
+  { section: 'Gallery', title: '🎨 Applying Presets in Gallery', body: 'While viewing a photo, tap Load Preset or Multi Preset to transform a saved image. Click twice on a preset to apply it. You can stack multiple transformations.' },
+  { section: 'Gallery', title: '☑️ Batch Operations', body: 'Tap the Select button to enter batch mode. Select multiple images, then apply one preset to all of them or delete them in bulk. Always tap DONE when finished.' },
+  { section: 'Gallery', title: '📅 Sort and Filter', body: 'Sort by newest or oldest. Filter by date range. When filtering, always select the day after your end date. For example, to see December 25 photos, filter from December 25 to December 26.' },
+  { section: 'Gallery', title: '🌐 Upload to gofile.io', body: 'Share a gallery image by uploading it to gofile.io. You get a QR code with a link that expires after 24 hours. Most useful in No Magic Mode.' },
+  { section: 'Gallery', title: '✏️ Edit Image', body: 'Tap the Edit button when viewing any photo to open the image editor with crop, rotate, sharpen, auto-correct, and brightness and contrast controls.' },
+  { section: 'Image Editor', title: '✂️ Crop Tool', body: 'Tap Crop to activate. Two orange corner markers appear. Drag them to frame your desired area. Tap Crop again to apply.' },
+  { section: 'Image Editor', title: '🔄 Rotate Tool', body: 'Rotates your image 90 degrees clockwise each tap. Tap multiple times to reach 180, 270, or back to 0 degrees.' },
+  { section: 'Image Editor', title: '🔍 Sharpen and Auto Correct', body: 'Sharpen makes edges crisper. Auto Correct automatically balances brightness, contrast, and color. Great as a first step before manual tweaks.' },
+  { section: 'Image Editor', title: '☀️ Brightness and Contrast Sliders', body: 'At the top of the editor, drag the sliders to adjust brightness and contrast anywhere from negative 100 to positive 100 in real time.' },
+  { section: 'Image Editor', title: '↶ Undo and Save', body: 'Undo steps back through your edit history one step at a time. Save replaces the original image in your gallery. Close exits without saving.' },
+  { section: 'Uploading Images', title: '📥 Importing External Images', body: 'Bring any image from the web into your gallery using a QR code. Upload the image to catbox dot moe, copy the direct link, and generate a QR code at qr-code-generator dot com.' },
+  { section: 'Uploading Images', title: '📷 Scanning the QR Code', body: 'In the gallery, press Import then Scan QR Code. Point your R1 camera at the QR code and wait. The image will be automatically saved to your gallery.' },
+  { section: 'Uploading Images', title: '⚠️ Verify Your Link First', body: 'Before making the QR code, paste the link into a browser. If it shows only the image with nothing around it, it will work. If it shows a webpage with the image embedded, it will not work.' },
+  { section: 'Settings', title: '⚙️ Resolution', body: 'Choose from VGA 640 by 480 up to HD 3264 by 2448. Lower resolutions are recommended if you want images to appear in the magic gallery.', target: 'resolution-settings-button' },
+  { section: 'Settings', title: '📐 Aspect Ratio', body: 'Choose 1 to 1 square or 16 to 9 letterbox. Leave both unchecked for neither. Default is neither.', target: 'aspect-ratio-settings-button' },
+  { section: 'Settings', title: '📝 Master Prompt', body: 'Appends custom text to every AI transformation. Enable it first, then type your additions. Adding a name and occasion lets presets like Happy Holidays personalize automatically.', target: 'master-prompt-settings-button' },
+  { section: 'Settings', title: '👁️ Visible Presets', body: 'Choose which imported presets appear in your menus. Select All, deselect individually, or remove all. Category tags show at the bottom when a preset is highlighted.', target: 'visible-presets-settings-button' },
+  { section: 'Settings', title: '🔨 Preset Builder', body: 'Build your own custom AI presets. Choose a template, add chips for quality and style, enable random options with single or multi-selection groups, add critical rules, then save.', target: 'preset-builder-button' },
+  { section: 'Settings', title: '🚫 No Magic Mode', body: 'Disables AI processing and works as a regular camera. Photos save only to the plugin gallery, not to the rabbit hole or magic gallery.', target: 'no-magic-toggle-button' },
+  { section: 'Settings', title: '🎛️ Manually Select Options Mode', body: 'When enabled and you choose a preset with options, a popup asks you to pick which option to use. Only works with single shots in the main camera and single image per preset in gallery.', target: 'manual-options-toggle-button' },
+  { section: 'Settings', title: '📥 Import Presets', body: 'Browse the external preset library. Check individual presets or use the checkmark All to select everything. New additions are unchecked so check regularly for updates.', target: 'import-presets-button' },
+  { section: 'Settings', title: '🔄 Check for Updates', body: 'Checks for new or modified presets in the library. Any updates are flagged so you can re-import changed presets.', target: 'check-updates-button' },
+  { section: 'Tips and Advanced', title: '🏷️ Category Searching', body: 'Every preset has categories. When a preset is highlighted in the Visible Presets menu, its categories appear at the bottom. Tap a category to filter all presets in that group.' },
+  { section: 'Tips and Advanced', title: '🧠 Master Prompt Power Tip', body: 'Search for master or master prompt in the Visible Presets menu to find all presets designed to work with Master Prompt. These respond to names, occasions, and custom context you provide.' },
+  { section: 'Tips and Advanced', title: '📶 Offline Queue', body: 'If you take photos while offline, they queue automatically and sync to the rabbit hole once your connection returns. The queue count shows on screen.', target: 'queue-status' },
+  { section: 'Tips and Advanced', title: '🔁 Reset Database', body: 'The nuclear option in Settings. Wipes all custom presets and settings. Only imported presets from the library remain. Use only if something is seriously broken.', target: 'factory-reset-button' },
+  { section: 'Done!', title: '🎉 Tour Complete!', body: 'You now know every feature of Magic Kamera MDRE. Go make something amazing! The text tutorial in this menu is always here if you need a refresher.' },
+];
+
+function tourSpeak(text) {
+  if (typeof PluginMessageHandler !== 'undefined') {
+    PluginMessageHandler.postMessage(JSON.stringify({
+      message: text,
+      wantsR1Response: true
+    }));
+  } else if (window.speechSynthesis) {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.9;
+    utterance.pitch = 1.0;
+    window.speechSynthesis.speak(utterance);
+  }
+}
+
+function tourStopSpeaking() {
+  if (window.speechSynthesis) {
+    window.speechSynthesis.cancel();
+  }
+}
+
+function startGuidedTour() {
+  const saved = localStorage.getItem(TOUR_PROGRESS_KEY);
+  tourCurrentStep = saved ? parseInt(saved, 10) : 0;
+  if (isNaN(tourCurrentStep) || tourCurrentStep >= TOUR_STEPS.length) tourCurrentStep = 0;
+  tourActive = true;
+  hideTutorialSubmenu();
+  document.getElementById('guided-tour-overlay').style.display = 'block';
+  setTimeout(() => { renderTourStep(true); }, 300);
+}
+
+function endGuidedTour() {
+  tourActive = false;
+  tourStopSpeaking();
+  // Save progress so user can resume later — clear it if they finished the last step
+  if (tourCurrentStep >= TOUR_STEPS.length - 1) {
+    localStorage.removeItem(TOUR_PROGRESS_KEY);
+  } else {
+    localStorage.setItem(TOUR_PROGRESS_KEY, tourCurrentStep.toString());
+  }
+  document.getElementById('guided-tour-overlay').style.display = 'none';
+  document.getElementById('tour-spotlight').style.display = 'none';
+  showTutorialSubmenu();
+}
+
+function tourNext() {
+  tourStopSpeaking();
+  if (tourCurrentStep < TOUR_STEPS.length - 1) {
+    tourCurrentStep++;
+    renderTourStep(true);
+  } else {
+    endGuidedTour();
+  }
+}
+
+function tourBack() {
+  tourStopSpeaking();
+  if (tourCurrentStep > 0) {
+    tourCurrentStep--;
+    renderTourStep(true);
+  }
+}
+
+function renderTourStep(speak) {
+  const step = TOUR_STEPS[tourCurrentStep];
+  const total = TOUR_STEPS.length;
+
+  document.getElementById('tour-step-badge').textContent = 'Step ' + (tourCurrentStep + 1) + ' of ' + total;
+  document.getElementById('tour-section-label').textContent = step.section;
+  document.getElementById('tour-card-title').textContent = step.title;
+  document.getElementById('tour-card-body').textContent = step.body;
+  document.getElementById('tour-progress-fill').style.width = (((tourCurrentStep + 1) / total) * 100) + '%';
+
+  const backBtn = document.getElementById('tour-btn-back');
+  if (backBtn) backBtn.disabled = tourCurrentStep === 0;
+
+  const nextBtn = document.getElementById('tour-btn-next');
+  if (nextBtn) nextBtn.textContent = tourCurrentStep === total - 1 ? 'Finish ✓' : 'Next ›';
+
+  // Only speak when user navigates, not on first load
+  if (speak) {
+    tourSpeak(step.title.replace(/[\p{Emoji}]/gu, '') + '. ' + step.body);
+  }
+
+  // Card and spotlight positioning
+  const spotlight = document.getElementById('tour-spotlight');
+  const card = document.getElementById('tour-card');
+  const cardWidth = card.offsetWidth || 280;
+  const cardHeight = card.offsetHeight || 240;
+  const screenW = window.innerWidth;
+  const screenH = window.innerHeight;
+
+  const centerCard = () => {
+    spotlight.style.display = 'none';
+    card.style.transform = 'translate(-50%, -50%)';
+    card.style.top = '50%';
+    card.style.left = '50%';
+  };
+
+  if (step.target) {
+    const el = document.getElementById(step.target);
+    const rect = el ? el.getBoundingClientRect() : null;
+    const isVisible = rect && rect.width > 0 && rect.height > 0 && rect.top >= 0 && rect.bottom <= screenH;
+
+    if (isVisible) {
+      const pad = 6;
+      spotlight.style.cssText = 'position:absolute;display:block;left:' + (rect.left - pad) + 'px;top:' + (rect.top - pad) + 'px;width:' + (rect.width + pad * 2) + 'px;height:' + (rect.height + pad * 2) + 'px;border-radius:8px;box-shadow:0 0 0 9999px rgba(0,0,0,0.85);border:2px solid #FE5F00;transition:all 0.35s ease;pointer-events:none;z-index:1;';
+
+      // Place card below the element if room, otherwise above
+      let cardTop = rect.bottom + pad + 12;
+      if (cardTop + cardHeight > screenH - 8) {
+        cardTop = rect.top - pad - cardHeight - 12;
+      }
+      // Clamp within screen
+      cardTop = Math.max(8, Math.min(cardTop, screenH - cardHeight - 8));
+      let cardLeft = Math.max(8, Math.min(rect.left, screenW - cardWidth - 8));
+
+      card.style.transform = '';
+      card.style.top = cardTop + 'px';
+      card.style.left = cardLeft + 'px';
+    } else {
+      centerCard();
+    }
+  } else {
+    centerCard();
+  }
+}
+
 // Show import resolution submenu
 function showImportResolutionSubmenu() {
   document.getElementById('settings-submenu').style.display = 'none';
@@ -6173,6 +6356,12 @@ window.addEventListener('scrollUp', () => {
     return;
   }
 
+  // Guided tour
+  if (tourActive) {
+    tourBack();
+    return;
+  }
+
   // Tutorial submenu - CHECK BEFORE MAIN MENU
   if (isTutorialSubmenuOpen) {
     scrollTutorialUp(); // or Down
@@ -6315,6 +6504,12 @@ window.addEventListener('scrollDown', () => {
   // Import presets modal
   if (presetImporter.isImportModalOpen) {
     presetImporter.scrollImportDown();
+    return;
+  }
+
+  // Guided tour
+  if (tourActive) {
+    tourNext();
     return;
   }
 
@@ -9221,6 +9416,30 @@ const result = await presetImporter.import();
     backToGlossaryBtn.addEventListener('click', showTutorialGlossary);
   }
 
+  const startTourBtn = document.getElementById('start-guided-tour');
+  if (startTourBtn) {
+    startTourBtn.addEventListener('click', startGuidedTour);
+    startTourBtn.addEventListener('touchend', (e) => { e.preventDefault(); startGuidedTour(); });
+  }
+
+  const tourSkipBtn = document.getElementById('tour-btn-skip');
+  if (tourSkipBtn) {
+    tourSkipBtn.addEventListener('click', endGuidedTour);
+    tourSkipBtn.addEventListener('touchend', (e) => { e.preventDefault(); endGuidedTour(); });
+  }
+
+  const tourBackBtn = document.getElementById('tour-btn-back');
+  if (tourBackBtn) {
+    tourBackBtn.addEventListener('click', tourBack);
+    tourBackBtn.addEventListener('touchend', (e) => { e.preventDefault(); tourBack(); });
+  }
+
+  const tourNextBtn = document.getElementById('tour-btn-next');
+  if (tourNextBtn) {
+    tourNextBtn.addEventListener('click', tourNext);
+    tourNextBtn.addEventListener('touchend', (e) => { e.preventDefault(); tourNext(); });
+  }  
+
   const masterPromptCheckbox = document.getElementById('master-prompt-enabled');
   if (masterPromptCheckbox) {
     masterPromptCheckbox.addEventListener('change', (e) => {
@@ -9831,6 +10050,10 @@ const result = await presetImporter.import();
 window.removeFromQueue = removeFromQueue;
 window.previewQueueItem = previewQueueItem;
 window.clearQueue = clearQueue;
+window.tourNext = tourNext;
+window.tourBack = tourBack;
+window.endGuidedTour = endGuidedTour;
+window.startGuidedTour = startGuidedTour;
 
 // Upload image to gofile.io
 async function uploadViewerImage() {

@@ -12,6 +12,35 @@ export class PresetImporter {
     this.currentImportScrollIndex = 0;
     this.importFilterText = '';
     this.checkboxStates = new Map(); // Track checkbox states across filters
+
+    // Audio system for reading preset messages
+    this.isMuted = false;
+
+    this.speakMessage = (text) => {
+      if (this.isMuted) return;
+      // Take only the first sentence, capped at 200 characters, so the R1 finishes quickly
+      const firstSentence = text.split(/[.!?\n]/)[0].trim().substring(0, 200);
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      if (typeof PluginMessageHandler !== 'undefined') {
+        PluginMessageHandler.postMessage(JSON.stringify({
+          message: firstSentence,
+          wantsR1Response: true
+        }));
+      } else if (window.speechSynthesis) {
+        const utterance = new SpeechSynthesisUtterance(firstSentence);
+        utterance.rate = 0.9;
+        utterance.pitch = 1.0;
+        window.speechSynthesis.speak(utterance);
+      }
+    };
+
+    this.stopSpeaking = () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
   }
 
   async init() {
@@ -110,12 +139,34 @@ export class PresetImporter {
   }
 
   getFilteredPresets(availablePresets) {
+    // Separate into new, updated, and normal — each group sorted alphabetically
+    const newPresets = [];
+    const updatedPresets = [];
+    const normalPresets = [];
+
+    availablePresets.forEach(preset => {
+      const existing = this.importedPresets.find(p => p.name === preset.name);
+      if (!existing) {
+        newPresets.push(preset);
+      } else if (existing.message !== preset.message) {
+        updatedPresets.push(preset);
+      } else {
+        normalPresets.push(preset);
+      }
+    });
+
+    newPresets.sort((a, b) => a.name.localeCompare(b.name));
+    updatedPresets.sort((a, b) => a.name.localeCompare(b.name));
+    normalPresets.sort((a, b) => a.name.localeCompare(b.name));
+
+    const sorted = [...newPresets, ...updatedPresets, ...normalPresets];
+
     if (!this.importFilterText.trim()) {
-      return availablePresets;
+      return sorted;
     }
-    
+
     const filterLower = this.importFilterText.toLowerCase();
-    return availablePresets.filter(preset => 
+    return sorted.filter(preset =>
       preset.name.toLowerCase().includes(filterLower)
     );
   }
@@ -148,6 +199,7 @@ export class PresetImporter {
       header.innerHTML = `
         <h2 style="font-size: 14px;">Import (<span id="import-preset-count">${availablePresets.length}</span>)</h2>
         <div class="menu-nav-buttons">
+          <button id="import-mute-toggle" class="menu-jump-button" title="Mute/Unmute">🔊</button>          
           <button id="import-jump-to-top" class="menu-jump-button" title="Jump to top">↑</button>
           <button id="import-jump-to-bottom" class="menu-jump-button" title="Jump to bottom">↓</button>
           <button id="close-import-modal" class="close-button">×</button>
@@ -243,6 +295,8 @@ export class PresetImporter {
               checkbox.checked = !checkbox.checked;
               this.checkboxStates.set(preset.name, checkbox.checked);
             }
+            // Read the preset message aloud when any part of the item is clicked
+            this.speakMessage(preset.message);
           };
 
           presetsList.appendChild(item);
@@ -313,6 +367,14 @@ footerSection.innerHTML = `
         renderPresetsList();
       });
 
+      document.getElementById('import-mute-toggle').onclick = () => {
+        this.isMuted = !this.isMuted;
+        if (this.isMuted) {
+          this.stopSpeaking();
+        }
+        document.getElementById('import-mute-toggle').textContent = this.isMuted ? '🔇' : '🔊';
+      };
+
       document.getElementById('select-all-presets').onclick = () => {
         const filteredPresets = this.getFilteredPresets(availablePresets);
         filteredPresets.forEach(preset => {
@@ -331,6 +393,7 @@ footerSection.innerHTML = `
 
       const closeModal = () => {
         this.isImportModalOpen = false;
+        this.stopSpeaking();
         document.body.removeChild(modal);
       };
 
