@@ -224,7 +224,15 @@ const NO_MAGIC_MODE_KEY = 'r1_camera_no_magic_mode';
 let manualOptionsMode = false;
 const MANUAL_OPTIONS_KEY = 'r1_camera_manual_options';
 const TOUR_PROGRESS_KEY = 'r1_camera_tour_progress';
-const APP_VERSION = 'v5 · Updated ' + new Date(document.lastModified).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+const APP_VERSION = (() => {
+  const d = new Date(document.lastModified);
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const yyyy = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2, '0');
+  const min = String(d.getMinutes()).padStart(2, '0');
+  return 'v' + mm + '.' + dd + '.' + yyyy + '.' + hh + '.' + min;
+})();
 let manuallySelectedOption = null;
 
 // Track if we entered Master Prompt from gallery
