@@ -4583,7 +4583,9 @@ const TOUR_STEPS = [
   { section: 'Tips and Advanced', title: '🧠 Master Prompt Power Tip', body: 'Search for master or master prompt in the Visible Presets menu to find all presets designed to work with Master Prompt. These respond to names, occasions, and custom context you provide.' },
   { section: 'Tips and Advanced', title: '📶 Offline Queue', body: 'If you take photos while offline, they queue automatically and sync to the rabbit hole once your connection returns. The queue count shows on screen.', target: 'queue-status' },
   { section: 'Tips and Advanced', title: '🔁 Reset Database', body: 'The nuclear option in Settings. Wipes all custom presets and settings. Only imported presets from the library remain. Use only if something is seriously broken.', target: 'factory-reset-button' },
-  { section: 'Done!', title: '🎉 Tour Complete!', body: 'You now know every feature of Magic Kamera MDRE. Go make something amazing! The text tutorial in this menu is always here if you need a refresher.' },
+  { section: 'Tips and Advanced', title: '💀 Content Filter Error', body: 'You go into your rabbit hole and you are disappointed because you received a content filter prevented us from cooking up an image error. Do not get upset. Do not throw your rabbit r1 across the room. This sometimes happens because AI is quirky. The beauty of Magic Kamera is, you can reprompt! Keep trying until successful.' },
+  { section: 'Troubleshooting Tips', title: '❌ Camera Access Denied', body: 'This error will appear at the bottom of your main camera screen if you do not have any active presets (either imported or made with the preset builder).', target: 'import-presets-button' },
+  { section: 'Done!', title: '🎉 Tour Complete!', body: 'You now know every feature of Magic Kamera MDRE. Go make something amazing! This tour or the text tutorial in this menu is always here if you need a refresher. And if you come across The One Ron G, The One Hashtag Cyber or The One Rabbit Jesus, tell them you enjoy this program.' },
 ];
 
 function tourSpeak(text) {
@@ -6207,7 +6209,13 @@ async function clearQueue() {
 // Side button handler
 window.addEventListener('sideClick', () => {
   console.log('Side button pressed');
-  
+
+  // Block side button during guided tour — advance to next step instead
+  if (tourActive) {
+    tourNext();
+    return;
+  }
+
   // Settings submenu - select current item
   if (isSettingsSubmenuOpen) {
     const submenu = document.getElementById('settings-submenu');
@@ -8277,6 +8285,21 @@ window.addEventListener('load', () => {
   
   const versionEl = document.getElementById('app-version');
      if (versionEl) versionEl.textContent = APP_VERSION;
+
+  const splashTourBtn = document.getElementById('splash-tour-button');
+  if (splashTourBtn) {
+    splashTourBtn.addEventListener('click', () => {
+      document.getElementById('start-screen').style.display = 'none';
+      initCamera();
+      startGuidedTour();
+    });
+    splashTourBtn.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      document.getElementById('start-screen').style.display = 'none';
+      initCamera();
+      startGuidedTour();
+    });
+  }
   const startBtn = document.getElementById('start-button');
   if (startBtn) {
   startBtn.addEventListener('click', () => {
