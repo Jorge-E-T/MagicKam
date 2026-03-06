@@ -138,14 +138,16 @@ export class PresetImporter {
     }
   }
 
-  getFilteredPresets(availablePresets) {
-    // Separate into new, updated, and normal — each group sorted alphabetically
+  buildPresetIndex(availablePresets) {
+    // Build imported presets map once — O(n) instead of O(n²) per keypress
+    const importedMap = new Map(this.importedPresets.map(p => [p.name, p]));
+
     const newPresets = [];
     const updatedPresets = [];
     const normalPresets = [];
 
     availablePresets.forEach(preset => {
-      const existing = this.importedPresets.find(p => p.name === preset.name);
+      const existing = importedMap.get(preset.name);
       if (!existing) {
         newPresets.push(preset);
       } else if (existing.message !== preset.message) {
@@ -159,15 +161,30 @@ export class PresetImporter {
     updatedPresets.sort((a, b) => a.name.localeCompare(b.name));
     normalPresets.sort((a, b) => a.name.localeCompare(b.name));
 
-    const sorted = [...newPresets, ...updatedPresets, ...normalPresets];
+    this._sortedPresets = [...newPresets, ...updatedPresets, ...normalPresets];
+
+    // Pre-build lowercase search strings once — reused on every keypress
+    this._searchIndex = this._sortedPresets.map(preset => {
+      const name = preset.name.toLowerCase();
+      const message = (preset.message || '').toLowerCase();
+      const cats = Array.isArray(preset.category) ? preset.category.join(' ').toLowerCase() : '';
+      return name + ' ' + message + ' ' + cats;
+    });
+  }
+
+  getFilteredPresets(availablePresets) {
+    // Build index only if not yet built for this session
+    if (!this._sortedPresets) {
+      this.buildPresetIndex(availablePresets);
+    }
 
     if (!this.importFilterText.trim()) {
-      return sorted;
+      return this._sortedPresets;
     }
 
     const filterLower = this.importFilterText.toLowerCase();
-    return sorted.filter(preset =>
-      preset.name.toLowerCase().includes(filterLower)
+    return this._sortedPresets.filter((preset, i) =>
+      this._searchIndex[i].includes(filterLower)
     );
   }
 
@@ -176,6 +193,8 @@ export class PresetImporter {
       this.isImportModalOpen = true;
       this.currentImportScrollIndex = 0;
       this.importFilterText = '';
+      this._sortedPresets = null;
+      this._searchIndex = null;
       
       // Initialize checkbox states - mark currently imported presets as checked
       this.checkboxStates.clear();
@@ -244,7 +263,7 @@ export class PresetImporter {
           item.dataset.presetIndex = index;
           item.dataset.presetName = preset.name;
           // Added margin-bottom: 2px for small space between presets
-          item.style.cssText = 'display: flex; align-items: center; padding: 6px 15px; min-height: 30px; width: 100%; justify-content: flex-start; margin-bottom: 2px;';
+          item.style.cssText = 'display: flex; align-items: flex-start; padding: 6px 15px; width: 100%; justify-content: flex-start; margin-bottom: 2px;';
 
           const checkbox = document.createElement('input');
           checkbox.type = 'checkbox';
@@ -265,10 +284,23 @@ export class PresetImporter {
             this.checkboxStates.set(preset.name, checkbox.checked);
           };
 
+          const firstLine = (preset.message || '').split('\n')[0].trim();
+
           const nameSpan = document.createElement('span');
           nameSpan.className = 'menu-item-name';
-          nameSpan.textContent = preset.name;
-          nameSpan.style.cssText = 'flex: 1; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold; color: #000; font-size: 12px; display: flex; align-items: center;';
+          nameSpan.style.cssText = 'flex: 1; text-align: left; overflow: hidden; font-size: 12px; display: flex; flex-direction: column; align-items: flex-start; gap: 1px;';
+
+          const nameRow = document.createElement('span');
+          nameRow.textContent = preset.name;
+          nameRow.style.cssText = 'font-weight: bold; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; display: flex; align-items: center;';
+
+          const previewRow = document.createElement('span');
+          previewRow.textContent = firstLine;
+          previewRow.style.cssText = 'font-weight: normal; color: #fff; font-size: 10px; width: 100%; white-space: normal; word-break: break-word;';
+          previewRow.className = 'import-preview-row';
+
+          nameSpan.appendChild(nameRow);
+          nameSpan.appendChild(previewRow);
 
           // Check if preset is NEW or UPDATED
           const existingPreset = this.importedPresets.find(p => p.name === preset.name);
@@ -278,13 +310,13 @@ export class PresetImporter {
             const ticket = document.createElement('span');
             ticket.className = 'preset-ticket preset-ticket-new';
             ticket.textContent = 'NEW';
-            nameSpan.appendChild(ticket);
+            nameRow.appendChild(ticket);
           } else if (existingPreset.message !== preset.message) {
             // This preset has been UPDATED - show GREEN ticket with pulse
             const ticket = document.createElement('span');
             ticket.className = 'preset-ticket preset-ticket-updated';
             ticket.textContent = 'UPDATED';
-            nameSpan.appendChild(ticket);
+            nameRow.appendChild(ticket);
           }
 
           item.appendChild(checkbox);
@@ -295,8 +327,10 @@ export class PresetImporter {
               checkbox.checked = !checkbox.checked;
               this.checkboxStates.set(preset.name, checkbox.checked);
             }
-            // Read the preset message aloud when any part of the item is clicked
-            this.speakMessage(preset.message);
+            // Only speak when checking ON, not when unchecking
+            if (checkbox.checked) {
+              this.speakMessage(preset.message);
+            }
           };
 
           presetsList.appendChild(item);
@@ -361,10 +395,14 @@ footerSection.innerHTML = `
 
       // Event listeners
       const filterInput = document.getElementById('import-preset-filter');
+      let importFilterDebounce = null;
       filterInput.addEventListener('input', (e) => {
         this.importFilterText = e.target.value;
         this.currentImportScrollIndex = 0;
-        renderPresetsList();
+        if (importFilterDebounce) clearTimeout(importFilterDebounce);
+        importFilterDebounce = setTimeout(() => {
+          renderPresetsList();
+        }, 150);
       });
 
       document.getElementById('import-mute-toggle').onclick = () => {

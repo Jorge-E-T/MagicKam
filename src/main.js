@@ -224,6 +224,7 @@ const NO_MAGIC_MODE_KEY = 'r1_camera_no_magic_mode';
 let manualOptionsMode = false;
 const MANUAL_OPTIONS_KEY = 'r1_camera_manual_options';
 const TOUR_PROGRESS_KEY = 'r1_camera_tour_progress';
+const APP_VERSION = 'v5 · Updated ' + new Date(document.lastModified).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 let manuallySelectedOption = null;
 
 // Track if we entered Master Prompt from gallery
@@ -8266,8 +8267,10 @@ window.addEventListener('load', () => {
   setupPinchZoom();
 //  setupTapToFocus();
   
+  const versionEl = document.getElementById('app-version');
+     if (versionEl) versionEl.textContent = APP_VERSION;
   const startBtn = document.getElementById('start-button');
-if (startBtn) {
+  if (startBtn) {
   startBtn.addEventListener('click', () => {
     // Play shutter sound
     playCameraShutterSound();
