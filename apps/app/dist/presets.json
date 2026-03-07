@@ -10479,6 +10479,229 @@
   "additionalInstructions": "Every single modern element visible in the image must be replaced. Do not leave any anachronisms — no smartphones, no flat screens, no modern cars, no contemporary clothing brands, no streaming logos, no USB cables, no LED lighting, no modern signage. The transformation must be total and committed. The more specific and accurate the era details the better — get the logos right, get the proportions right, get the color palette right. Lean into the most visually distinct and recognizable Gen-X cultural touchstones. The final image should be impossible to date to anything other than 1975 to 1989."
   },
   {
+  "name": "GEN-X OPTIONS",
+  "category": [
+    "HUMOR",
+    "CREATIVE",
+    "NOSTALGIA",
+    "POP CULTURE",
+    "RETRO"
+  ],
+  "message": "Take a picture and transform the entire scene by replacing every modern element with its 1970s or 1980s Gen-X counterpart based on the selected options. This is a full scene transformation — nothing modern survives in the selected categories. The result should feel like the photo was taken between 1975 and 1989. Apply every selected transformation with maximum authenticity, accuracy, and era-specific detail.",
+  "randomizeOptions": true,
+  "optionGroups": [
+    {
+      "title": "VEHICLE",
+      "options": [
+        { "id": "V00", "text": "SAME (no vehicle transformation)" },
+        { "id": "V01", "text": "KITT from Knight Rider — a black 1982 Pontiac Firebird Trans Am with the red scanner light sweeping across the front bumper and the voice modulator grille" },
+        { "id": "V02", "text": "The DeLorean from Back to the Future — brushed stainless steel gull-wing doors open, flux capacitor glowing through the window, flame trails scorched on the ground where it just arrived" },
+        { "id": "V03", "text": "Ecto-1 from Ghostbusters — white 1959 Cadillac Professional ambulance with all the ghost-catching equipment strapped to the roof rack and the Ghostbusters logo on the door" },
+        { "id": "V04", "text": "Magnum PI's red Ferrari 308 GTS with the tan leather interior and the hood open slightly from the heat" },
+        { "id": "V05", "text": "The A-Team black GMC Vandura van with the red stripe, red pinstripe, and the turbine wheel covers" },
+        { "id": "V06", "text": "The General Lee from Dukes of Hazzard — orange 1969 Dodge Charger with the Confederate flag roof, the 01 on the door, and the welded-shut doors" },
+        { "id": "V07", "text": "Starsky and Hutch's red 1976 Ford Gran Torino with the bold white vector stripe along the lower body" },
+        { "id": "V08", "text": "The Bandit's black and gold 1977 Pontiac Trans Am with the screaming chicken hood decal and the T-tops removed" },
+        { "id": "V09", "text": "A wood-paneled 1979 Buick Estate station wagon with the rear-facing third row seat and a luggage rack on top" },
+        { "id": "V10", "text": "The Mystery Machine from Scooby-Doo — teal van with the flower and swirl paint job and the gang's name on the side" }
+      ]
+    },
+    {
+      "title": "PHONE AND COMMUNICATION",
+      "options": [
+        { "id": "P00", "text": "SAME (no phone transformation)" },
+        { "id": "P01", "text": "Motorola DynaTAC 8000X brick phone — massive black handheld cellular phone with the long rubber antenna and the red LED display" },
+        { "id": "P02", "text": "Wall-mounted avocado green rotary phone with a coiled cord long enough to stretch across an entire kitchen" },
+        { "id": "P03", "text": "A numeric pager clipped to the belt displaying 867-5309 on the tiny LCD screen" },
+        { "id": "P04", "text": "A car phone permanently mounted in the center console with a coiled handset and a separate antenna on the trunk lid" },
+        { "id": "P05", "text": "A Trimline telephone in harvest gold with the dial in the handset" },
+        { "id": "P06", "text": "A telephone answering machine with the blinking red message light and a microcassette tape visible through the window" },
+        { "id": "P07", "text": "A pair of walkie-talkie two-way radios with the long rubber antennas and the push-to-talk buttons on the side" },
+        { "id": "P08", "text": "A phone book the size of a dictionary open to a dog-eared page with numbers circled in ballpoint pen" },
+        { "id": "P09", "text": "A Princess phone in pale pink with a lighted dial and a very short cord" },
+        { "id": "P10", "text": "A pay phone mounted on a pole with a metal-covered phonebook hanging by a chain and a coin slot at the top" }
+      ]
+    },
+    {
+      "title": "HAIRSTYLE",
+      "options": [
+        { "id": "H00", "text": "SAME (no hairstyle transformation)" },
+        { "id": "H01", "text": "Enormous teased and Aqua Net-shellacked big hair — maximum volume, maximum height, frozen in place like a helmet" },
+        { "id": "H02", "text": "A perfectly spherical afro with a metal pick comb with a black fist handle sticking straight out of the top" },
+        { "id": "H03", "text": "Feathered Farrah Fawcett wings — perfectly symmetrical layers swept back from a center part and frozen mid-flip" },
+        { "id": "H04", "text": "Crimped hair with visible uniform crimper zigzag marks throughout every strand" },
+        { "id": "H05", "text": "A jheri curl with visible activator spray sheen and a Soul Glo shimmer — a plastic shower cap nearby on the furniture" },
+        { "id": "H06", "text": "A mullet — short and feathered on top, long and flowing in the back, business in the front party in the back" },
+        { "id": "H07", "text": "A side ponytail held by an enormous neon scrunchie on the far left or right side of the head" },
+        { "id": "H08", "text": "A shag haircut with heavy layers and curtain bangs falling across the forehead" },
+        { "id": "H09", "text": "A rat tail — short hair everywhere except one thin braid growing from the nape of the neck down to the shoulder" },
+        { "id": "H10", "text": "A bi-level cut also known as the soccer cut — short on top and sides with a longer layer underneath forming a shelf" }
+      ]
+    },
+    {
+      "title": "MAKEUP",
+      "options": [
+        { "id": "M00", "text": "SAME (no makeup transformation)" },
+        { "id": "M01", "text": "Frosted blue eyeshadow applied heavily from the lash line all the way up to the brow bone" },
+        { "id": "M02", "text": "Thick black liquid eyeliner with a dramatic extended wing tip and heavy kohl on the waterline" },
+        { "id": "M03", "text": "Heavy coral blush applied in a wide stripe across both cheekbones and blended up toward the temples" },
+        { "id": "M04", "text": "Frosted peach lipstick with visible frost shimmer and a slightly darker liner pencil around the edge" },
+        { "id": "M05", "text": "Green frosted eyeshadow with matching green mascara and white eyeliner on the inner waterline" },
+        { "id": "M06", "text": "Full rock star makeup — black kohl smudged around both eyes, pale foundation, and dark lip liner with pale lipstick" },
+        { "id": "M07", "text": "Miami Vice stubble — three days of perfectly even stubble growth on an otherwise cleanly groomed face" },
+        { "id": "M08", "text": "A thick Magnum PI or Tom Selleck-style full dark moustache dominating the upper lip area" },
+        { "id": "M09", "text": "Press-on nails with airbrushed designs — long squared tips with a pink and white fade and a small painted flower on the ring finger nail" },
+        { "id": "M10", "text": "Blue mascara on dramatically curled lashes with matching blue eyeshadow and a hint of glitter at the inner corner" }
+      ]
+    },
+    {
+      "title": "CLOTHING",
+      "options": [
+        { "id": "C00", "text": "SAME (no clothing transformation)" },
+        { "id": "C01", "text": "Shiny parachute pants with zippered ankles, zippered pockets everywhere, and a drawstring waist — in electric blue or neon red" },
+        { "id": "C02", "text": "Acid-washed high-waisted jeans with a visible crease ironed down the front of each leg and tapered to the ankle" },
+        { "id": "C03", "text": "Leg warmers — thick knitted tubes in a bright color scrunched down around the ankles over the top of jeans or tights" },
+        { "id": "C04", "text": "A power suit with enormous linebacker shoulder pads — in a bold color like teal or magenta with a contrasting blouse" },
+        { "id": "C05", "text": "A Members Only jacket in pastel pink or powder blue with the signature epaulet collar tab buttoned up" },
+        { "id": "C06", "text": "Z. Cavaricci pleated pants in a cream or taupe color with the signature Z. Cavaricci logo stitched on the waistband" },
+        { "id": "C07", "text": "JNCO ultra-wide leg jeans with leg openings so enormous they drag on the ground and cover the shoes completely" },
+        { "id": "C08", "text": "Guess jeans in a dark wash with the inverted triangle Guess logo prominently stitched on the back right pocket" },
+        { "id": "C09", "text": "A Hypercolor t-shirt — a shirt that shows color-change blotches in the armpits and wherever hands have touched it" },
+        { "id": "C10", "text": "An oversized sweatshirt cut to hang off one shoulder in the Flashdance style with a wide neck hole and pushed-up sleeves" }
+      ]
+    },
+    {
+      "title": "SHOES",
+      "options": [
+        { "id": "S00", "text": "SAME (no shoe transformation)" },
+        { "id": "S01", "text": "Clear plastic jelly sandals in pink or yellow with the molded plastic straps and buckle across the top of the foot" },
+        { "id": "S02", "text": "LA Gear high-tops with velcro straps, rhinestone accents, and light-up soles with the LA Gear logo on the tongue" },
+        { "id": "S03", "text": "British Knights high-tops with the large BK logo badge on the tongue and the bold colorblock upper in red and white" },
+        { "id": "S04", "text": "Reebok Pumps with the orange basketball pump button on the tongue and the Reebok Union Jack logo on the side" },
+        { "id": "S05", "text": "Nike Air Jordan 1s in the original black toe colorway with the red Nike swoosh and the ankle collar in red" },
+        { "id": "S06", "text": "Vans slip-ons in the classic black and white checkerboard canvas pattern with the waffle sole" },
+        { "id": "S07", "text": "Keds Champion canvas sneakers in white with the Keds label on the back heel and white rubber toe cap" },
+        { "id": "S08", "text": "Airwalk skate shoes in suede with the Airwalk logo and the thick gum rubber sole built for skateboarding" },
+        { "id": "S09", "text": "Converse Chuck Taylor All Stars in a bright single color — high top with the ankle badge and the canvas upper" },
+        { "id": "S10", "text": "Slouchy socks — thick cotton socks scrunched all the way down around the ankle in a pastel color worn over any shoe" }
+      ]
+    },
+    {
+      "title": "ACCESSORIES AND WATCH",
+      "options": [
+        { "id": "A00", "text": "SAME (no accessories transformation)" },
+        { "id": "A01", "text": "A Swatch watch with a bold geometric pattern on the plastic band and the transparent case back showing the movement" },
+        { "id": "A02", "text": "A full stack of slap bracelets in neon colors covering the entire wrist from the hand to halfway up the forearm" },
+        { "id": "A03", "text": "A jelly bracelet collection — dozens of thin rubber bracelets in every color stacked from the wrist to the elbow" },
+        { "id": "A04", "text": "A banana clip holding back the hair — a large curved plastic clip that snaps shut like a jaw clamp" },
+        { "id": "A05", "text": "A fanny pack in neon pink or electric blue worn at the front of the waist with the zipper pull dangling" },
+        { "id": "A06", "text": "A bolo tie — a western string tie with a large silver and turquoise oval slide holding the two cords together" },
+        { "id": "A07", "text": "A piano key necktie — a wide novelty necktie printed to look like a section of piano keyboard keys" },
+        { "id": "A08", "text": "Ray-Ban Wayfarer sunglasses in classic black with the gold Ray-Ban logo on the lens" },
+        { "id": "A09", "text": "A friendship bracelet made of embroidery floss in a chevron pattern tied around the wrist" },
+        { "id": "A10", "text": "A Rubik's Cube keychain hanging from a belt loop — partially solved with several mismatched color squares" }
+      ]
+    },
+    {
+      "title": "TELEVISION",
+      "options": [
+        { "id": "T00", "text": "SAME (no television transformation)" },
+        { "id": "T01", "text": "A massive wood-paneled tube television on a rolling metal AV cart with a VCR stacked on top and a coaxial cable screwed into the back" },
+        { "id": "T02", "text": "A Zenith console television built into a wooden cabinet the size of a piece of furniture with the channel dial on the front" },
+        { "id": "T03", "text": "A portable black and white television with a collapsing telescoping antenna and a tiny 5-inch screen" },
+        { "id": "T04", "text": "A rear-projection TV with the three-lens dome unit sitting on the floor projecting onto a large screen built into the top unit" },
+        { "id": "T05", "text": "A cable box with a wired remote on a long thin cable sitting on top of the TV next to a scrambled pay-per-view channel" },
+        { "id": "T06", "text": "A television with rabbit ear antennas with aluminum foil crinkled around the tips to improve reception" },
+        { "id": "T07", "text": "A Betamax player connected to the TV next to a competing VHS player with a handwritten label debate taped to each machine" },
+        { "id": "T08", "text": "A laserdisc player the size of a small suitcase with a 12-inch silver laserdisc disc half-inserted into the slot" },
+        { "id": "T09", "text": "A TV with a TV Guide magazine open on the armrest with programs circled in ballpoint pen and a channel schedule highlighted" },
+        { "id": "T10", "text": "A drive-in movie theater screen visible in the background with the in-car speaker hooked over the window" }
+      ]
+    },
+    {
+      "title": "COMPUTER AND OFFICE TECHNOLOGY",
+      "options": [
+        { "id": "O00", "text": "SAME (no computer transformation)" },
+        { "id": "O01", "text": "A beige IBM 486 desktop tower with a CRT monitor displaying a DOS C prompt and a 5.25-inch floppy drive with a disk inserted" },
+        { "id": "O02", "text": "A Commodore 64 with the datasette cassette tape drive connected and a box of software cassettes beside it" },
+        { "id": "O03", "text": "An Apple IIe with a green phosphor monochrome monitor and a floppy disk drive on the side of the cream-colored case" },
+        { "id": "O04", "text": "A TRS-80 Model III from RadioShack with the keyboard, monitor, and tape drive all built into one unit" },
+        { "id": "O05", "text": "A Hayes modem with a telephone handset resting in the acoustic coupler cradle making a dial-up connection" },
+        { "id": "O06", "text": "A dot matrix printer with a continuous roll of perforated paper still attached and a printout curling onto the floor" },
+        { "id": "O07", "text": "A thermal fax machine with a roll of shiny thermal paper and a curling incoming fax hanging out of the top" },
+        { "id": "O08", "text": "A Macintosh 128K — the original all-in-one beige Mac with the tiny 9-inch built-in screen and the single floppy slot" },
+        { "id": "O09", "text": "A box of 5.25-inch floppy disks with handwritten labels in marker and a disk mailer envelope beside it" },
+        { "id": "O10", "text": "An electronic typewriter with correction tape loaded and a typed page half-fed through the platen roller" }
+      ]
+    },
+    {
+      "title": "MUSIC AND MEDIA PLAYER",
+      "options": [
+        { "id": "U00", "text": "SAME (no music player transformation)" },
+        { "id": "U01", "text": "A Sony Walkman clipped to the waistband with foam orange headphones over the ears and a cassette tape visible through the window" },
+        { "id": "U02", "text": "A massive boombox hoisted on one shoulder with the telescoping antenna up and the dual cassette deck loaded" },
+        { "id": "U03", "text": "A Sony Discman with the anti-skip button visible, the lid open showing a CD, and a CD case open with sleeves nearby" },
+        { "id": "U04", "text": "An 8-track cartridge player mounted under the car dashboard with a cartridge half-inserted and the program number showing" },
+        { "id": "U05", "text": "A mixtape cassette with SIDE A handwritten in ballpoint pen and a track listing filled out in the paper insert" },
+        { "id": "U06", "text": "A dual cassette deck with the record button held down by a piece of tape and a blank tape inside recording" },
+        { "id": "U07", "text": "A record player with a vinyl LP spinning, the needle in the groove, and the album sleeve leaning against the wall nearby" },
+        { "id": "U08", "text": "A jukebox with the rotating 45 selector visible through the dome and neon tubes glowing around the cabinet" },
+        { "id": "U09", "text": "A cassette tape rewinder shaped like a race car — the tape inserted into the top and the wheels spinning" },
+        { "id": "U10", "text": "A rack stereo system with the separate AM FM tuner, graphic equalizer with dancing LED bars, turntable, and dual tape deck all stacked" }
+      ]
+    },
+    {
+      "title": "VIDEO RENTAL",
+      "options": [
+        { "id": "R00", "text": "SAME (no video rental transformation)" },
+        { "id": "R01", "text": "A Blockbuster Video clamshell VHS rental box with the blue and yellow Blockbuster label, a BE KIND REWIND sticker, and a due date card in the sleeve" },
+        { "id": "R02", "text": "A wall of VHS rental boxes organized by genre — NEW RELEASES section with the boxes face-out and a MEMBERS ONLY sign" },
+        { "id": "R03", "text": "A Movie Gallery store with the blue and yellow signage and the rental agreement paperwork on the counter" },
+        { "id": "R04", "text": "A Hollywood Video store with the purple and yellow logo and the giant cardboard promotional standee for a current film" },
+        { "id": "R05", "text": "A video rental section inside a grocery store — a spinning rack of VHS boxes next to the checkout aisle" },
+        { "id": "R06", "text": "A late fee receipt from Blockbuster with the itemized charges and the amount due printed on thermal paper" },
+        { "id": "R07", "text": "A VHS tape with a handwritten label in marker — the title crooked, partially scratched out and rewritten" },
+        { "id": "R08", "text": "A Blockbuster membership card in a wallet next to a Video Club loyalty punch card" },
+        { "id": "R09", "text": "A VCR with the clock blinking 12:00 because nobody ever figured out how to set it after a power outage" },
+        { "id": "R10", "text": "A VHS rewinder and a stack of tapes with the BE KIND REWIND sticker on each one next to a VCR on top of the TV" }
+      ]
+    },
+    {
+      "title": "INTERIOR AND ENVIRONMENT",
+      "options": [
+        { "id": "E00", "text": "SAME (no interior transformation)" },
+        { "id": "E01", "text": "Wood paneling on all interior walls in a dark walnut veneer pattern with a shag carpet in harvest gold or burnt orange" },
+        { "id": "E02", "text": "A lava lamp in orange and yellow on every surface and a black light poster of a wizard or unicorn on the wall" },
+        { "id": "E03", "text": "A waterbed with a padded velvet headboard and a mirrored ceiling above it in a heavily carpeted room" },
+        { "id": "E04", "text": "Cigarette ashtrays overflowing on every table, desk, and restaurant counter with visible smoke in the air" },
+        { "id": "E05", "text": "A wet bar built into the living room wall with mirrored tiles behind the bottles and a hanging rack of stemware above" },
+        { "id": "E06", "text": "A SMOKING SECTION and NO SMOKING SECTION divider sign in a restaurant — the smoke drifting directly over the divider" },
+        { "id": "E07", "text": "A beanbag chair in a primary color next to a macrame wall hanging and a hanging wicker egg chair from the ceiling" },
+        { "id": "E08", "text": "An avocado green or harvest gold kitchen with matching refrigerator, stove, dishwasher, and countertop appliances" },
+        { "id": "E09", "text": "An open-plan office where every worker is smoking at their desk with overflowing ashtrays next to the computer terminals" },
+        { "id": "E10", "text": "A rec room with wood paneling, a pool table, a dartboard, a bar with bar stools, and a console TV in the corner" }
+      ]
+    },
+    {
+      "title": "FOOD AND PRODUCTS",
+      "options": [
+        { "id": "F00", "text": "SAME (no food or product transformation)" },
+        { "id": "F01", "text": "New Coke cans with the controversial 1985 redesigned logo replacing all beverages in the scene" },
+        { "id": "F02", "text": "Jolt Cola cans with the lightning bolt logo and the All The Sugar And Twice The Caffeine tagline on every drink" },
+        { "id": "F03", "text": "Tab soda in the pink can with the Tab logo replacing all diet drinks in the scene" },
+        { "id": "F04", "text": "Capri Sun foil pouches and Squeeze-It bottles replacing all drinks with visible straws punctured through the foil" },
+        { "id": "F05", "text": "A Jell-O mold in a ring shape with canned fruit suspended inside it sitting on a doily on the dinner table" },
+        { "id": "F06", "text": "A fondue pot in the center of the table with long forks and cubes of bread and chocolate surrounding it" },
+        { "id": "F07", "text": "TV dinners in divided aluminum foil trays with the cardboard top partially peeled back revealing the compartments" },
+        { "id": "F08", "text": "A Tang canister next to a pitcher of reconstituted Tang in an orange color that is too bright to be natural" },
+        { "id": "F09", "text": "Pop Rocks candy packets with the warning label visible next to a Coca-Cola bottle with a cautionary note about mixing them" },
+        { "id": "F10", "text": "A Pudding Pop on a stick in chocolate or vanilla melting slightly and a box of Jell-O Pudding Pops in the freezer behind" }
+      ]
+    }
+  ],
+  "additionalInstructions": "Apply only the selected transformation options but apply each one with total commitment and maximum era accuracy. Get the logos right, the proportions right, the color palettes right. Every selected category must be transformed completely — no modern anachronisms survive within a selected category. The more specific and obscure the Gen-X reference the better. The final image must be impossible to date to anything other than 1975 to 1989. The overall image should feel like a photograph actually taken during that period — grain, color temperature, and all."
+  },
+  {
     "name": "GHIBLI CAM",
     "category": [
       "ANIMATION",
