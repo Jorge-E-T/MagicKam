@@ -4542,20 +4542,20 @@ let tourActive = false;
 const TOUR_STEPS = [
   { section: 'Welcome', title: '👋 Welcome to the Guided Tour!', body: 'This tour walks you through every feature of Magic Kamera MDRE. Use Next and Back to navigate, or your scroll wheel. Tap Skip Tour at any time to exit.' },
   { section: 'Basic Controls', title: '📸 Side Button — Take a Photo', body: 'Press the physical side button on your R1 to capture a photo. It is instantly sent for AI transformation using the active preset.' },
-  { section: 'Basic Controls', title: '🔄 Scroll Wheel — Change Presets', body: 'Rotate the scroll wheel up or down to cycle through all 800 plus AI presets. The current preset name is shown at the bottom of the screen.', target: 'style-reveal' },
-  { section: 'Basic Controls', title: '📷 Camera Switch Button', body: 'Tap the camera icon to toggle between front selfie and back camera at any time before taking a photo.', target: 'camera-button' },
-  { section: 'Basic Controls', title: '☰ Menu Button', body: 'Opens the main menu where you access all settings, preset management, import tools, and this tutorial.', target: 'menu-button' },
-  { section: 'Basic Controls', title: '🖼️ Gallery Button', body: 'Opens your saved photo gallery. View, edit, re-prompt, batch process, or delete your images from here.', target: 'gallery-button' },
-  { section: 'Basic Controls', title: '🔁 New Photo Button', body: 'After a photo is captured and processed, tap New Photo or press the side button again to return to the live camera view.', target: 'reset-button' },
+  { section: 'Basic Controls', title: '🔄 Scroll Wheel — Change Presets', body: 'Rotate the scroll wheel up or down to cycle through all 800 plus AI presets. The current preset name is shown at the bottom of the screen.' },
+  { section: 'Basic Controls', title: '📷 Camera Switch Button', body: 'Tap the camera icon to toggle between front selfie and back camera at any time before taking a photo.' },
+  { section: 'Basic Controls', title: '☰ Menu Button', body: 'Opens the main menu where you access all settings, preset management, import tools, and this tutorial.' },
+  { section: 'Basic Controls', title: '🖼️ Gallery Button', body: 'Opens your saved photo gallery. View, edit, re-prompt, batch process, or delete your images from here.' },
+  { section: 'Basic Controls', title: '🔁 New Photo Button', body: 'After a photo is captured and processed, tap New Photo or press the side button again to return to the live camera view.' },
   { section: 'AI Presets', title: '✨ What Are AI Presets?', body: 'Presets are AI transformation instructions. Each one tells the AI how to reimagine your photo — as a comic book cover, oil painting, 3D print, and 800 more styles.' },
   { section: 'AI Presets', title: '⭐ Favorites', body: 'In the main menu, tap the star next to any preset to mark it as a favorite. Favorites are used by Random Mode when favorites are selected.' },
-  { section: 'AI Presets', title: '🔍 Filter Presets', body: 'Use the search box in the main menu to quickly find presets by name or category. Tap a category tag at the bottom to filter by style.', target: 'style-filter' },
+  { section: 'AI Presets', title: '🔍 Filter Presets', body: 'Use the search box in the main menu to quickly find presets by name or category. Tap a category tag at the bottom to filter by style.' },
   { section: 'AI Presets', title: '🔊 Hear Preset Info', body: 'When browsing presets in the Import screen, tap any preset name to hear its description read aloud. Use the mute button in the header to toggle audio on or off.' },
-  { section: 'Special Modes', title: '🎯 Special Modes — How to Access', body: 'Swipe left from the right edge of the main screen to reveal the Special Modes carousel.', target: 'mode-carousel' },
-  { section: 'Special Modes', title: '🎲 Random Mode', body: 'Picks a random preset for every photo you take. If you have favorites selected it draws only from those, otherwise from all presets.', target: 'random-toggle' },
-  { section: 'Special Modes', title: '⏱️ Timer Mode', body: 'Set a countdown of 3, 5, or 10 seconds before each shot. Enable repeat mode so it automatically keeps taking photos at a set interval.', target: 'timer-toggle' },
-  { section: 'Special Modes', title: '📸⚡ Burst Mode', body: 'Captures 3 to 10 photos rapidly in one press. Choose slow, medium, or fast burst speed in Settings. Great for action shots or getting multiple variations.', target: 'burst-toggle' },
-  { section: 'Special Modes', title: '👁️ Motion Detection', body: 'Automatically captures when movement is detected in frame. Set sensitivity, start delay, and cooldown interval. The eye icon pulses when motion is triggered.', target: 'motion-toggle' },
+  { section: 'Special Modes', title: '🎯 Special Modes — How to Access', body: 'Swipe left from the right edge of the main screen to reveal the Special Modes carousel.' },
+  { section: 'Special Modes', title: '🎲 Random Mode', body: 'Picks a random preset for every photo you take. If you have favorites selected it draws only from those, otherwise from all presets.' },
+  { section: 'Special Modes', title: '⏱️ Timer Mode', body: 'Set a countdown of 3, 5, or 10 seconds before each shot. Enable repeat mode so it automatically keeps taking photos at a set interval.' },
+  { section: 'Special Modes', title: '📸⚡ Burst Mode', body: 'Captures 3 to 10 photos rapidly in one press. Choose slow, medium, or fast burst speed in Settings. Great for action shots or getting multiple variations.' },
+  { section: 'Special Modes', title: '👁️ Motion Detection', body: 'Automatically captures when movement is detected in frame. Set sensitivity, start delay, and cooldown interval. The eye icon pulses when motion is triggered.' },
   { section: 'Gallery', title: '🖼️ Viewing Photos', body: 'Tap any image in the gallery to view it full-screen. Pinch to zoom in and out.' },
   { section: 'Gallery', title: '🎨 Applying Presets in Gallery', body: 'While viewing a photo, tap Load Preset or Multi Preset to transform a saved image. Click twice on a preset to apply it. You can stack multiple transformations.' },
   { section: 'Gallery', title: '☑️ Batch Operations', body: 'Tap the Select button to enter batch mode. Select multiple images, then apply one preset to all of them or delete them in bulk. Always tap DONE when finished.' },
@@ -4570,22 +4570,22 @@ const TOUR_STEPS = [
   { section: 'Uploading Images', title: '📥 Importing External Images', body: 'Bring any image from the web into your gallery using a QR code. Upload the image to catbox dot moe, copy the direct link, and generate a QR code at qr-code-generator dot com.' },
   { section: 'Uploading Images', title: '📷 Scanning the QR Code', body: 'In the gallery, press Import then Scan QR Code. Point your R1 camera at the QR code and wait. The image will be automatically saved to your gallery.' },
   { section: 'Uploading Images', title: '⚠️ Verify Your Link First', body: 'Before making the QR code, paste the link into a browser. If it shows only the image with nothing around it, it will work. If it shows a webpage with the image embedded, it will not work.' },
-  { section: 'Settings', title: '⚙️ Resolution', body: 'Choose from VGA 640 by 480 up to HD 3264 by 2448. Lower resolutions are recommended if you want images to appear in the magic gallery.', target: 'resolution-settings-button' },
-  { section: 'Settings', title: '📐 Aspect Ratio', body: 'Choose 1 to 1 square or 16 to 9 letterbox. Leave both unchecked for neither. Default is neither.', target: 'aspect-ratio-settings-button' },
-  { section: 'Settings', title: '📝 Master Prompt', body: 'Appends custom text to every AI transformation. Enable it first, then type your additions. Adding a name and occasion lets presets like Happy Holidays personalize automatically.', target: 'master-prompt-settings-button' },
-  { section: 'Settings', title: '👁️ Visible Presets', body: 'Choose which imported presets appear in your menus. Select All, deselect individually, or remove all. Category tags show at the bottom when a preset is highlighted.', target: 'visible-presets-settings-button' },
-  { section: 'Settings', title: '🔨 Preset Builder', body: 'Build your own custom AI presets. Choose a template, add chips for quality and style, enable random options with single or multi-selection groups, add critical rules, then save.', target: 'preset-builder-button' },
-  { section: 'Settings', title: '🚫 No Magic Mode', body: 'Disables AI processing and works as a regular camera. Photos save only to the plugin gallery, not to the rabbit hole or magic gallery.', target: 'no-magic-toggle-button' },
-  { section: 'Settings', title: '🎛️ Manually Select Options Mode', body: 'When enabled and you choose a preset with options, a popup asks you to pick which option to use. Only works with single shots in the main camera and single image per preset in gallery.', target: 'manual-options-toggle-button' },
-  { section: 'Settings', title: '📥 Import Presets', body: 'Browse the external preset library. Check individual presets or use the checkmark All to select everything. New additions are unchecked so check regularly for updates.', target: 'import-presets-button' },
-  { section: 'Settings', title: '🔄 Check for Updates', body: 'Checks for new or modified presets in the library. Any updates are flagged so you can re-import changed presets.', target: 'check-updates-button' },
+  { section: 'Settings', title: '⚙️ Resolution', body: 'Choose from VGA 640 by 480 up to HD 3264 by 2448. Lower resolutions are recommended if you want images to appear in the magic gallery.' },
+  { section: 'Settings', title: '📐 Aspect Ratio', body: 'Choose 1 to 1 square or 16 to 9 letterbox. Leave both unchecked for neither. Default is neither.' },
+  { section: 'Settings', title: '📝 Master Prompt', body: 'Appends custom text to every AI transformation. Enable it first, then type your additions. Adding a name and occasion lets presets like Happy Holidays personalize automatically.' },
+  { section: 'Settings', title: '👁️ Visible Presets', body: 'Choose which imported presets appear in your menus. Select All, deselect individually, or remove all. Category tags show at the bottom when a preset is highlighted.' },
+  { section: 'Settings', title: '🔨 Preset Builder', body: 'Build your own custom AI presets. Choose a template, add chips for quality and style, enable random options with single or multi-selection groups, add critical rules, then save.' },
+  { section: 'Settings', title: '🚫 No Magic Mode', body: 'Disables AI processing and works as a regular camera. Photos save only to the plugin gallery, not to the rabbit hole or magic gallery.' },
+  { section: 'Settings', title: '🎛️ Manually Select Options Mode', body: 'When enabled and you choose a preset with options, a popup asks you to pick which option to use. Only works with single shots in the main camera and single image per preset in gallery.' },
+  { section: 'Settings', title: '📥 Import Presets', body: 'Browse the external preset library. Check individual presets or use the checkmark All to select everything. New additions are unchecked so check regularly for updates.' },
+  { section: 'Settings', title: '🔄 Check for Updates', body: 'Checks for new or modified presets in the library. Any updates are flagged so you can re-import changed presets.' },
   { section: 'Tips and Advanced', title: '🏷️ Category Searching', body: 'Every preset has categories. When a preset is highlighted in the Visible Presets menu, its categories appear at the bottom. Tap a category to filter all presets in that group.' },
   { section: 'Tips and Advanced', title: '🧠 Master Prompt Power Tip', body: 'Search for master or master prompt in the Visible Presets menu to find all presets designed to work with Master Prompt. These respond to names, occasions, and custom context you provide.' },
-  { section: 'Tips and Advanced', title: '📶 Offline Queue', body: 'If you take photos while offline, they queue automatically and sync to the rabbit hole once your connection returns. The queue count shows on screen.', target: 'queue-status' },
-  { section: 'Tips and Advanced', title: '🔁 Reset Database', body: 'The nuclear option in Settings. Wipes all custom presets and settings. Only imported presets from the library remain. Use only if something is seriously broken.', target: 'factory-reset-button' },
-  { section: 'Tips and Advanced', title: '💀 Content Filter Error', body: 'You go into your rabbit hole and you are disappointed because you received a content filter prevented us from cooking up an image error. Do not get upset. Do not throw your rabbit r1 across the room. This sometimes happens because AI is quirky. The beauty of Magic Kamera is, you can reprompt! Keep trying until successful.' },
-  { section: 'Troubleshooting Tips', title: '❌ Camera Access Denied', body: 'This error will appear at the bottom of your main camera screen if you do not have any active presets (either imported or made with the preset builder).', target: 'import-presets-button' },
-  { section: 'Done!', title: '🎉 Tour Complete!', body: 'You now know every feature of Magic Kamera MDRE. Go make something amazing! This tour or the text tutorial in this menu is always here if you need a refresher. And if you come across The One Ron G, The One Hashtag Cyber or The One Rabbit Jesus, tell them you enjoy this program.' },
+  { section: 'Tips and Advanced', title: '📶 Offline Queue', body: 'If you take photos while offline, they queue automatically and sync to the rabbit hole once your connection returns. The queue count shows on screen.' },
+  { section: 'Tips and Advanced', title: '🔁 Reset Database', body: 'The nuclear option in Settings. Wipes all custom presets and settings. Only imported presets from the library remain. Use only if something is seriously broken.' },
+  { section: 'Tips and Advanced', title: '💀 Content Filter Error', body: 'If you go into your rabbit hole and you receive a content filter image error. This happens because AI is quirky. The beauty of Magic Kamera is, you can reprompt! Keep trying until successful.' },
+  { section: 'Troubleshooting', title: '❌ Camera Access Denied', body: 'This error will appear at the bottom of your main camera screen if you do not have any active presets (either imported or made with the preset builder).' },
+  { section: 'Done!', title: '🎉 Tour Complete!', body: `That's Magic Kamera. Now go make magic! This tour or the text tutorial in this menu is here if you need a refresher. If you come across The One Ron G, The One Hashtag Cyber or The One Rabbit Jesus, tell them you enjoy this program.` },
 ];
 
 function tourSpeak(text) {
@@ -4672,48 +4672,11 @@ function renderTourStep(speak) {
     tourSpeak(step.title.replace(/[\p{Emoji}]/gu, '') + '. ' + step.body);
   }
 
-  // Card and spotlight positioning
-  const spotlight = document.getElementById('tour-spotlight');
+  // Always center the card
   const card = document.getElementById('tour-card');
-  const cardWidth = card.offsetWidth || 280;
-  const cardHeight = card.offsetHeight || 240;
-  const screenW = window.innerWidth;
-  const screenH = window.innerHeight;
-
-  const centerCard = () => {
-    spotlight.style.display = 'none';
-    card.style.transform = 'translate(-50%, -50%)';
-    card.style.top = '50%';
-    card.style.left = '50%';
-  };
-
-  if (step.target) {
-    const el = document.getElementById(step.target);
-    const rect = el ? el.getBoundingClientRect() : null;
-    const isVisible = rect && rect.width > 0 && rect.height > 0 && rect.top >= 0 && rect.bottom <= screenH;
-
-    if (isVisible) {
-      const pad = 6;
-      spotlight.style.cssText = 'position:absolute;display:block;left:' + (rect.left - pad) + 'px;top:' + (rect.top - pad) + 'px;width:' + (rect.width + pad * 2) + 'px;height:' + (rect.height + pad * 2) + 'px;border-radius:8px;box-shadow:0 0 0 9999px rgba(0,0,0,0.85);border:2px solid #FE5F00;transition:all 0.35s ease;pointer-events:none;z-index:1;';
-
-      // Place card below the element if room, otherwise above
-      let cardTop = rect.bottom + pad + 12;
-      if (cardTop + cardHeight > screenH - 8) {
-        cardTop = rect.top - pad - cardHeight - 12;
-      }
-      // Clamp within screen
-      cardTop = Math.max(8, Math.min(cardTop, screenH - cardHeight - 8));
-      let cardLeft = Math.max(8, Math.min(rect.left, screenW - cardWidth - 8));
-
-      card.style.transform = '';
-      card.style.top = cardTop + 'px';
-      card.style.left = cardLeft + 'px';
-    } else {
-      centerCard();
-    }
-  } else {
-    centerCard();
-  }
+  card.style.transform = 'translate(-50%, -50%)';
+  card.style.top = '50%';
+  card.style.left = '50%';
 }
 
 // Show import resolution submenu
