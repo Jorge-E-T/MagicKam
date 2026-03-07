@@ -2644,6 +2644,46 @@
     "additionalInstructions": "ABSOLUTE PROHIBITIONS:\n• No more or fewer than THREE bookmarks\n• No extra text beyond assigned phrases\n• No offensive content\n• No blurring or distortion of faces\n• No removal of bleed or cut guides\n\nFINAL RESULT:\nThe final image must look like a professionally prepared print sheet: three vertical bookmarks with bleed, clear cut guides, safe margins, and humorous text — ready to be printed, trimmed, and used in real books."
   },
   {
+  "name": "BOOTLEG RON-TEE",
+  "category": [
+    "HUMOR",
+    "CREATIVE",
+    "ABSURDIST",
+    "FASHION",
+    "POP CULTURE"
+  ],
+  "message": "Take a picture and place the subject as the graphic on a bootleg screen-printed t-shirt. The design must feel like a DIY, underground, street market bootleg tee — deliberately lo-fi, slightly off-register printing, faded or cracked ink, basic or crude photoshop composition. Use absurdist humor by mashing up two or more completely unrelated pop culture references into one nonsensical but weirdly coherent graphic. May include halftone dot patterns, thick outlined fonts, all-caps impact-style text, clip art elements, random flames, eagles, wolves, fists, or other bootleg tee staples used completely out of context. The shirt itself should be visible — a basic Gildan-style tee in white, black, or a washed-out color — with the graphic printed on the chest. The overall vibe is: someone made this in their garage at 2am and is selling it out of a duffel bag.",
+  "options": [
+    {
+      "id": "001",
+      "text": "Visit https://www.methsyndicate.com/ and select one currently listed t-shirt design from the page. Study its specific visual style — the composition, color palette, typography, graphic elements, and absurdist concept — then recreate that exact aesthetic applied to the subject. Do not copy the design literally; use it as a direct style reference for the bootleg tee featuring the subject.",
+      "enabled": true
+    },
+    {
+      "id": "002",
+      "text": "Mash up two completely unrelated 1980s or 1990s pop culture icons into one bootleg tee graphic featuring the subject. Think the energy of a knockoff theme park shirt combined with a heavy metal band tee. Halftone shading, airbrushed gradient background, thick drop-shadow font.",
+      "enabled": true
+    },
+    {
+      "id": "003",
+      "text": "Design the bootleg tee as if it were sold at a gas station in 1994. The subject is combined with a random animal, a motivational phrase that makes no sense, and at least one flag or globe. Off-register CMYK printing, slightly blurry edges, colors slightly too saturated.",
+      "enabled": true
+    },
+    {
+      "id": "004",
+      "text": "Create a bootleg tee that looks like unlicensed sports merchandise — the subject is presented as an athlete of a sport they have never played, with a fake team name, fake stats, and a number that means nothing. Screen printed on a faded Champion-style shirt with cracked ink texture.",
+      "enabled": true
+    },
+    {
+      "id": "005",
+      "text": "Design the bootleg tee as a fake band shirt for a band that does not exist. The subject is the lead singer. The back of the shirt has a fake world tour with absurd city names and dates. Gothic lettering, skull imagery, and at least one wizard or dragon used completely without irony.",
+      "enabled": true
+    }
+  ],
+  "randomizeOptions": true,
+  "additionalInstructions": "The final image must look like a real photograph of someone wearing the shirt, not a flat mockup. The shirt should have fabric texture, natural wrinkles, and realistic wear. The graphic must look genuinely screen-printed — not digitally perfect. Embrace imperfection: slightly misaligned layers, ink bleed, fading. The humor must be deadpan and absurdist — the more unrelated the mashed references the better. Never make it look polished or intentionally ironic. It must feel like someone genuinely thought this was a good idea."
+  },
+  {
     "name": "BOSS BATTLE",
     "category": [
       "OPTIONS",
