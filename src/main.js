@@ -3,6 +3,7 @@ import { presetImporter } from './preset-import.js';
 
 // No need for DEFAULT_PRESETS - will load from JSON when needed
 let DEFAULT_PRESETS = [];
+let totalFactoryPresetCount = 0;
 
 // Camera elements
 let video, canvas, capturedImage, statusElement, resetButton;
@@ -238,6 +239,9 @@ let manuallySelectedOption = null;
 // Track if we entered Master Prompt from gallery
 let returnToGalleryFromMasterPrompt = false;
 let savedViewerImageIndex = -1;
+
+// Track if we opened an editor from the gallery viewer prompt tap
+let returnToGalleryFromViewerEdit = false;
 
 // Style reveal elements
 let styleRevealElement, styleRevealText;
@@ -2224,6 +2228,19 @@ async function loadStyles() {
     const modifications = await presetStorage.getAllModifications();
     const hasModifications = modifications.length > 0;
     
+    // Always fetch total factory count from presets.json for display purposes
+    try {
+        const countResponse = await fetch('./presets.json');
+        if (countResponse.ok) {
+            const allFactoryPresets = await countResponse.json();
+            totalFactoryPresetCount = allFactoryPresets.length;
+            const tutorialCountEl = document.getElementById('tutorial-preset-count');
+            if (tutorialCountEl) tutorialCountEl.textContent = totalFactoryPresetCount;
+        }
+    } catch (e) {
+        console.log('Could not fetch preset count:', e);
+    }
+
     // Only load presets if user has imports or modifications
     if (hasImports || hasModifications) {
         // Merge factory presets with user modifications
@@ -2411,6 +2428,9 @@ async function mergePresetsWithStorage() {
       if (response.ok) {
         DEFAULT_PRESETS = await response.json();
         factoryPresets = [...DEFAULT_PRESETS];
+        totalFactoryPresetCount = DEFAULT_PRESETS.length;
+        const tutorialCountEl = document.getElementById('tutorial-preset-count');
+        if (tutorialCountEl) tutorialCountEl.textContent = totalFactoryPresetCount;
       } else {
         DEFAULT_PRESETS = [];
         factoryPresets = [];
@@ -2921,6 +2941,66 @@ function hideVisiblePresetsSubmenu() {
   showSettingsSubmenu();
 }
 
+// Called when user taps the viewer prompt text area
+function handleViewerPromptTap() {
+  const hasLoadedPreset = !!window.viewerLoadedPreset;
+  
+  if (!hasLoadedPreset) {
+    // No preset loaded: open Preset Builder to create a new one
+    returnToGalleryFromViewerEdit = true;
+    // Close the image viewer and gallery modal so builder has full screen
+    document.getElementById('image-viewer').style.display = 'none';
+    document.getElementById('gallery-modal').style.display = 'none';
+    // Close main menu if open
+    document.getElementById('unified-menu').style.display = 'none';
+    isMenuOpen = false;
+    // Open settings submenu first (needed as parent context), then go to builder
+    document.getElementById('settings-submenu').style.display = 'flex';
+    isSettingsSubmenuOpen = true;
+    // Open preset builder
+    document.getElementById('settings-submenu').style.display = 'none';
+    document.getElementById('preset-builder-submenu').style.display = 'flex';
+    isSettingsSubmenuOpen = false;
+    isPresetBuilderSubmenuOpen = true;
+    clearPresetBuilderForm();
+  } else {
+    // A preset is loaded — check if it is a custom preset (made with the builder)
+    const loadedPreset = window.viewerLoadedPreset;
+    const isCustomPreset = !factoryPresets.some(fp => fp.name === loadedPreset.name) &&
+      !(hasImportedPresets && presetImporter.getImportedPresets().some(p => p.name === loadedPreset.name));
+    
+    if (isCustomPreset) {
+      // It's a custom preset: open Preset Builder in edit mode
+      returnToGalleryFromViewerEdit = true;
+      const presetIndex = CAMERA_PRESETS.findIndex(p => p.name === loadedPreset.name);
+      document.getElementById('image-viewer').style.display = 'none';
+      document.getElementById('gallery-modal').style.display = 'none';
+      document.getElementById('unified-menu').style.display = 'none';
+      isMenuOpen = false;
+      document.getElementById('preset-builder-submenu').style.display = 'flex';
+      isSettingsSubmenuOpen = false;
+      isPresetBuilderSubmenuOpen = true;
+      if (presetIndex >= 0) {
+        loadPresetIntoBuilder(presetIndex);
+      } else {
+        clearPresetBuilderForm();
+      }
+    } else {
+      // It's a factory/imported preset: open Style Editor in edit mode
+      returnToGalleryFromViewerEdit = true;
+      const presetIndex = CAMERA_PRESETS.findIndex(p => p.name === loadedPreset.name);
+      document.getElementById('image-viewer').style.display = 'none';
+      document.getElementById('gallery-modal').style.display = 'none';
+      document.getElementById('unified-menu').style.display = 'none';
+      isMenuOpen = false;
+      if (presetIndex >= 0) {
+        editStyle(presetIndex);
+        showStyleEditor('Edit Style');
+      }
+    }
+  }
+}
+
 // Show Preset Builder submenu
 function showPresetBuilderSubmenu() {
   document.getElementById('settings-submenu').style.display = 'none';
@@ -2942,6 +3022,15 @@ function hidePresetBuilderSubmenu() {
   // Hide delete button when closing
   const deleteButton = document.getElementById('preset-builder-delete');
   if (deleteButton) deleteButton.style.display = 'none';
+  
+  // If we came from the gallery viewer, return there instead of settings
+  if (returnToGalleryFromViewerEdit) {
+    returnToGalleryFromViewerEdit = false;
+    document.getElementById('settings-submenu').style.display = 'none';
+    isSettingsSubmenuOpen = false;
+    openImageViewer(currentViewerImageIndex);
+    return;
+  }
   
   showSettingsSubmenu();
 }
@@ -4540,38 +4629,38 @@ let tourCurrentStep = 0;
 let tourActive = false;
 
 const TOUR_STEPS = [
-  { section: 'Welcome', title: '👋 Welcome to the Guided Tour!', body: 'This tour walks you through every feature of Magic Kamera MDRE. Use Next and Back to navigate, or your scroll wheel. Tap Skip Tour at any time to exit.' },
+  { section: 'Welcome', title: '👋 Welcome to the Audio Tour!', body: 'This tour walks you through every feature of Magic Kamera MDRE. Use Next and Back or scroll wheel to navigate. Pressing the side button advances the tour. Tap Skip Tour to exit.' },
   { section: 'Basic Controls', title: '📸 Side Button — Take a Photo', body: 'Press the physical side button on your R1 to capture a photo. It is instantly sent for AI transformation using the active preset.' },
-  { section: 'Basic Controls', title: '🔄 Scroll Wheel — Change Presets', body: 'Rotate the scroll wheel up or down to cycle through all 800 plus AI presets. The current preset name is shown at the bottom of the screen.' },
+  { section: 'Basic Controls', title: '🔄 Scroll Wheel — Change Presets', get body() { return `Rotate the scroll wheel up or down to cycle through all ${totalFactoryPresetCount || 800} AI presets. The current preset name is shown at the bottom of the screen.`; } },
   { section: 'Basic Controls', title: '📷 Camera Switch Button', body: 'Tap the camera icon to toggle between front selfie and back camera at any time before taking a photo.' },
   { section: 'Basic Controls', title: '☰ Menu Button', body: 'Opens the main menu where you access all settings, preset management, import tools, and this tutorial.' },
   { section: 'Basic Controls', title: '🖼️ Gallery Button', body: 'Opens your saved photo gallery. View, edit, re-prompt, batch process, or delete your images from here.' },
   { section: 'Basic Controls', title: '🔁 New Photo Button', body: 'After a photo is captured and processed, tap New Photo or press the side button again to return to the live camera view.' },
-  { section: 'AI Presets', title: '✨ What Are AI Presets?', body: 'Presets are AI transformation instructions. Each one tells the AI how to reimagine your photo — as a comic book cover, oil painting, 3D print, and 800 more styles.' },
+  { section: 'AI Presets', title: '✨ What Are AI Presets?', get body() { return `Presets are AI transformation instructions. Each one tells the AI how to reimagine your photo — as a comic book cover, oil painting, 3D print,  ${totalFactoryPresetCount || 800} styles in all.`; } },
   { section: 'AI Presets', title: '⭐ Favorites', body: 'In the main menu, tap the star next to any preset to mark it as a favorite. Favorites are used by Random Mode when favorites are selected.' },
   { section: 'AI Presets', title: '🔍 Filter Presets', body: 'Use the search box in the main menu to quickly find presets by name or category. Tap a category tag at the bottom to filter by style.' },
   { section: 'AI Presets', title: '🔊 Hear Preset Info', body: 'When browsing presets in the Import screen, tap any preset name to hear its description read aloud. Use the mute button in the header to toggle audio on or off.' },
   { section: 'Special Modes', title: '🎯 Special Modes — How to Access', body: 'Swipe left from the right edge of the main screen to reveal the Special Modes carousel.' },
-  { section: 'Special Modes', title: '🎲 Random Mode', body: 'Picks a random preset for every photo you take. If you have favorites selected it draws only from those, otherwise from all presets.' },
+  { section: 'Special Modes', title: '🎲 Random Mode', body: 'Picks a random preset for every photo you take. If you have favorites selected it draws only from those, otherwise from all visible presets.' },
   { section: 'Special Modes', title: '⏱️ Timer Mode', body: 'Set a countdown of 3, 5, or 10 seconds before each shot. Enable repeat mode so it automatically keeps taking photos at a set interval.' },
   { section: 'Special Modes', title: '📸⚡ Burst Mode', body: 'Captures 3 to 10 photos rapidly in one press. Choose slow, medium, or fast burst speed in Settings. Great for action shots or getting multiple variations.' },
-  { section: 'Special Modes', title: '👁️ Motion Detection', body: 'Automatically captures when movement is detected in frame. Set sensitivity, start delay, and cooldown interval. The eye icon pulses when motion is triggered.' },
+  { section: 'Special Modes', title: '👁️ Motion Detection', body: 'Automatically captures when movement is detected in frame. Set sensitivity, start delay, and cooldown interval. The eye icon pulses when motion is triggered. Great for security.' },
   { section: 'Gallery', title: '🖼️ Viewing Photos', body: 'Tap any image in the gallery to view it full-screen. Pinch to zoom in and out.' },
   { section: 'Gallery', title: '🎨 Applying Presets in Gallery', body: 'While viewing a photo, tap Load Preset or Multi Preset to transform a saved image. Click twice on a preset to apply it. You can stack multiple transformations.' },
   { section: 'Gallery', title: '☑️ Batch Operations', body: 'Tap the Select button to enter batch mode. Select multiple images, then apply one preset to all of them or delete them in bulk. Always tap DONE when finished.' },
   { section: 'Gallery', title: '📅 Sort and Filter', body: 'Sort by newest or oldest. Filter by date range. When filtering, always select the day after your end date. For example, to see December 25 photos, filter from December 25 to December 26.' },
-  { section: 'Gallery', title: '🌐 Upload to gofile.io', body: 'Share a gallery image by uploading it to gofile.io. You get a QR code with a link that expires after 24 hours. Most useful in No Magic Mode.' },
+  { section: 'Gallery', title: '🌐 Upload to gofile.io', body: 'Share a gallery image by uploading it to gofile.io. You get a QR code with a link that expires after 24 hours. Most useful in No Magic Mode to export your images.' },
   { section: 'Gallery', title: '✏️ Edit Image', body: 'Tap the Edit button when viewing any photo to open the image editor with crop, rotate, sharpen, auto-correct, and brightness and contrast controls.' },
   { section: 'Image Editor', title: '✂️ Crop Tool', body: 'Tap Crop to activate. Two orange corner markers appear. Drag them to frame your desired area. Tap Crop again to apply.' },
   { section: 'Image Editor', title: '🔄 Rotate Tool', body: 'Rotates your image 90 degrees clockwise each tap. Tap multiple times to reach 180, 270, or back to 0 degrees.' },
   { section: 'Image Editor', title: '🔍 Sharpen and Auto Correct', body: 'Sharpen makes edges crisper. Auto Correct automatically balances brightness, contrast, and color. Great as a first step before manual tweaks.' },
   { section: 'Image Editor', title: '☀️ Brightness and Contrast Sliders', body: 'At the top of the editor, drag the sliders to adjust brightness and contrast anywhere from negative 100 to positive 100 in real time.' },
-  { section: 'Image Editor', title: '↶ Undo and Save', body: 'Undo steps back through your edit history one step at a time. Save replaces the original image in your gallery. Close exits without saving.' },
-  { section: 'Uploading Images', title: '📥 Importing External Images', body: 'Bring any image from the web into your gallery using a QR code. Upload the image to catbox dot moe, copy the direct link, and generate a QR code at qr-code-generator dot com.' },
+  { section: 'Image Editor', title: '↶ Undo and Save', body: 'Undo steps back through your edit history one step at a time. Saving an edited image creates a new image in your gallery. Close exits without saving.' },
+  { section: 'Uploading Images', title: '📥 Importing External Images', body: 'Bring any image from the web into your gallery using a QR code. Upload the image to catbox.moe, copy the direct link, and generate a QR code at qr-code-generator.com.' },
   { section: 'Uploading Images', title: '📷 Scanning the QR Code', body: 'In the gallery, press Import then Scan QR Code. Point your R1 camera at the QR code and wait. The image will be automatically saved to your gallery.' },
   { section: 'Uploading Images', title: '⚠️ Verify Your Link First', body: 'Before making the QR code, paste the link into a browser. If it shows only the image with nothing around it, it will work. If it shows a webpage with the image embedded, it will not work.' },
-  { section: 'Settings', title: '⚙️ Resolution', body: 'Choose from VGA 640 by 480 up to HD 3264 by 2448. Lower resolutions are recommended if you want images to appear in the magic gallery.' },
-  { section: 'Settings', title: '📐 Aspect Ratio', body: 'Choose 1 to 1 square or 16 to 9 letterbox. Leave both unchecked for neither. Default is neither.' },
+  { section: 'Settings', title: '▣ Resolution', body: 'Choose from VGA 640 by 480 up to HD 3264 by 2448. Lower resolutions are recommended if you want images to appear in the magic gallery.' },
+  { section: 'Settings', title: '📐 Aspect Ratio', body: 'Choose 1 to 1 square or 16 to 9 letterbox. Leave both unchecked for neither. Default is neither. We recommend choosing an aspect ratio to display the full image, preventing accidental cropping.' },
   { section: 'Settings', title: '📝 Master Prompt', body: 'Appends custom text to every AI transformation. Enable it first, then type your additions. Adding a name and occasion lets presets like Happy Holidays personalize automatically.' },
   { section: 'Settings', title: '👁️ Visible Presets', body: 'Choose which imported presets appear in your menus. Select All, deselect individually, or remove all. Category tags show at the bottom when a preset is highlighted.' },
   { section: 'Settings', title: '🔨 Preset Builder', body: 'Build your own custom AI presets. Choose a template, add chips for quality and style, enable random options with single or multi-selection groups, add critical rules, then save.' },
@@ -4585,7 +4674,7 @@ const TOUR_STEPS = [
   { section: 'Tips and Advanced', title: '🔁 Reset Database', body: 'The nuclear option in Settings. Wipes all custom presets and settings. Only imported presets from the library remain. Use only if something is seriously broken.' },
   { section: 'Tips and Advanced', title: '💀 Content Filter Error', body: 'If you go into your rabbit hole and you receive a content filter image error. This happens because AI is quirky. The beauty of Magic Kamera is, you can reprompt! Keep trying until successful.' },
   { section: 'Troubleshooting', title: '❌ Camera Access Denied', body: 'This error will appear at the bottom of your main camera screen if you do not have any active presets (either imported or made with the preset builder).' },
-  { section: 'Done!', title: '🎉 Tour Complete!', body: `That's Magic Kamera. Now go make magic! This tour or the text tutorial in this menu is here if you need a refresher. If you come across The One Ron G, The One Hashtag Cyber or The One Rabbit Jesus, tell them you enjoy this program.` },
+  { section: 'Done!', title: '🎉 Tour Complete!', body: 'That\'s Magic Kamera. Now go make magic! This tour or the text tutorial in this menu is here if you need a refresher. If you come across The One Ron G, The One Hashtag Cyber or The One Rabbit Jesus, tell them you enjoy this program.' },
 ];
 
 function tourSpeak(text) {
@@ -7842,6 +7931,13 @@ function hideStyleEditor() {
   }
   document.getElementById('delete-style').style.display = 'none';
   editingStyleIndex = -1;
+  
+  // If we came from the gallery viewer, return there instead of menu
+  if (returnToGalleryFromViewerEdit) {
+    returnToGalleryFromViewerEdit = false;
+    openImageViewer(currentViewerImageIndex);
+    return;
+  }
 }
 
 function editStyle(index) {
@@ -9918,9 +10014,15 @@ const result = await presetImporter.import();
     });
   }
 
-  // Clear loaded preset when user manually edits the viewer prompt
+  // Tapping the viewer prompt opens the right editor instead of keyboard
   const viewerPromptInput = document.getElementById('viewer-prompt');
   if (viewerPromptInput) {
+    viewerPromptInput.addEventListener('focus', (e) => {
+      // Prevent keyboard from appearing
+      viewerPromptInput.blur();
+      // Open the correct editor based on loaded preset state
+      handleViewerPromptTap();
+    });
     viewerPromptInput.addEventListener('input', () => {
       window.viewerLoadedPreset = null;
     });
