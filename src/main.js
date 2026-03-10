@@ -950,6 +950,16 @@ function openImageViewer(index) {
       mpBtn.classList.remove('enabled');
     }
   }
+
+  // Light up Options button if manual options mode is enabled
+  const optionsBtn = document.getElementById('options-viewer-button');
+  if (optionsBtn) {
+    if (manualOptionsMode) {
+      optionsBtn.classList.add('enabled');
+    } else {
+      optionsBtn.classList.remove('enabled');
+    }
+  }
   
   viewer.style.display = 'flex';
   
@@ -4283,6 +4293,7 @@ function loadNoMagicMode() {
 function toggleManualOptionsMode() {
   manualOptionsMode = !manualOptionsMode;
   
+  // Update the settings menu status label
   const statusElement = document.getElementById('manual-options-status');
   if (statusElement) {
     statusElement.textContent = manualOptionsMode ? 'Enabled' : 'Disabled';
@@ -4290,24 +4301,24 @@ function toggleManualOptionsMode() {
     statusElement.style.fontWeight = manualOptionsMode ? '600' : '';
   }
   
+  // Save to localStorage
   try {
     localStorage.setItem(MANUAL_OPTIONS_KEY, JSON.stringify(manualOptionsMode));
   } catch (err) {
     console.error('Failed to save Manual Select mode:', err);
   }
   
+  // Update the camera footer
   updateNoMagicFooter();
   
-  if (manualOptionsMode) {
-    // Check for conflicting modes
-    const modeCheck = canUseManualOptions();
-    if (!modeCheck.allowed) {
-      showStatus(`⚠️ ${modeCheck.reason}`, 3000);
+  // Sync the gallery Options button color if it exists
+  const optionsBtn = document.getElementById('options-viewer-button');
+  if (optionsBtn) {
+    if (manualOptionsMode) {
+      optionsBtn.classList.add('enabled');
     } else {
-      showStatus('Manual Select ON - Only works with Random mode', 2500);
+      optionsBtn.classList.remove('enabled');
     }
-  } else {
-    showStatus('Manual Select OFF - Random selection active', 2000);
   }
 }
 
@@ -9923,6 +9934,18 @@ const result = await presetImporter.import();
     });
   }
   
+  const optionsViewerBtn = document.getElementById('options-viewer-button');
+  if (optionsViewerBtn) {
+    optionsViewerBtn.addEventListener('click', () => {
+      toggleManualOptionsMode();
+      if (manualOptionsMode) {
+        optionsViewerBtn.classList.add('enabled');
+      } else {
+        optionsViewerBtn.classList.remove('enabled');
+      }
+    });
+  }
+
   // QR Scan Button
   const qrScanBtn = document.getElementById('qr-scan-button');
   if (qrScanBtn) {
