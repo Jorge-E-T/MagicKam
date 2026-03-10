@@ -2263,6 +2263,10 @@ async function loadStyles() {
         setTimeout(async () => {
             const shouldImport = await confirm('Welcome! You should import presets to get started. Would you like to import now?');
             if (shouldImport) {
+                // Initialize the camera first so the user can exit the menu normally after importing
+                document.getElementById('start-screen').style.display = 'none';
+                await initCamera();
+                // Now open the menu straight to the import screen
                 document.getElementById('menu-button').click();
                 setTimeout(() => {
                     document.getElementById('settings-menu-button').click();
