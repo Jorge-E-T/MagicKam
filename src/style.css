@@ -2023,7 +2023,7 @@ button:disabled {
     left: -2vw;
     top: 22vh;
     bottom: 12vw;
-    width: 20vw;
+    width: 24vw;
     display: flex;
     flex-direction: column;
     z-index: 2001;
@@ -2074,13 +2074,13 @@ button:disabled {
 }
 
 .viewer-left-carousel-btn {
-    width: 15vw;
+    width: 18vw;
     height: 11vw;
     min-height: 0;
     min-width: 0;
     flex-shrink: 0;
     border-radius: 2vw;
-    background: rgba(30, 30, 30, 0.65);
+    background: rgba(30, 30, 30, 0.95);
     color: #fff;
     border: 2px solid #ff4444;
     display: flex;
@@ -2099,7 +2099,7 @@ button:disabled {
 }
 
 .viewer-left-carousel-btn.enabled {
-    background-color: rgba(76, 175, 80, 0.75);
+    background-color: rgba(76, 175, 80, 0.95);
     border-color: #4CAF50;
     color: #fff;
     box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
@@ -2116,7 +2116,7 @@ button:disabled {
     right: -2vw;
     top: 22vh;
     bottom: 12vw;
-    width: 20vw;
+    width: 24vw;
     display: flex;
     flex-direction: column;
     z-index: 2001;
@@ -2166,10 +2166,10 @@ button:disabled {
 }
 
 .viewer-carousel-button {
-    width: 14vw;
-    height: 14vw;
-    min-width: 44px;
-    min-height: 44px;
+    width: 17vw;
+    height: 16vw;
+    min-width: 0;
+    min-height: 0;
     flex-shrink: 0;
     border-radius: 2vw;
     background: rgba(30, 30, 30, 0.92);
@@ -2179,7 +2179,7 @@ button:disabled {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: 5vw;
+    font-size: 6vw;
     cursor: pointer;
     z-index: 2001;
     padding: 0;

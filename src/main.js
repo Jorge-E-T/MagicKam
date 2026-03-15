@@ -4910,7 +4910,7 @@ const TOUR_STEPS = [
   { section: 'Basic Controls', title: '🔁 New Photo Button', body: 'After a photo is captured and processed, tap New Photo or press the side button again to return to the live camera view.' },
   { section: 'AI Presets', title: '✨ What Are AI Presets?', get body() { return `Presets are AI transformation instructions. Each one tells the AI how to reimagine your photo — as a comic book cover, oil painting, 3D print, ${totalFactoryPresetCount || 800} styles in all.`; } },
   { section: 'AI Presets', title: '⭐ Favorites', body: 'In the main menu, tap the star next to any preset to mark it as a favorite. Favorites are used by Random Mode when favorites are selected.' },
-  { section: 'AI Presets', title: '🔍 Filter Presets', body: 'Use the search box in the main menu to quickly find presets by name or category. Tap a category tag at the bottom to filter by style.' },
+  { section: 'AI Presets', title: '🔍 Filter Presets', body: 'Use the search box in the main menu to quickly find presets by name or category. Tap a category tag at the bottom to filter by style. Tapping on the x next to the search box removes the keyboard. Double click to clear.' },
   { section: 'AI Presets', title: '🔊 Hear Preset Info', body: 'When browsing presets in the Import screen, tap any preset name to hear its description read aloud. Use the mute button in the header to toggle audio on or off.' },
   { section: 'Special Modes', title: '🎯 Special Modes — How to Access', body: 'Swipe left from the right edge of the main camera screen to reveal the Special Modes carousel.' },
   { section: 'Special Modes', title: '🎲 Random Mode', body: 'Picks a random preset for every photo you take. If you have favorites selected it draws only from those, otherwise from all visible presets.' },
@@ -4927,8 +4927,9 @@ const TOUR_STEPS = [
   { section: 'Gallery', title: '🖼️ Image Viewer', body: 'Tap a thumbnail image in the gallery to view it full-screen. The viewer is redesigned to give your photo maximum screen space. Pinch to zoom in and out.' },
   { section: 'Gallery', title: '🎨 Applying Presets to Single Image', body: 'After clicking on a single image, Tap LOAD or MULTI to transform a saved image. Click twice on a preset to apply it. You can stack multiple transformations.' },
   { section: 'Gallery', title: '🏷️ Preset Header', body: 'At the very top of the image viewer a header shows the name of the currently loaded preset. Tap the header to hear the preset name and description.' },
-  { section: 'Gallery', title: '⬅️ Left Side Buttons', body: 'The delete button is in the top-left corner. Below it is the MASTER button which toggles Master Prompt on or off. Below that is the OPTIONS button which toggles Manually Select Options mode.' },
-  { section: 'Gallery', title: '🎠 Carousel', body: 'Swipe left from the right edge of the image viewer to reveal the side carousel which has two buttons — Edit which opens the image editor, and Export which uploads to gofile.io.' },
+  { section: 'Gallery', title: '⬅️ Left Side Button', body: 'The delete button is in the top-left corner.' },
+  { section: 'Gallery', title: '🎠 Left Carousel', body: 'Below the delete button, the two left buttons are MASTER and OPTIONS. They are visible by default. Swipe left to hide them. The MASTER button toggles Master Prompt on or off. The OPTIONS button toggles Manually Select Options mode.' },
+  { section: 'Gallery', title: '🎠 Right Carousel', body: 'Swipe left from the right edge of the image viewer to reveal the side carousel which has two buttons — Edit which opens the image editor, and Export which uploads to gofile.io.' },
   { section: 'Gallery', title: '⬇️ Bottom Bar Buttons', body: 'Four buttons on the bottom of image viewer. PROMPT opens editor. LOAD opens preset selector. MULTI opens multi-preset selector. MAGIC transforms image using the loaded preset, or picks randomly if nothing is loaded.' },
   { section: 'Gallery', title: '🌐 Export to gofile.io', body: 'Share a gallery image by swiping left in the image viewer to reveal the carousel, then tapping Export. You get a QR code with a link that expires after 24 hours. Most useful in No Magic Mode.' },
   { section: 'Image Editor', title: '✏️ Opening the Editor', body: 'While viewing any photo, swipe left from the right edge to reveal the image viewer carousel, then tap the Edit button. The editor opens with crop, rotate, sharpen, auto-correct, and brightness and contrast controls.' },
@@ -7062,7 +7063,6 @@ function updatePresetDisplay() {
         } else {
             statusElement.textContent = `Style: ${currentPreset.name}`;
         }
-    }
     
     // Show style reveal on screen (middle text)
     if (isCameraMultiPresetActive && cameraSelectedPresets.length > 0) {
@@ -7075,6 +7075,7 @@ function updatePresetDisplay() {
 
     if (isMenuOpen) {
         updateMenuSelection();
+    }
     }
 }
 
@@ -8051,7 +8052,6 @@ function populateStylesList(preserveScroll = false) {
     });
     
     const filtered = regular.filter(preset => {
-      // First apply text search filter
       if (styleFilterText) {
         const searchText = styleFilterText.toLowerCase();
         const categoryMatch = preset.category && preset.category.some(cat => cat.toLowerCase().includes(searchText));
@@ -8931,6 +8931,18 @@ window.addEventListener('load', () => {
 
         const handleSpeak = () => {
           tourSpeak(speakText);
+          if (speakBtn) {
+            speakBtn.style.background = 'rgba(254, 95, 0, 0.7)';
+            speakBtn.style.borderColor = '#FE5F00';
+            speakBtn.style.color = '#fff';
+            setTimeout(() => {
+              if (speakBtn) {
+                speakBtn.style.background = 'rgba(255,255,255,0.1)';
+                speakBtn.style.borderColor = 'rgba(255,255,255,0.2)';
+                speakBtn.style.color = '#fff';
+              }
+            }, 1500);
+          }
         };
 
         exitBtn.addEventListener('click', closeModal);
@@ -10737,7 +10749,7 @@ async function uploadViewerImage() {
   try {
     // Disable button and show status
     uploadBtn.disabled = true;
-    uploadBtn.textContent = '⏳';
+      uploadBtn.innerHTML = '⏳';
     if (statusElement) {
       statusElement.style.display = 'block';
       statusElement.textContent = 'Getting server...';
@@ -10817,7 +10829,7 @@ async function uploadViewerImage() {
   } finally {
     // Re-enable button
     uploadBtn.disabled = false;
-    uploadBtn.textContent = '📤';
+      uploadBtn.innerHTML = '📤<br><span class="viewer-carousel-label">Export</span>';
   }
 }
 
