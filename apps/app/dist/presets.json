@@ -11670,10 +11670,10 @@
       "COLORFUL",
       "3D ART"
     ],
-    "message": "Take a picture and transform the image into a whimsical, humorous three-dimensional folk art scene in the tradition of Cuban-Chinese folk painting and in the style of the Scull sisters. Render the subject as a lively, slightly exaggerated street scene or character composition reminiscent of 1950s Old Havana or colorful South Beach Florida. Use vivid, saturated acrylic colors — tropical reds, sunlit yellows, warm ochres, electric blues, and lush greens — applied with bold, confident brushwork on a painted canvas background. Figures and characters should appear humorously expressive, slightly caricatured, and full of personality — neighborhood characters, street vendors, musicians, carnival celebrants, or everyday people caught in joyful moments. Simulate the signature three-dimensional mixed media effect by giving foreground elements a raised, extruded, tactile appearance as if sculpted from paper mache and wire and physically protruding from the canvas surface — particularly figures, lampposts, architectural details, and street objects. Backgrounds should depict colorful Cuban colonial architecture with ornate facades, arched doorways, tiled rooftops, and palm trees rendered in warm painterly detail. The overall mood must feel nostalgic, celebratory, playful, and deeply rooted in Cuban folk culture and street life. Every element should radiate warmth, humor, and the joyful spirit of Caribbean daily life frozen in time.",
-    "options": [],
-    "randomizeOptions": false,
-    "additionalInstructions": "CRITICAL: The three-dimensional extruded effect on foreground figures and objects is essential — they must appear physically raised from the painted background surface. Figures must be humorously expressive and slightly caricatured. Cuban colonial architecture and tropical color palette are mandatory. Style must feel like hand-crafted folk art, not fine art realism or digital illustration."
+    "message": "Take a picture and transform the image into a Cuban folk art diorama in the style of the Scull sisters — a three-dimensional mixed media artwork where the scene is constructed as a physical layered tableau. The background must appear as a flat painted canvas board depicting Old Havana or South Florida street scenes — colorful colonial architecture, arched doorways, ornate building facades, palm trees, vintage cars, and tropical skies — rendered in acrylic paint with warm Caribbean colors including terracotta, sky blue, sunshine yellow, coral, and leafy green. On top of this flat painted background, all foreground subjects — people, buildings, lampposts, vehicles, market stalls, and street objects — must appear as physically constructed three-dimensional sculptures made from paper mache and wire, hand-painted with acrylic in bright folk art colors, and mounted directly onto the canvas surface. These raised sculptural elements must cast subtle shadows onto the background canvas beneath them, clearly separating them as real physical objects sitting in front of the painted backdrop. Figures must be slightly caricatured and humorous in expression, stocky and expressive, painted in solid flat colors with visible brushstrokes on their paper mache surfaces. The entire piece must look like a museum diorama or a shadow box — part flat painting, part physical sculpture — not a painting attempting to simulate depth through shading or perspective tricks.",
+  "options": [],
+  "randomizeOptions": false,
+  "additionalInstructions": "CRITICAL: This is NOT a painting of a 3D scene. The background is a flat painted canvas. The foreground figures and objects are physically sculpted paper mache and wire forms mounted ON TOP of that canvas. They must look like real constructed objects protruding from the surface, with cast shadows proving their physical presence. Any result that looks like a painted simulation of depth is incorrect. The separation between flat painted background and raised sculptural foreground elements is the defining feature of this style."
   },
   {
     "name": "HIDDEN DETAILS",
@@ -19212,6 +19212,21 @@
     ],
     "randomizeOptions": true,
     "additionalInstructions": "FINAL RESULT:\nA grainy, long-lens paparazzi photograph with tabloid watermarks focusing on the subject as if they're the celebrity being stalked, while an actual famous person accidentally appears in the background, blurred, distant, or at the edge of frame — completely incidental to the shot. The humor comes from treating the subject as the star while ignoring the real celebrity.\n\nCORE REQUIREMENTS:"
+  },
+  {
+    "name": "PAPER MACHE ART",
+    "category": [
+      "ART",
+      "SCULPTURE",
+      "CREATIVE",
+      "3D ART",
+      "CRAFT",
+      "MIXED MEDIA"
+    ],
+    "message": "Take a picture and transform the image into a paper mache sculpture art piece. The entire subject — figures, objects, animals, or scenes — must appear to be physically hand-crafted from torn and layered paper mache, shaped over wire armatures and dried into solid sculptural forms. The surface texture must show the characteristic rough, slightly bumpy, fibrous quality of dried paper mache — visible layers of torn paper strips with slightly raised edges, small surface imperfections, and the organic texture of glued newsprint or craft paper built up in layers. Once shaped, the sculpture must appear painted with bright, flat acrylic folk art colors applied directly onto the paper mache surface with visible brushstrokes that follow the contours of the form. Colors should be bold and saturated — reds, blues, yellows, greens — with simple decorative painted details like dots, stripes, and patterns added on top. The piece must sit against a neutral studio background or simple wooden surface as if photographed as a finished handmade art object. The overall result must look exactly like a completed paper mache craft sculpture — tactile, handmade, slightly imperfect, and joyfully colorful — not a painting, not a digital render, not a smooth ceramic or plastic object.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "CRITICAL: The paper mache texture is mandatory — visible layered paper strips, fibrous surface, slight bumps and imperfections from the construction process must be clearly present. The piece must look physically handmade and three-dimensional. Smooth, clean, or digitally perfect surfaces are incorrect. Acrylic paint applied directly onto the rough paper mache surface with visible brushstrokes is required."
   },
   {
     "name": "PAPER SHADOW BOX",
