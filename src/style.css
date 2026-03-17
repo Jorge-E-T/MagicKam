@@ -1523,6 +1523,125 @@ button:disabled {
     transform: scale(0.95);
 }
 
+/* Left camera carousel — Menu, Gallery, Master Prompt, Options */
+/* Mirrors right carousel logic: container wider than buttons, buttons centered,
+   pull-tab outside container edge, hidden slides fully off screen leaving 8px tab */
+.left-cam-carousel {
+    position: absolute;
+    left: -2vw;
+    top: 0;
+    bottom: 8vh;
+    width: 24vw;
+    display: flex;
+    flex-direction: column;
+    z-index: 101;
+    overflow: visible;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateX(0);
+    pointer-events: auto;
+}
+
+/* Pull-tab on right edge — mirrors right carousel's left: -10px tab */
+.left-cam-carousel::after {
+    content: '';
+    position: absolute;
+    right: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 40px;
+    background: #FE5F00;
+    border-radius: 4px;
+    opacity: 0.2;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+}
+
+.left-cam-carousel.hidden {
+    transform: translateX(calc(-100% + 8px));
+    pointer-events: none;
+}
+
+.left-cam-carousel.hidden::after {
+    opacity: 0.6;
+}
+
+/* Track: menu pinned top, gallery pinned bottom, middle two centred */
+.left-cam-carousel-track {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+/* All buttons centered in 24vw container — same as right carousel centering */
+.left-cam-carousel-track #menu-button {
+    position: absolute;
+    top: 1vh;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.left-cam-carousel-track #gallery-button {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Master and Options centered vertically in middle space with clear gap */
+.left-cam-carousel-track #cam-master-prompt-btn {
+    position: absolute;
+    top: calc(50% - 30px - 8vw);
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.left-cam-carousel-track #cam-options-btn {
+    position: absolute;
+    top: calc(50% + 30px - 8vw);
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.left-cam-btn {
+    position: relative;
+    box-sizing: border-box;
+    width: 12vw;
+    height: 12vw;
+    min-width: 44px;
+    min-height: 44px;
+    background: transparent;
+    color: #FE5F00;
+    border: 2px solid #FE5F00;
+    border-radius: 2vw;
+    font-size: 6vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 102;
+    padding: 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+}
+
+.left-cam-btn:active {
+    background: rgba(254, 95, 0, 0.9);
+    color: #000;
+    transform: scale(0.95);
+}
+
+.left-cam-btn.enabled {
+    background: rgba(76, 175, 80, 0.85);
+    border-color: #4CAF50;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+.left-cam-btn.enabled:active {
+    background-color: #4CAF50;
+    color: #000;
+}
+
 /* Mode Carousel Container */
 .mode-carousel {
     position: absolute;
@@ -1574,9 +1693,7 @@ button:disabled {
     gap: 2vw;
     overflow-x: hidden;
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: y mandatory;
-    scroll-behavior: smooth;
+    overscroll-behavior: none;
     padding: 10px 0;
     height: 100%;
     width: 100%; /* Back to 100% - no more calc hacks */

@@ -4556,6 +4556,7 @@ function toggleManualOptionsMode() {
   
   // Update the camera footer
   updateNoMagicFooter();
+  updatePresetDisplay();
   
   // Sync the gallery Options button color if it exists
   const optionsBtn = document.getElementById('options-viewer-button');
@@ -4565,6 +4566,13 @@ function toggleManualOptionsMode() {
     } else {
       optionsBtn.classList.remove('enabled');
     }
+  }
+
+  // Sync the camera left carousel Options button
+  const camOptBtn = document.getElementById('cam-options-btn');
+  if (camOptBtn) {
+    if (manualOptionsMode) camOptBtn.classList.add('enabled');
+    else camOptBtn.classList.remove('enabled');
   }
 }
 
@@ -4927,6 +4935,7 @@ const TOUR_STEPS = [
   { section: 'Special Modes', title: '📸⚡ Burst Mode', body: 'Captures 3 to 10 photos rapidly in one press. Choose slow, medium, or fast burst speed in Settings. Great for action shots or getting multiple variations.' },
   { section: 'Special Modes', title: '👁️ Motion Detection', body: 'Automatically captures when movement is detected in frame. Set sensitivity, start delay, and cooldown interval. The eye icon pulses when motion is triggered.' },
   { section: 'Special Modes', title: '🎞️ Multi Preset', body: 'Select up to 20 presets to apply to a single photo. Tap the film strip button in the carousel, choose presets, and tap Apply Selected. When you take a photo, each preset is sent in order with a 3 second gap between them.' },
+  { section: 'Special Modes', title: '📝 Master and 🎛️ Options', body: 'Below the Menu button on the left side within a carousel. The Master button accesses Master Prompt settings. The OPTIONS button toggles Manually Select Options mode. Both Glow green when enabled.' },
   { section: 'Gallery', title: '🖼️ Gallery Activities', body: 'Within the gallery there are thumbnails of captured images. You can either select multiple images to apply a preset, or select a single image to either edit, export or apply one or several presets.' },
   { section: 'Uploading Images', title: '📥 Importing External Images', body: 'In the gallery, you may also bring any image from the web into the gallery using a QR code. Upload the image to catbox.moe, copy the direct link, and generate a QR code at qr-code-generator.com.' },
   { section: 'Uploading Images', title: '📷 Scanning the QR Code', body: 'In the gallery, press Import then Scan QR Code. Point your R1 camera at the QR code and wait. The image will be automatically saved to your gallery.' },
@@ -6097,20 +6106,15 @@ async function initCamera() {
       cameraButton.style.display = 'flex';
     }
     
-    const menuButton = document.getElementById('menu-button');
-    if (menuButton) {
-      menuButton.style.display = 'flex';
-    }
-    
-    const modeCarousel = document.getElementById('mode-carousel');
-    if (modeCarousel) {
-      modeCarousel.style.display = 'block';
-    }
+    const leftCamCarousel = document.getElementById('left-cam-carousel');
+      if (leftCamCarousel) {
+        leftCamCarousel.style.display = 'flex';
+      }
 
-    const galleryButton = document.getElementById('gallery-button');
-    if (galleryButton) {
-      galleryButton.style.display = 'flex';
-    }
+      const modeCarousel = document.getElementById('mode-carousel');
+      if (modeCarousel) {
+        modeCarousel.style.display = 'block';
+      }
 
     updatePresetDisplay();
     
@@ -7072,7 +7076,6 @@ function updatePresetDisplay() {
         } else {
             statusElement.textContent = `Style: ${currentPreset.name}`;
         }
-    }
     
     // Show style reveal on screen (middle text)
     if (isCameraMultiPresetActive && cameraSelectedPresets.length > 0) {
@@ -7085,6 +7088,7 @@ function updatePresetDisplay() {
 
     if (isMenuOpen) {
         updateMenuSelection();
+    }
     }
 }
 
@@ -7681,9 +7685,38 @@ async function hideMasterPromptSubmenu() {
     openImageViewer(savedViewerImageIndex);
     return;
   }
+
+  // Check if opened from the camera left carousel
+  if (window.masterPromptFromCamera) {
+    window.masterPromptFromCamera = false;
+    document.getElementById('master-prompt-submenu').style.display = 'none';
+    isMasterPromptSubmenuOpen = false;
+    isSettingsSubmenuOpen = false;
+    // Sync the carousel MP button color
+    const camMpBtn = document.getElementById('cam-master-prompt-btn');
+    if (camMpBtn) {
+      if (masterPromptEnabled) camMpBtn.classList.add('enabled');
+      else camMpBtn.classList.remove('enabled');
+    }
+    // Update all indicators and display
+    updateMasterPromptIndicator();
+    updateMasterPromptDisplay();
+    updatePresetDisplay();
+    // Show left carousel again and resume camera
+    const leftCamCarousel = document.getElementById('left-cam-carousel');
+    if (leftCamCarousel) leftCamCarousel.style.display = 'flex';
+    await resumeCamera();
+    return;
+  }
   
   document.getElementById('master-prompt-submenu').style.display = 'none';
   isMasterPromptSubmenuOpen = false;
+  // Sync camera left carousel MP button color
+  const camMpBtnHide = document.getElementById('cam-master-prompt-btn');
+  if (camMpBtnHide) {
+    if (masterPromptEnabled) camMpBtnHide.classList.add('enabled');
+    else camMpBtnHide.classList.remove('enabled');
+  }
   // await resumeCamera();
   showSettingsSubmenu();
 }
@@ -10104,6 +10137,12 @@ const result = await presetImporter.import();
       }
 
       updateMasterPromptDisplay();
+      // Sync camera left carousel MP button color
+      const camMpBtnChk = document.getElementById('cam-master-prompt-btn');
+      if (camMpBtnChk) {
+        if (masterPromptEnabled) camMpBtnChk.classList.add('enabled');
+        else camMpBtnChk.classList.remove('enabled');
+      }
     });
   }
   
@@ -11391,6 +11430,84 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
   }, { passive: true });
+})();
+
+// ===== LEFT CAMERA CAROUSEL =====
+(function() {
+  // Sync enabled state of MP and Options buttons on load
+  function syncLeftCamBtns() {
+    const mpBtn = document.getElementById('cam-master-prompt-btn');
+    const optBtn = document.getElementById('cam-options-btn');
+    if (mpBtn) {
+      if (masterPromptEnabled) mpBtn.classList.add('enabled');
+      else mpBtn.classList.remove('enabled');
+    }
+    if (optBtn) {
+      if (manualOptionsMode) optBtn.classList.add('enabled');
+      else optBtn.classList.remove('enabled');
+    }
+  }
+
+  // Master Prompt button — opens master prompt submenu directly, returns to camera on exit
+  const camMpBtn = document.getElementById('cam-master-prompt-btn');
+  if (camMpBtn) {
+    camMpBtn.addEventListener('click', () => {
+      // Hide carousel so settings has full screen
+      document.getElementById('left-cam-carousel').style.display = 'none';
+      // Open settings submenu as required parent context
+      document.getElementById('unified-menu').style.display = 'none';
+      isMenuOpen = false;
+      // Go directly to master prompt submenu
+      showMasterPromptSubmenu();
+      // Flag so hideMasterPromptSubmenu knows to return to camera not settings
+      window.masterPromptFromCamera = true;
+    });
+  }
+
+  // Options toggle button — toggles manualOptionsMode immediately
+  const camOptBtn = document.getElementById('cam-options-btn');
+  if (camOptBtn) {
+    camOptBtn.addEventListener('click', () => {
+      toggleManualOptionsMode();
+      // Sync this button's color
+      if (manualOptionsMode) camOptBtn.classList.add('enabled');
+      else camOptBtn.classList.remove('enabled');
+    });
+  }
+
+  // Swipe logic: swipe left on left half to hide, swipe right on left half to show
+  let lcTouchStartX = 0;
+  const appEl = document.getElementById('app');
+  if (appEl) {
+    appEl.addEventListener('touchstart', (e) => {
+      lcTouchStartX = e.touches[0].clientX;
+    }, { passive: true });
+    appEl.addEventListener('touchend', (e) => {
+      // Only apply when main camera is active (not in gallery, menu, etc.)
+      if (document.getElementById('gallery-modal')?.style.display === 'flex') return;
+      if (document.getElementById('image-viewer')?.style.display === 'flex') return;
+      if (document.getElementById('unified-menu')?.style.display === 'flex') return;
+      if (document.getElementById('settings-submenu')?.style.display === 'flex') return;
+
+      const carousel = document.getElementById('left-cam-carousel');
+      if (!carousel || carousel.style.display === 'none') return;
+      const endX = e.changedTouches[0].clientX;
+      const diff = lcTouchStartX - endX;
+      const leftZone = window.innerWidth * 0.5;
+
+      if (lcTouchStartX < leftZone && diff > 30) {
+        // Swipe left on left side — hide
+        carousel.classList.add('hidden');
+      }
+      if (lcTouchStartX < leftZone && diff < -30) {
+        // Swipe right on left side — show
+        carousel.classList.remove('hidden');
+      }
+    }, { passive: true });
+  }
+
+  // Initial sync after a brief delay to ensure state is loaded
+  setTimeout(syncLeftCamBtns, 200);
 })();
 
 console.log('AI Camera Styles app initialized!');
