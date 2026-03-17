@@ -1543,17 +1543,7 @@ button:disabled {
 
 /* Pull-tab on right edge — mirrors right carousel's left: -10px tab */
 .left-cam-carousel::after {
-    content: '';
-    position: absolute;
-    right: -10px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 40px;
-    background: #FE5F00;
-    border-radius: 4px;
-    opacity: 0.2;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+    display: none;
 }
 
 .left-cam-carousel.hidden {
@@ -1656,34 +1646,27 @@ button:disabled {
     
     /* Reveal Animation */
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    /* Hidden state: Leaves ~8px of the handle visible on the edge */
-    transform: translateX(calc(100% - 8px));
-    pointer-events: none; /* Add this line */ 
+    transform: translateX(0);
+    pointer-events: auto; 
 }
 
 /* The visual "Pull-Tab" Indicator */
 .mode-carousel::before {
-    content: '';
-    position: absolute;
-    left: -10px; /* Positions it just outside the left edge of the container */
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 40px;
-    background: #FE5F00;
-    border-radius: 4px;
-    opacity: 0.6;
-    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
+    display: none;
 }
 
-/* When the menu is shown, we hide the handle or make it subtle */
 .mode-carousel.show {
     transform: translateX(0);
-    pointer-events: auto; /* Reactivate touches when open */
+    pointer-events: auto;
+}
+
+.mode-carousel.hidden {
+    transform: translateX(calc(100% + 8px));
+    pointer-events: none;
 }
 
 .mode-carousel.show::before {
-    opacity: 0.2; /* Dims the handle when the menu is actually open */
+    display: none;
 }
 
 .mode-carousel-track {
@@ -2150,18 +2133,8 @@ button:disabled {
     pointer-events: auto;
 }
 
-/* Pull-tab indicator on right edge of left carousel */
 .viewer-left-carousel::after {
-    content: '';
-    position: absolute;
-    right: -10px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 40px;
-    background: #ff4444;
-    border-radius: 4px;
-    opacity: 0.2;
+    display: none;
 }
 
 .viewer-left-carousel.hidden {
@@ -2170,7 +2143,7 @@ button:disabled {
 }
 
 .viewer-left-carousel.hidden::after {
-    opacity: 0.6;
+    display: none;
 }
 
 .viewer-left-carousel-track {
@@ -2239,21 +2212,12 @@ button:disabled {
     z-index: 2001;
     overflow: visible;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    transform: translateX(calc(100% - 8px));
-    pointer-events: none;
+    transform: translateX(0);
+    pointer-events: auto;
 }
 
 .viewer-carousel::before {
-    content: '';
-    position: absolute;
-    left: -10px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 40px;
-    background: #FE5F00;
-    border-radius: 4px;
-    opacity: 0.6;
+    display: none;
 }
 
 .viewer-carousel.show {
@@ -2261,8 +2225,13 @@ button:disabled {
     pointer-events: auto;
 }
 
+.viewer-carousel.hidden {
+    transform: translateX(calc(100% + 8px));
+    pointer-events: none;
+}
+
 .viewer-carousel.show::before {
-    opacity: 0.2;
+    display: none;
 }
 
 .viewer-carousel-track {

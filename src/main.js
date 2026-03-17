@@ -973,7 +973,9 @@ function openImageViewer(index) {
   }
   
   viewer.style.display = 'flex';
-  
+  // Ensure both carousels are visible when viewer opens
+  if (window.initViewerCarousels) window.initViewerCarousels();
+
   // hideGallery();
 
   document.getElementById('gallery-modal').style.display = 'none';
@@ -4929,13 +4931,13 @@ const TOUR_STEPS = [
   { section: 'AI Presets', title: '⭐ Favorites', body: 'In the main menu, tap the star next to any preset to mark it as a favorite. Favorites are used by Random Mode when favorites are selected.' },
   { section: 'AI Presets', title: '🔍 Filter Presets', body: 'Use the search box in the main menu to quickly find presets by name or category. Tap a category tag at the bottom to filter by style. Tapping on the x next to the search box removes the keyboard. Double click to clear.' },
   { section: 'AI Presets', title: '🔊 Hear Preset Info', body: 'When browsing presets in the Import screen, tap any preset name to hear its description read aloud. Use the mute button in the header to toggle audio on or off.' },
-  { section: 'Special Modes', title: '🎯 Special Modes — How to Access', body: 'Swipe left from the right edge of the main camera screen to reveal the Special Modes carousel.' },
+  { section: 'Special Modes', title: '🎯 Special Modes — How to Access', body: 'They are default visible. Double click on the main camera screen to hide the Special Modes carousel.' },
   { section: 'Special Modes', title: '🎲 Random Mode', body: 'Picks a random preset for every photo you take. If you have favorites selected it draws only from those, otherwise from all visible presets.' },
   { section: 'Special Modes', title: '⏱️ Timer Mode', body: 'Set a countdown of 3, 5, or 10 seconds before each shot. Enable repeat mode so it automatically keeps taking photos at a set interval.' },
   { section: 'Special Modes', title: '📸⚡ Burst Mode', body: 'Captures 3 to 10 photos rapidly in one press. Choose slow, medium, or fast burst speed in Settings. Great for action shots or getting multiple variations.' },
   { section: 'Special Modes', title: '👁️ Motion Detection', body: 'Automatically captures when movement is detected in frame. Set sensitivity, start delay, and cooldown interval. The eye icon pulses when motion is triggered.' },
   { section: 'Special Modes', title: '🎞️ Multi Preset', body: 'Select up to 20 presets to apply to a single photo. Tap the film strip button in the carousel, choose presets, and tap Apply Selected. When you take a photo, each preset is sent in order with a 3 second gap between them.' },
-  { section: 'Special Modes', title: '📝 Master and 🎛️ Options', body: 'Below the Menu button on the left side within a carousel. The Master button accesses Master Prompt settings. The OPTIONS button toggles Manually Select Options mode. Both Glow green when enabled.' },
+  { section: 'Special Modes', title: '📝 Master and 🎛️ Options', body: 'Located below the Menu button on the left side within a carousel. The Master button accesses Master Prompt settings. The OPTIONS button toggles Manually Select Options mode. Both Glow green when enabled.' },
   { section: 'Gallery', title: '🖼️ Gallery Activities', body: 'Within the gallery there are thumbnails of captured images. You can either select multiple images to apply a preset, or select a single image to either edit, export or apply one or several presets.' },
   { section: 'Uploading Images', title: '📥 Importing External Images', body: 'In the gallery, you may also bring any image from the web into the gallery using a QR code. Upload the image to catbox.moe, copy the direct link, and generate a QR code at qr-code-generator.com.' },
   { section: 'Uploading Images', title: '📷 Scanning the QR Code', body: 'In the gallery, press Import then Scan QR Code. Point your R1 camera at the QR code and wait. The image will be automatically saved to your gallery.' },
@@ -4946,11 +4948,11 @@ const TOUR_STEPS = [
   { section: 'Gallery', title: '🎨 Applying Presets to Single Image', body: 'After clicking on a single image, Tap LOAD or MULTI to transform a saved image. Click twice on a preset to apply it. You can stack multiple transformations.' },
   { section: 'Gallery', title: '🏷️ Preset Header', body: 'At the very top of the image viewer a header shows the name of the currently loaded preset. Tap the header to hear the preset name and description.' },
   { section: 'Gallery', title: '⬅️ Left Side Button', body: 'The delete button is in the top-left corner.' },
-  { section: 'Gallery', title: '🎠 Left Carousel', body: 'Below the delete button, the two left buttons are MASTER and OPTIONS. They are visible by default. Swipe left to hide them. The MASTER button toggles Master Prompt on or off. The OPTIONS button toggles Manually Select Options mode.' },
-  { section: 'Gallery', title: '🎠 Right Carousel', body: 'Swipe left from the right edge of the image viewer to reveal the side carousel which has two buttons — Edit which opens the image editor, and Export which uploads to gofile.io.' },
+  { section: 'Gallery', title: '🎠 Left Carousel', body: 'Below the delete button are two left buttons-MASTER and OPTIONS. They are visible by default. Double click on screen to hide them. The MASTER button toggles Master Prompt on or off. The OPTIONS button toggles Manually Select Options mode.' },
+  { section: 'Gallery', title: '🎠 Right Carousel', body: 'The side carousel has two buttons — Edit which opens the image editor, and Export which uploads to gofile.io. Double click on screen to hide the buttons.' },
   { section: 'Gallery', title: '⬇️ Bottom Bar Buttons', body: 'Four buttons on the bottom of image viewer. PROMPT opens editor. LOAD opens preset selector. MULTI opens multi-preset selector. MAGIC transforms image using the loaded preset, or picks randomly if nothing is loaded.' },
-  { section: 'Gallery', title: '🌐 Export to gofile.io', body: 'Share a gallery image by swiping left in the image viewer to reveal the carousel, then tapping Export. You get a QR code with a link that expires after 24 hours. Most useful in No Magic Mode.' },
-  { section: 'Image Editor', title: '✏️ Opening the Editor', body: 'While viewing any photo, swipe left from the right edge to reveal the image viewer carousel, then tap the Edit button. The editor opens with crop, rotate, sharpen, auto-correct, and brightness and contrast controls.' },
+  { section: 'Gallery', title: '🌐 Export to gofile.io', body: 'Tapping Export in the right carousel. You get a QR code with a link that expires after 24 hours. Most useful in No Magic Mode.' },
+  { section: 'Image Editor', title: '✏️ Opening the Editor', body: 'While viewing any photo, the image viewer carousel contains the Edit button. Tap it. The editor opens with crop, rotate, sharpen, auto-correct, and brightness and contrast controls.' },
   { section: 'Image Editor', title: '✂️ Crop Tool', body: 'Tap Crop to activate. Two orange corner markers appear. Drag them to frame your desired area. Tap Crop again to apply.' },
   { section: 'Image Editor', title: '🔄 Rotate Tool', body: 'Rotates your image 90 degrees clockwise each tap. Tap multiple times to reach 180, 270, or back to 0 degrees.' },
   { section: 'Image Editor', title: '🔍 Sharpen and Auto Correct', body: 'Sharpen makes edges crisper. Auto Correct automatically balances brightness, contrast, and color. Great as a first step before manual tweaks.' },
@@ -7076,6 +7078,7 @@ function updatePresetDisplay() {
         } else {
             statusElement.textContent = `Style: ${currentPreset.name}`;
         }
+    }
     
     // Show style reveal on screen (middle text)
     if (isCameraMultiPresetActive && cameraSelectedPresets.length > 0) {
@@ -7088,7 +7091,6 @@ function updatePresetDisplay() {
 
     if (isMenuOpen) {
         updateMenuSelection();
-    }
     }
 }
 
@@ -8094,17 +8096,18 @@ function populateStylesList(preserveScroll = false) {
     });
     
     const filtered = regular.filter(preset => {
+      // First apply text search filter
       if (styleFilterText) {
         const searchText = styleFilterText.toLowerCase();
-          const categoryMatch = preset.category && preset.category.some(cat => cat.toLowerCase().includes(searchText));
-          const optionsMatch = (
-        (preset.options && preset.options.some(o => o.text && o.text.toLowerCase().includes(searchText))) ||
-        (preset.optionGroups && preset.optionGroups.some(g => g.title && g.title.toLowerCase().includes(searchText) || g.options && g.options.some(o => o.text && o.text.toLowerCase().includes(searchText))))
-      );
-          const textMatch = preset.name.toLowerCase().includes(searchText) || 
+        const categoryMatch = preset.category && preset.category.some(cat => cat.toLowerCase().includes(searchText));
+        const optionsMatch = (
+          (preset.options && preset.options.some(o => o.text && o.text.toLowerCase().includes(searchText))) ||
+          (preset.optionGroups && preset.optionGroups.some(g => g.title && g.title.toLowerCase().includes(searchText) || g.options && g.options.some(o => o.text && o.text.toLowerCase().includes(searchText))))
+        );
+        const textMatch = preset.name.toLowerCase().includes(searchText) || 
                          preset.message.toLowerCase().includes(searchText) ||
                          categoryMatch || optionsMatch;
-          if (!textMatch) return false;
+        if (!textMatch) return false;
       }
       
       // Then apply category filter if active
@@ -11390,44 +11393,60 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-// Viewer carousel swipe logic — right carousel (Edit/Export) and left carousel (MASTER/OPTIONS)
+// Gallery image viewer — double-tap to toggle both carousels
 (function() {
-  let vcTouchStartX = 0;
   const viewerEl = document.getElementById('image-viewer');
   if (!viewerEl) return;
 
-  viewerEl.addEventListener('touchstart', (e) => {
-    vcTouchStartX = e.touches[0].clientX;
-  }, { passive: true });
+  let lastTapTime = 0;
+  let lastTapX = 0;
+  let lastTapY = 0;
+  const DOUBLE_TAP_DELAY = 300;
+  const DOUBLE_TAP_RADIUS = 40;
+
+  let leftVisible = true;
+  let rightVisible = true;
+
+  // Set right carousel visible by default on open
+  function initViewerCarousels() {
+    const right = document.getElementById('viewer-carousel');
+    const left = document.getElementById('viewer-left-carousel');
+    if (right) { right.classList.remove('hidden'); rightVisible = true; }
+    if (left) { left.classList.remove('hidden'); leftVisible = true; }
+  }
+  // Expose so openImageViewer can call it
+  window.initViewerCarousels = initViewerCarousels;
 
   viewerEl.addEventListener('touchend', (e) => {
-    const rightCarousel = document.getElementById('viewer-carousel');
-    const leftCarousel = document.getElementById('viewer-left-carousel');
-    const endX = e.changedTouches[0].clientX;
-    const diff = vcTouchStartX - endX; // positive = swipe left, negative = swipe right
-    const rightEdgeZone = window.innerWidth * 0.5;
-    const leftEdgeZone = window.innerWidth * 0.5;
+    if (e.changedTouches.length !== 1) return;
 
-    // RIGHT carousel: swipe left from right half to show, swipe right to hide
-    if (rightCarousel) {
-      if (vcTouchStartX > rightEdgeZone && diff > 30) {
-        rightCarousel.classList.add('show');
-      }
-      if (diff < -30) {
-        rightCarousel.classList.remove('show');
-      }
-    }
+    const touch = e.changedTouches[0];
+    const now = Date.now();
+    const timeDiff = now - lastTapTime;
+    const distX = Math.abs(touch.clientX - lastTapX);
+    const distY = Math.abs(touch.clientY - lastTapY);
 
-    // LEFT carousel: swipe left from left half to hide, swipe right from left half to show
-    if (leftCarousel) {
-      if (vcTouchStartX < leftEdgeZone && diff > 30) {
-        // Swipe left on left side — hide the left carousel
-        leftCarousel.classList.add('hidden');
+    if (timeDiff < DOUBLE_TAP_DELAY && distX < DOUBLE_TAP_RADIUS && distY < DOUBLE_TAP_RADIUS) {
+      const right = document.getElementById('viewer-carousel');
+      const left = document.getElementById('viewer-left-carousel');
+
+      leftVisible = !leftVisible;
+      rightVisible = !rightVisible;
+
+      if (left) {
+        if (leftVisible) left.classList.remove('hidden');
+        else left.classList.add('hidden');
       }
-      if (vcTouchStartX < leftEdgeZone && diff < -30) {
-        // Swipe right on left side — show the left carousel
-        leftCarousel.classList.remove('hidden');
+      if (right) {
+        if (rightVisible) right.classList.remove('hidden');
+        else right.classList.add('hidden');
       }
+
+      lastTapTime = 0;
+    } else {
+      lastTapTime = now;
+      lastTapX = touch.clientX;
+      lastTapY = touch.clientY;
     }
   }, { passive: true });
 })();
@@ -11475,68 +11494,74 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Swipe logic: swipe left on left half to hide, swipe right on left half to show
-  let lcTouchStartX = 0;
-  const appEl = document.getElementById('app');
-  if (appEl) {
-    appEl.addEventListener('touchstart', (e) => {
-      lcTouchStartX = e.touches[0].clientX;
-    }, { passive: true });
-    appEl.addEventListener('touchend', (e) => {
-      // Only apply when main camera is active (not in gallery, menu, etc.)
-      if (document.getElementById('gallery-modal')?.style.display === 'flex') return;
-      if (document.getElementById('image-viewer')?.style.display === 'flex') return;
-      if (document.getElementById('unified-menu')?.style.display === 'flex') return;
-      if (document.getElementById('settings-submenu')?.style.display === 'flex') return;
-
-      const carousel = document.getElementById('left-cam-carousel');
-      if (!carousel || carousel.style.display === 'none') return;
-      const endX = e.changedTouches[0].clientX;
-      const diff = lcTouchStartX - endX;
-      const leftZone = window.innerWidth * 0.5;
-
-      if (lcTouchStartX < leftZone && diff > 30) {
-        // Swipe left on left side — hide
-        carousel.classList.add('hidden');
-      }
-      if (lcTouchStartX < leftZone && diff < -30) {
-        // Swipe right on left side — show
-        carousel.classList.remove('hidden');
-      }
-    }, { passive: true });
-  }
-
   // Initial sync after a brief delay to ensure state is loaded
   setTimeout(syncLeftCamBtns, 200);
 })();
 
 console.log('AI Camera Styles app initialized!');
 
-// --- Swipe Detection for Mode Carousel ---
-let touchStartX = 0;
+// --- Double-tap to toggle BOTH main camera carousels ---
+(function() {
+  let lastTapTime = 0;
+  let lastTapX = 0;
+  let lastTapY = 0;
+  const DOUBLE_TAP_DELAY = 300;   // max ms between taps to count as double-tap
+  const DOUBLE_TAP_RADIUS = 40;   // max px movement between taps
 
-document.addEventListener('touchstart', (e) => {
-    touchStartX = e.touches[0].clientX;
-}, { passive: true });
+  // Track whether carousels are currently visible
+  let leftVisible = true;
+  let rightVisible = true;
 
-document.addEventListener('touchend', (e) => {
-    const touchEndX = e.changedTouches[0].clientX;
-    const diffX = touchStartX - touchEndX; // Positive = Swipe Left
-    const carousel = document.querySelector('.mode-carousel');
+  // Right carousel visible state controlled by CSS and .hidden class only
 
-    if (!carousel) return;
+  document.addEventListener('touchend', (e) => {
+    // Only on main camera screen
+    if (document.getElementById('gallery-modal')?.style.display === 'flex') return;
+    if (document.getElementById('image-viewer')?.style.display === 'flex') return;
+    if (document.getElementById('unified-menu')?.style.display === 'flex') return;
+    if (document.getElementById('settings-submenu')?.style.display === 'flex') return;
+    if (document.getElementById('master-prompt-submenu')?.style.display === 'flex') return;
+    if (document.getElementById('preset-builder-submenu')?.style.display === 'flex') return;
 
-    const swipeThreshold = 30; 
-    // Detects if swipe starts on the right 40% of screen
-    const edgeZone = window.innerWidth * 0.5; 
+    // Ignore if more than one finger (pinch to zoom)
+    if (e.changedTouches.length !== 1) return;
 
-    // SHOW MENU: Swipe Left
-    if (touchStartX > edgeZone && diffX > swipeThreshold) {
-        carousel.classList.add('show');
+    const touch = e.changedTouches[0];
+    const now = Date.now();
+    const timeDiff = now - lastTapTime;
+    const distX = Math.abs(touch.clientX - lastTapX);
+    const distY = Math.abs(touch.clientY - lastTapY);
+
+    if (timeDiff < DOUBLE_TAP_DELAY && distX < DOUBLE_TAP_RADIUS && distY < DOUBLE_TAP_RADIUS) {
+      // Valid double-tap — toggle both carousels
+      const leftCarousel = document.getElementById('left-cam-carousel');
+      const rightCarousel = document.querySelector('.mode-carousel');
+
+      leftVisible = !leftVisible;
+      rightVisible = !rightVisible;
+
+      if (leftCarousel) {
+        if (leftVisible) leftCarousel.classList.remove('hidden');
+        else leftCarousel.classList.add('hidden');
+      }
+
+      if (rightCarousel) {
+        if (rightVisible) {
+          rightCarousel.style.transform = 'translateX(0)';
+          rightCarousel.style.pointerEvents = 'auto';
+        } else {
+          rightCarousel.style.transform = 'translateX(calc(100% + 8px))';
+          rightCarousel.style.pointerEvents = 'none';
+        }
+      }
+
+      // Reset so triple-tap doesn't re-trigger
+      lastTapTime = 0;
+    } else {
+      // First tap — record it
+      lastTapTime = now;
+      lastTapX = touch.clientX;
+      lastTapY = touch.clientY;
     }
-
-    // HIDE MENU: Swipe Right
-    if (diffX < -swipeThreshold) {
-        carousel.classList.remove('show');
-    }
-}, { passive: true });
+  }, { passive: true });
+})();
