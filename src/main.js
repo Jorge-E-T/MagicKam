@@ -949,6 +949,13 @@ function openImageViewer(index) {
   viewerZoom = 1;
   
   promptInput.value = '';
+
+  // Always reset preset header and loaded preset when opening a new image
+  // (will be restored if returning from editor)
+  window.viewerLoadedPreset = null;
+  const presetHeader = document.getElementById('viewer-preset-header');
+  if (presetHeader) presetHeader.textContent = 'NO PRESET LOADED';
+
   // Show combined indicator if in combined mode
   const combinedIndicator = document.getElementById('viewer-combined-indicator');
   if (combinedIndicator) {
@@ -1896,28 +1903,68 @@ async function combineTwoImages() {
       loadImage(imgB.imageBase64)
     ]);
 
-    const totalWidth = imageA.width + imageB.width;
-    const maxHeight = Math.max(imageA.height, imageB.height);
+    // Scale both images to the same height (the taller one sets the height)
+    // then place side by side — no cropping
+    const targetHeight = Math.max(imageA.height, imageB.height);
+
+    // Scale each image proportionally to targetHeight
+    const scaleA = targetHeight / imageA.height;
+    const scaleB = targetHeight / imageB.height;
+    const scaledWidthA = Math.round(imageA.width * scaleA);
+    const scaledWidthB = Math.round(imageB.width * scaleB);
+    const totalWidth = scaledWidthA + scaledWidthB;
+
+    // Enforce 3:4 aspect ratio (width:height = 3:4) for the combined canvas
+    // Fit within this ratio without cropping — pad with black if needed
+    const targetRatioW = 3;
+    const targetRatioH = 4;
+
+    // Canvas height based on 3:4 from total width
+    let canvasWidth = totalWidth;
+    let canvasHeight = Math.round(canvasWidth * targetRatioH / targetRatioW);
+
+    // If the images at targetHeight are taller than the 3:4 canvas, scale down
+    if (targetHeight > canvasHeight) {
+      canvasHeight = targetHeight;
+      canvasWidth = Math.round(canvasHeight * targetRatioW / targetRatioH);
+    }
+
+    // Cap at 2048px wide to stay within safe canvas limits
+    const MAX_WIDTH = 2048;
+    if (canvasWidth > MAX_WIDTH) {
+      const downScale = MAX_WIDTH / canvasWidth;
+      canvasWidth = MAX_WIDTH;
+      canvasHeight = Math.round(canvasHeight * downScale);
+    }
+
+    // Recalculate image widths to fit within the canvas width (half each)
+    const halfCanvas = Math.floor(canvasWidth / 2);
+    const finalHeightA = Math.round(imageA.height * (halfCanvas / imageA.width));
+    const finalHeightB = Math.round(imageB.height * (halfCanvas / imageB.width));
 
     const canvas = document.createElement('canvas');
-    canvas.width = totalWidth;
-    canvas.height = maxHeight;
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
     const ctx = canvas.getContext('2d');
 
+    // Black background
     ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, totalWidth, maxHeight);
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-    const offsetAY = Math.floor((maxHeight - imageA.height) / 2);
-    ctx.drawImage(imageA, 0, offsetAY, imageA.width, imageA.height);
+    // Draw image A on left half, vertically centred, no cropping
+    const offsetAY = Math.floor((canvasHeight - finalHeightA) / 2);
+    ctx.drawImage(imageA, 0, offsetAY, halfCanvas, finalHeightA);
 
-    const offsetBY = Math.floor((maxHeight - imageB.height) / 2);
-    ctx.drawImage(imageB, imageA.width, offsetBY, imageB.width, imageB.height);
+    // Draw image B on right half, vertically centred, no cropping
+    const offsetBY = Math.floor((canvasHeight - finalHeightB) / 2);
+    ctx.drawImage(imageB, halfCanvas, offsetBY, halfCanvas, finalHeightB);
 
+    // Dividing line
     ctx.strokeStyle = 'rgba(255,255,255,0.3)';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(imageA.width, 0);
-    ctx.lineTo(imageA.width, maxHeight);
+    ctx.moveTo(halfCanvas, 0);
+    ctx.lineTo(halfCanvas, canvasHeight);
     ctx.stroke();
 
     const combinedBase64 = canvas.toDataURL('image/jpeg', 0.92);
@@ -3372,14 +3419,24 @@ function hidePresetBuilderSubmenu() {
     // Remember which preset was loaded before we open the viewer (openImageViewer blanks the field)
     const presetToRestore = window.viewerLoadedPreset;
     openImageViewer(currentViewerImageIndex);
-    // If a preset was loaded when the user tapped the text field, restore it
+    // Determine which preset to load into the viewer
+    let presetToShow = null;
     if (presetToRestore) {
-      // Try by name first; if preset was renamed, use the saved builder index position
+      // Editing existing — find by name first, fall back to saved index
       let updatedPreset = CAMERA_PRESETS.find(p => p.name === presetToRestore.name);
       if (!updatedPreset && savedBuilderIndex >= 0 && CAMERA_PRESETS[savedBuilderIndex]) {
         updatedPreset = CAMERA_PRESETS[savedBuilderIndex];
       }
-      const presetToShow = updatedPreset || presetToRestore;
+      presetToShow = updatedPreset || presetToRestore;
+    } else if (savedBuilderIndex >= 0 && CAMERA_PRESETS[savedBuilderIndex]) {
+      // Edited existing preset with no prior loaded preset
+      presetToShow = CAMERA_PRESETS[savedBuilderIndex];
+    } else {
+      // Brand new preset — it was just pushed to CAMERA_PRESETS, find it by internal:false at end
+      const newPresets = CAMERA_PRESETS.filter(p => p.internal === false);
+      if (newPresets.length > 0) presetToShow = newPresets[newPresets.length - 1];
+    }
+    if (presetToShow) {
       window.viewerLoadedPreset = presetToShow;
       let fullText = presetToShow.message;
       if (presetToShow.randomizeOptions) {
@@ -7207,7 +7264,6 @@ function updatePresetDisplay() {
         } else {
             statusElement.textContent = `Style: ${currentPreset.name}`;
         }
-    }
     
     // Show style reveal on screen (middle text)
     if (isCameraMultiPresetActive && cameraSelectedPresets.length > 0) {
@@ -7220,6 +7276,7 @@ function updatePresetDisplay() {
 
     if (isMenuOpen) {
         updateMenuSelection();
+    }
     }
 }
 
@@ -8465,14 +8522,23 @@ function hideStyleEditor() {
     // Remember which preset was loaded before we open the viewer (openImageViewer blanks the field)
     const presetToRestore = window.viewerLoadedPreset;
     openImageViewer(currentViewerImageIndex);
-    // If a preset was loaded when the user tapped the text field, restore it
+    // Determine which preset to load into the viewer
+    let presetToShow = null;
     if (presetToRestore) {
-      // Try by name first; if preset was renamed, use the saved index position
+      // Editing existing — find by name first, fall back to saved index
       let updatedPreset = CAMERA_PRESETS.find(p => p.name === presetToRestore.name);
       if (!updatedPreset && savedEditingStyleIndex >= 0 && CAMERA_PRESETS[savedEditingStyleIndex]) {
         updatedPreset = CAMERA_PRESETS[savedEditingStyleIndex];
       }
-      const presetToShow = updatedPreset || presetToRestore;
+      presetToShow = updatedPreset || presetToRestore;
+    } else if (savedEditingStyleIndex >= 0 && CAMERA_PRESETS[savedEditingStyleIndex]) {
+      // Edited existing with no prior loaded preset
+      presetToShow = CAMERA_PRESETS[savedEditingStyleIndex];
+    } else {
+      // Brand new preset saved from style editor — find most recently saved
+      presetToShow = CAMERA_PRESETS[CAMERA_PRESETS.length - 1] || null;
+    }
+    if (presetToShow) {
       window.viewerLoadedPreset = presetToShow;
       let fullText = presetToShow.message;
       if (presetToShow.randomizeOptions) {

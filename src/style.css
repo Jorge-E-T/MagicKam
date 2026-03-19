@@ -1,3 +1,18 @@
+/* Power Grotesk Font */
+@font-face {
+    font-family: 'Power Grotesk';
+    src: url('https://fonts.cdnfonts.com/s/95219/PowerGrotesk-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Power Grotesk';
+    src: url('https://fonts.cdnfonts.com/s/95219/PowerGrotesk-Bold.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+}
+
 /* Base styles for R1 device (240x320px portrait) */
 * {
     margin: 0;
@@ -2048,15 +2063,14 @@ button:disabled {
 .viewer-preset-header {
     position: absolute;
     top: 5vw;
-    left: 20vw;
-    right: 20vw;
-    height: 10vw;
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    left: calc(44px + 3vw);
+    right: calc(44px + 3vw);
+    height: 9vw;
+    min-height: 0;
+    display: block;
+    line-height: 9vw;
     color: #FE5F00;
-    font-size: 4vw;
+    font-size: 3.5vw;
     font-weight: bold;
     text-align: center;
     z-index: 2002;
@@ -2065,7 +2079,8 @@ button:disabled {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    padding: 0 2vw;
+    padding: 0 1vw;
+    box-sizing: border-box;
 }
 
 /* Delete button — top left */
@@ -2295,7 +2310,7 @@ button:disabled {
 /* Image fills space between header and bottom bar */
 .image-viewer-container {
     position: absolute;
-    top: 14vw;
+    top: calc(1vh + max(12vw, 44px) + 1vw);
     left: 0;
     right: 0;
     bottom: 12vw;
@@ -2862,24 +2877,34 @@ button:disabled {
 
 /* Batch Mode - VERY COMPACT */
 .batch-toggle-button {
-    padding: 2.5vw;
-    background: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 1vw;
-    font-size: 3.5vw;
+    padding: 0 3vw;
+    background: rgba(30, 30, 30, 0.75);
+    color: #ffffff;
+    border: 2px solid #4CAF50;
+    border-radius: 2vw;
+    font-size: 3vw;
     font-weight: bold;
     cursor: pointer;
     text-align: center;
-    min-height: 11vh;
+    height: 7vw;
+    min-height: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-right: 6px;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+.batch-toggle-button:active {
+    background-color: #4CAF50;
+    color: #000;
 }
 
 .batch-toggle-button.active {
-    background: #f44336;
+    background: rgba(30, 30, 30, 0.75);
+    border-color: #f44336;
+    color: #ffffff;
 }
 
 .batch-controls {
