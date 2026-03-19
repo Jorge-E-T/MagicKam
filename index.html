@@ -887,6 +887,8 @@
 
                             <strong>Batch Operations:</strong> Select multiple images to apply one preset or delete in bulk. Click the Select button. Make sure to click DONE when finished.<br><br>
 
+                            <strong>Batch Operations-Combine:</strong> Select two images to combine them to feed to r1 thereby creating AI generated images from two of your gallery saved images. Click the Select button. Select the two images and click Combine. It will open up the Combined Image Viewer to prompt them and edit them. If you do not edit the combined picture and then save, it will be deleted after you exit the Combined Image Viewer. Saving an edited combined picture saves it to your gallery as a new image.<br><br>
+
                             <strong>Sort &amp; Filter:</strong> Organize by newest/oldest, filter by date range. When picking a date range, always select the day after your end date. For example for December 25 images, choose December 25 to December 26.<br><br>
 
                             <strong>View Photos:</strong> Tap any image to view it full-screen. The viewer is redesigned to give your photo maximum screen space.<br><br>
@@ -1160,7 +1162,8 @@ All of the presets are optimized to avoid "camera ran dry" or "content filter" i
             <div id="batch-action-bar" class="batch-action-bar" style="display: none;">
                     <span id="batch-selected-count" class="batch-selected-count">0 selected</span>
                     <div class="batch-actions-group">
-                        <button id="batch-apply-preset" class="batch-action-button" disabled>Apply Preset</button>
+                        <button id="batch-apply-preset" class="batch-action-button" disabled>Preset</button>
+                        <button id="batch-combine" class="batch-action-button combine" disabled title="Select exactly 2 images to combine">Combine</button>
                         <button id="batch-delete" class="batch-action-button delete" disabled>Delete</button>
                     </div>
                 </div>
@@ -1176,6 +1179,8 @@ All of the presets are optimized to avoid "camera ran dry" or "content filter" i
         <!-- Top corners: Delete (left) and Close (right) -->
         <button id="delete-viewer-image" class="viewer-delete-button">🗑️</button>
         <button id="close-viewer" class="viewer-close-button">×</button>
+        <!-- Combined image indicator — shows above preset header when in combine mode -->
+        <div id="viewer-combined-indicator" class="viewer-combined-indicator">⬛ COMBINED IMAGE</div>
         <!-- Preset name header between delete and close — tappable -->
         <div id="viewer-preset-header" class="viewer-preset-header">NO PRESET LOADED</div>
         <!-- Left carousel: MASTER and OPTIONS — default visible, double click to hide -->
