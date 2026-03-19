@@ -1,18 +1,3 @@
-/* Power Grotesk Font */
-@font-face {
-    font-family: 'Power Grotesk';
-    src: url('https://fonts.cdnfonts.com/s/95219/PowerGrotesk-Regular.woff') format('woff');
-    font-weight: 400;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: 'Power Grotesk';
-    src: url('https://fonts.cdnfonts.com/s/95219/PowerGrotesk-Bold.woff') format('woff');
-    font-weight: 700;
-    font-style: normal;
-}
-
 /* Base styles for R1 device (240x320px portrait) */
 * {
     margin: 0;
@@ -2035,10 +2020,34 @@ button:disabled {
     position: relative;
 }
 
+/* Combined image indicator — sits above the preset header */
+.viewer-combined-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5vw;
+    min-height: 20px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: #fff;
+    font-size: 2.5vw;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    z-index: 2003;
+}
+
+.viewer-combined-indicator.visible {
+    display: flex;
+}
+
 /* Preset name header at the very top center */
 .viewer-preset-header {
     position: absolute;
-    top: 0;
+    top: 5vw;
     left: 20vw;
     right: 20vw;
     height: 10vw;
@@ -2910,58 +2919,79 @@ button:disabled {
     position: sticky;
     bottom: 0;
     display: flex;
-    justify-content: space-between;
+    flex-direction: row;
     align-items: center;
-    padding: 2px;
-    min-height: unset;
+    justify-content: space-between;
+    padding: 2vw;
+    gap: 2vw;
     background: #000;
     border-top: 1px solid #333;
+    box-sizing: border-box;
 }
 
 .batch-selected-count {
-    font-size: 11px;
+    font-size: 3vw;
     font-weight: 600;
-    color: #333;
-    padding: 2px;
-    margin: 0;
-    line-height: 1.1;
+    color: #aaa;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .batch-actions-group {
     display: flex;
-    gap: 6px;
+    flex: 1;
+    gap: 2vw;
+    justify-content: flex-end;
 }
 
 .batch-action-button {
-    padding: 6px 6px;
-    background: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 3px;
-    font-size: 11px;
-    font-weight: 600;
+    flex: 1;
+    height: 7vw;
+    min-height: 0;
+    min-width: 0;
+    background: rgba(30, 30, 30, 0.75);
+    color: #ffffff;
+    border: 2px solid #4CAF50;
+    border-radius: 2vw;
+    font-size: 3vw;
+    font-weight: bold;
     cursor: pointer;
-    min-height: unset;
-    min-width: unset;
-    height: 100%;
-    line-height: 1.2;
-
+    padding: 0 1vw;
+    white-space: nowrap;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-sizing: border-box;
+}
+
+.batch-action-button:active {
+    background-color: #4CAF50;
+    color: #000;
 }
 
 .batch-action-button.delete {
-    background: #f44336;
+    border-color: #f44336;
+    color: #ffffff;
+}
+
+.batch-action-button.delete:active {
+    background-color: #f44336;
+    color: #000;
+}
+
+.batch-action-button.combine {
+    border-color: #9C27B0;
+    color: #ffffff;
+}
+
+.batch-action-button.combine:active {
+    background-color: #9C27B0;
+    color: #000;
 }
 
 .batch-action-button:disabled {
-    background: #ccc;
+    opacity: 0.35;
     cursor: not-allowed;
-}
-
-.batch-action-button:not(:disabled):hover {
-    background: #45a049;
 }
 
 .gallery-item {

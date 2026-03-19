@@ -949,8 +949,12 @@ function openImageViewer(index) {
   viewerZoom = 1;
   
   promptInput.value = '';
-  const presetHeader = document.getElementById('viewer-preset-header');
-  if (presetHeader) presetHeader.textContent = 'NO PRESET LOADED';
+  // Show combined indicator if in combined mode
+  const combinedIndicator = document.getElementById('viewer-combined-indicator');
+  if (combinedIndicator) {
+    if (window.isCombinedMode) combinedIndicator.classList.add('visible');
+    else combinedIndicator.classList.remove('visible');
+  }
   
   // Light up MP button if master prompt is enabled
   const mpBtn = document.getElementById('mp-viewer-button');
@@ -986,7 +990,19 @@ function closeImageViewer() {
   currentViewerImageIndex = -1;
   viewerZoom = 1;
   window.viewerLoadedPreset = null;
-  
+  // When user exits the viewer, delete the combined temp image and clear combined mode
+  if (window.isCombinedMode && window.pendingCombinedImageId) {
+    const tempId = window.pendingCombinedImageId;
+    window.isCombinedMode = false;
+    window.pendingCombinedImageId = null;
+    const tempIndex = galleryImages.findIndex(img => img.id === tempId);
+    if (tempIndex >= 0) galleryImages.splice(tempIndex, 1);
+    deleteImageFromDB(tempId).catch(err => console.error('Failed to delete temp combined image:', err));
+  }
+  // Hide combined indicator
+  const combinedIndicator = document.getElementById('viewer-combined-indicator');
+  if (combinedIndicator) combinedIndicator.classList.remove('visible');
+
   // Show gallery again without resuming camera
   const modal = document.getElementById('gallery-modal');
   modal.style.display = 'flex';
@@ -1687,9 +1703,12 @@ async function submitMagicTransform() {
       pluginId: 'com.r1.pixelart',
       imageBase64: item.imageBase64
     }));
-    
+
+    // Combined image stays active until user closes the viewer
+
     alert('Magic transform submitted! You can submit again with a different prompt.');
   } else {
+    // Combined image stays active until user closes the viewer
     alert('Magic transform sent: ' + prompt.substring(0, 50) + '...');
   }
 }
@@ -1723,11 +1742,16 @@ function updateBatchSelection() {
   const countElement = document.getElementById('batch-selected-count');
   const applyButton = document.getElementById('batch-apply-preset');
   const deleteButton = document.getElementById('batch-delete');
+  const combineButton = document.getElementById('batch-combine');
   
   countElement.textContent = `${selectedBatchImages.size} selected`;
   applyButton.disabled = selectedBatchImages.size === 0;
   if (deleteButton) {
     deleteButton.disabled = selectedBatchImages.size === 0;
+  }
+  // Combine only active when exactly 2 images selected
+  if (combineButton) {
+    combineButton.disabled = selectedBatchImages.size !== 2;
   }
 }
 
@@ -1840,6 +1864,110 @@ async function processBatchImages(preset, imagesToProcess) {
   toggleBatchMode();
   
   alert(`Batch processing complete! ${processed} of ${total} images submitted.`);
+}
+
+async function combineTwoImages() {
+  if (selectedBatchImages.size !== 2) {
+    alert('Please select exactly 2 images to combine.');
+    return;
+  }
+
+  const ids = Array.from(selectedBatchImages);
+  const imgA = galleryImages.find(img => img.id === ids[0]);
+  const imgB = galleryImages.find(img => img.id === ids[1]);
+
+  if (!imgA || !imgB) {
+    alert('Could not find selected images.');
+    return;
+  }
+
+  try {
+    showGalleryStatusMessage('Combining images...', 'info', 0);
+
+    const loadImage = (src) => new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(new Error('Failed to load image'));
+      image.src = src;
+    });
+
+    const [imageA, imageB] = await Promise.all([
+      loadImage(imgA.imageBase64),
+      loadImage(imgB.imageBase64)
+    ]);
+
+    const totalWidth = imageA.width + imageB.width;
+    const maxHeight = Math.max(imageA.height, imageB.height);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = totalWidth;
+    canvas.height = maxHeight;
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, totalWidth, maxHeight);
+
+    const offsetAY = Math.floor((maxHeight - imageA.height) / 2);
+    ctx.drawImage(imageA, 0, offsetAY, imageA.width, imageA.height);
+
+    const offsetBY = Math.floor((maxHeight - imageB.height) / 2);
+    ctx.drawImage(imageB, imageA.width, offsetBY, imageB.width, imageB.height);
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(imageA.width, 0);
+    ctx.lineTo(imageA.width, maxHeight);
+    ctx.stroke();
+
+    const combinedBase64 = canvas.toDataURL('image/jpeg', 0.92);
+
+    // Save as temporary combined image — flagged for deletion after use
+    const tempId = Date.now().toString() + '-combined-' + Math.random().toString(36).substr(2, 9);
+    const newImageData = {
+      id: tempId,
+      imageBase64: combinedBase64,
+      timestamp: Date.now(),
+      isCombinedTemp: true
+    };
+
+    galleryImages.unshift(newImageData);
+    await saveImageToDB(newImageData);
+
+    // Store the combined image ID so we can delete it after sending
+    window.pendingCombinedImageId = tempId;
+    window.isCombinedMode = true;
+
+    // Exit batch mode silently
+    isBatchMode = false;
+    selectedBatchImages.clear();
+    const toggleBtn = document.getElementById('batch-mode-toggle');
+    const batchControls = document.getElementById('batch-controls');
+    const batchActionBar = document.getElementById('batch-action-bar');
+    if (toggleBtn) { toggleBtn.textContent = 'Select'; toggleBtn.classList.remove('active'); }
+    if (batchControls) batchControls.style.display = 'none';
+    if (batchActionBar) batchActionBar.style.display = 'none';
+
+    // Open the combined image in the viewer immediately
+    await showGallery();
+    const newIndex = galleryImages.findIndex(img => img.id === tempId);
+    if (newIndex >= 0) {
+      document.getElementById('gallery-modal').style.display = 'none';
+      openImageViewer(newIndex);
+    }
+
+    showGalleryStatusMessage(
+      '✅ Images combined! Now select a preset and tap ✨ MAGIC to transform both subjects.',
+      'success',
+      5000
+    );
+
+  } catch (err) {
+    window.isCombinedMode = false;
+    window.pendingCombinedImageId = null;
+    console.error('Combine failed:', err);
+    showGalleryStatusMessage('Failed to combine images: ' + err.message, 'error', 4000);
+  }
 }
 
 async function batchDeleteImages() {
@@ -4943,6 +5071,7 @@ const TOUR_STEPS = [
   { section: 'Uploading Images', title: '📷 Scanning the QR Code', body: 'In the gallery, press Import then Scan QR Code. Point your R1 camera at the QR code and wait. The image will be automatically saved to your gallery.' },
   { section: 'Uploading Images', title: '⚠️ Verify Your Link First', body: 'Before making the QR code, paste the link into a browser. If it shows only the image with nothing around it, it will work. If it shows a webpage with the image embedded, it will not work.' },
   { section: 'Gallery', title: '☑️ Batch Operations', body: 'Tap the Select button to enter batch mode. Select multiple images, then apply one preset to all of them or delete them in bulk. Always tap DONE when finished.' },
+  { section: 'Gallery', title: '👥 Combine Images', body: 'Tap the Select button to enter batch mode. Select two images, then click Combine to create one image. You can apply presets to create combined subjects into one final image using existing presets.' },
   { section: 'Gallery', title: '📅 Sort and Filter', body: 'Sort by newest or oldest. Filter by date range. When filtering, always select the day after your end date. For example, to see December 25 photos, filter from December 25 to December 26.' },
   { section: 'Gallery', title: '🖼️ Image Viewer', body: 'Tap a thumbnail image in the gallery to view it full-screen. The viewer is redesigned to give your photo maximum screen space. Pinch to zoom in and out.' },
   { section: 'Gallery', title: '🎨 Applying Presets to Single Image', body: 'After clicking on a single image, Tap LOAD or MULTI to transform a saved image. Click twice on a preset to apply it. You can stack multiple transformations.' },
@@ -7943,6 +8072,13 @@ function parsePresetOptions(preset) {
 function getFinalPrompt(preset, manualSelection = null) {
   // Build prompt from clean preset structure
   let finalPrompt = preset.message;
+
+  // If this is a combined image, replace the opening "Take a picture" with the combine preamble
+  if (window.isCombinedMode) {
+    const combinePreamble = 'Take a picture of this image containing two photos placed side by side — the left half is Subject A and the right half is Subject B. Take both subjects and transform them together into a single unified image —';
+    // Replace ONLY the words "Take a picture" at the very start, preserving the rest of the sentence
+    finalPrompt = finalPrompt.replace(/^Take a picture/i, combinePreamble);
+  }
   
   // Handle options if preset uses randomization
   if (preset.randomizeOptions) {
@@ -8096,7 +8232,6 @@ function populateStylesList(preserveScroll = false) {
     });
     
     const filtered = regular.filter(preset => {
-      // First apply text search filter
       if (styleFilterText) {
         const searchText = styleFilterText.toLowerCase();
         const categoryMatch = preset.category && preset.category.some(cat => cat.toLowerCase().includes(searchText));
@@ -10769,6 +10904,11 @@ const result = await presetImporter.import();
   const batchApplyPreset = document.getElementById('batch-apply-preset');
   if (batchApplyPreset) {
     batchApplyPreset.addEventListener('click', applyPresetToBatch);
+  }
+
+  const batchCombine = document.getElementById('batch-combine');
+  if (batchCombine) {
+    batchCombine.addEventListener('click', combineTwoImages);
   }
 
   const batchDelete = document.getElementById('batch-delete');
