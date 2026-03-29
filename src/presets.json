@@ -48,6 +48,19 @@
     "additionalInstructions": "FINAL RESULT:\nThe final image must look like a real promotional still or episode frame from Doctor Who, with the subject fully embodied as the Doctor, equipped with iconic gadgets, placed in a season-accurate setting, and seamlessly integrated into the Doctor Who universe."
   },
   {
+    "name": "3D BLIND BOX / POP MART",
+    "category": [
+      "3D",
+      "CHARACTER TRANSFORMATION",
+      "STYLE TRANSFORMATION",
+      "CARTOON"
+    ],
+    "message": "Take a picture and transform the subject into a 3D blind box / designer toy character style while keeping them naturally integrated within the original scene.\n\nCORE CONCEPT (CRITICAL):\n• The transformation is purely stylistic\n• Subject remains in the original environment and position\n• Do NOT isolate the subject or present them as a product or collectible display\n• Do NOT add packaging, boxes, pedestals, or product staging\n\nCHARACTER STYLE:\n• Large head-to-body ratio\n• Simplified facial features with expressive eyes\n• Rounded proportions and smooth geometry\n• Soft, toy-like stylization while preserving identity\n\nSCENE INTEGRATION:\n• The environment remains realistic or stylized consistently with the subject\n• Other people and objects may also adopt simplified or toy-like forms for consistency\n• Perspective and lighting must match the original scene\n\nMATERIAL & TEXTURE:\n• Smooth, plastic-like surface shading\n• Clean edges and simplified detail\n• Subtle reflections or soft highlights typical of vinyl figures\n\nSTYLE:\n• Cute, stylized, and playful\n• Cohesive transformation across subject and scene\n• Maintain the natural composition of the photograph",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nThe image should look like the real-world scene has been transformed into a stylized 3D designer-toy universe, with the subject still present in the scene rather than displayed as a collectible object."
+  },
+  {
     "name": "3D FIGURINE",
     "category": [
       "OPTIONS",
@@ -453,6 +466,19 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": "FINAL RESULT:\nThe final image should depict a vibrant, culturally rooted, technologically advanced future vision."
+  },
+  {
+    "name": "AIRBRUSH 80s",
+    "category": [
+      "ART",
+      "RETRO",
+      "STYLE TRANSFORMATION",
+      "ILLUSTRATION"
+    ],
+    "message": "Take a picture and transform the image into a 1980s airbrush illustration style.\n\nCORE CONCEPT (CRITICAL):\n• The scene is rendered like a retro 80s airbrushed artwork\n• Subject(s) remain recognizable but stylized\n\nSTYLE CHARACTERISTICS:\n• Smooth gradient shading with soft transitions\n• Glossy highlights and polished surfaces\n• Slightly idealized or glamorized appearance\n\nCOLOR & TONE:\n• Vibrant neon or pastel color palette\n• High contrast with glowing highlights\n• Retro color combinations (pinks, purples, blues, oranges)\n\nARTISTIC INTERPRETATION:\n• Add dramatic lighting and stylized glow effects\n• Slight soft-focus or dreamy finish\n\nENVIRONMENT:\n• Background may include gradients, light streaks, or abstract retro elements\n\nSTYLE:\n• Sleek, polished, and nostalgic\n• Retro-futuristic aesthetic\n• Clean, vibrant, and visually bold",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nThe image should resemble a polished 1980s airbrushed illustration with smooth gradients, vibrant colors, and a nostalgic retro aesthetic."
   },
   {
     "name": "AIRPORT SECURITY SCAN",
@@ -1921,6 +1947,19 @@
     "additionalInstructions": ""
   },
   {
+    "name": "ASH DISINTEGRATION",
+    "category": [
+      "SURREAL",
+      "SCENE TRANSFORMATION",
+      "PARTICLE EFFECT",
+      "STYLE TRANSFORMATION"
+    ],
+    "message": "Take a picture and transform the scene so that parts of the subject are disintegrating into drifting ash.\n\nCORE CONCEPT (CRITICAL):\n• Subject(s) remain recognizable but are partially breaking apart\n• Disintegration occurs gradually, not all at once\n\nDISINTEGRATION LOGIC:\n• Edges of the subject crumble into fine ash particles\n• Transition from solid form to scattered particles is smooth and progressive\n• Ash drifts outward naturally as if carried by air\n\nPARTICLE BEHAVIOR:\n• Fine, lightweight ash fragments\n• Particles vary in size from small flakes to dust\n• Movement suggests gentle wind or natural dispersion\n\nENVIRONMENT:\n• Surrounding scene may contain drifting ash particles\n• Background remains mostly intact unless subtly affected\n\nSTYLE:\n• Atmospheric and slightly dramatic\n• Emphasis on motion and gradual decay\n• Balanced between realism and stylization",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nThe image should show the subject partially disintegrating into drifting ash, with smooth transitions from solid form to particles while keeping the subject clearly recognizable."
+  },
+  {
     "name": "AUSTIN DANGER POWERS",
     "category": [
       "CINEMATIC",
@@ -2066,6 +2105,19 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "BATIK",
+    "category": [
+      "ART",
+      "TEXTILE",
+      "PATTERN",
+      "STYLE TRANSFORMATION"
+    ],
+    "message": "Take a picture and transform the image into a Batik-style artwork.\n\nCORE CONCEPT (CRITICAL):\n• The scene is reinterpreted as a traditional batik textile design\n• Subject(s) remain recognizable but stylized into patterns and shapes\n\nPATTERN LOGIC:\n• Use repeating motifs and decorative elements\n• Incorporate organic shapes, florals, or geometric designs\n• Break down forms into patterned segments\n\nTECHNIQUE STYLE:\n• Wax-resist dye aesthetic\n• Visible crackle lines and dye boundaries\n• Layered color application with defined edges\n\nCOLOR & TEXTURE:\n• Earth tones or rich traditional colors\n• Fabric-like texture\n• Slight irregularities to mimic handmade process\n\nENVIRONMENT:\n• Entire scene treated as a textile surface\n• Background and subject integrated into a unified pattern\n\nSTYLE:\n• Decorative, cultural, and intricate\n• Balanced between abstraction and recognition\n• Handcrafted artistic feel",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nThe image should resemble a handcrafted batik textile, with the subject integrated into intricate patterns, visible dye textures, and traditional decorative motifs."
   },
   {
     "name": "BAUHAUS",
@@ -3895,6 +3947,63 @@
     "additionalInstructions": ""
   },
   {
+    "name": "CHAIN REACTION",
+    "category": [
+      "SURREAL",
+      "SCENE TRANSFORMATION",
+      "LOGIC"
+    ],
+    "message": "Take a picture and transform the scene into a connected chain reaction where every element is part of a cause-and-effect sequence.\n\nCORE CONCEPT (CRITICAL):\n• The entire scene becomes a continuous chain reaction\n• Every action leads to another in a clear visual sequence\n• Subject(s) remain recognizable and actively involved in the chain\n\nCHAIN LOGIC:\n• Start with a clear initiating action\n• Build a sequence of connected steps across the scene\n• Each step must visually trigger the next (no randomness)\n• End with a final payoff or result\n\nSTRUCTURE:\n• Objects, people, and environment are linked through motion or interaction\n• Use directional flow (left to right, foreground to background, etc.)\n• Ensure readability — viewer can follow the sequence step-by-step\n\nENVIRONMENT:\n• Adapt the existing scene to support the chain\n• Add objects or mechanisms if needed to maintain continuity\n\nSTYLE:\n• Playful, clever, and visually engaging\n• Balanced complexity — detailed but understandable\n• Slightly exaggerated physics for clarity and fun",
+    "randomizeOptions": true,
+    "optionGroups": [
+      {
+        "title": "STARTING ACTION",
+        "options": [
+          { "id": "001", "text": "Subject accidentally knocking something over" },
+          { "id": "002", "text": "Subject intentionally triggering the sequence" },
+          { "id": "003", "text": "An object falling or slipping out of place" },
+          { "id": "004", "text": "A small unexpected event starting the chain" }
+        ]
+      },
+      {
+        "title": "CHAIN COMPLEXITY",
+        "options": [
+          { "id": "001", "text": "Simple chain with 3–4 clear steps" },
+          { "id": "002", "text": "Moderate chain with 5–7 steps" },
+          { "id": "003", "text": "Complex chain with many interconnected steps" }
+        ]
+      },
+      {
+        "title": "INTERACTION TYPE",
+        "options": [
+          { "id": "001", "text": "Physical objects colliding and triggering movement" },
+          { "id": "002", "text": "Mechanical or Rube Goldberg-style contraptions" },
+          { "id": "003", "text": "Environmental interactions (falling, sliding, tipping)" },
+          { "id": "004", "text": "Mixed interactions combining objects, people, and environment" }
+        ]
+      },
+      {
+        "title": "FINAL OUTCOME",
+        "options": [
+          { "id": "001", "text": "A humorous or unexpected payoff" },
+          { "id": "002", "text": "A perfectly completed task or goal" },
+          { "id": "003", "text": "A chaotic or messy ending" },
+          { "id": "004", "text": "A near-miss or almost-failed result" }
+        ]
+      },
+      {
+        "title": "TONE",
+        "options": [
+          { "id": "001", "text": "Lighthearted and playful" },
+          { "id": "002", "text": "Overly dramatic and cinematic" },
+          { "id": "003", "text": "Precise and engineered" },
+          { "id": "004", "text": "Absurd and exaggerated" }
+        ]
+      }
+    ],
+    "additionalInstructions": "FINAL RESULT:\nThe image should clearly depict a connected chain reaction where each step logically leads to the next, forming a complete and satisfying visual sequence from start to finish."
+  },
+  {
     "name": "CHALKBOARD ILLUSTRATION",
     "category": [
       "HUMOR",
@@ -4150,6 +4259,19 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "CHINESE BRUSH PAINTING",
+    "category": [
+      "ART",
+      "PAINTING",
+      "TRADITIONAL",
+      "STYLE TRANSFORMATION"
+    ],
+    "message": "Take a picture and transform the image into a Chinese brush painting.\n\nCORE CONCEPT (CRITICAL):\n• The scene is rendered using expressive brush strokes\n• Subject(s) remain recognizable but simplified\n\nSTYLE CHARACTERISTICS:\n• Fluid ink brush strokes\n• Minimal detail with strong composition\n\nCOLOR & TONE:\n• Ink wash (black, gray) with optional subtle color accents\n\nENVIRONMENT:\n• Use negative space intentionally\n\nSTYLE:\n• Elegant, minimal, and expressive\n• Balanced and harmonious composition",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nThe image should resemble a traditional Chinese brush painting with expressive strokes and elegant simplicity."
   },
   {
     "name": "CHINESE INK WASH",
@@ -6447,6 +6569,19 @@
     "additionalInstructions": "FINAL RESULT:\nThe image should show reality cleanly opened by a single precise cross-section, revealing a logical, structured interior while leaving the exterior intact. The effect should feel educational, calm, and inevitable — as if the world was always designed to be viewed this way."
   },
   {
+    "name": "CROSS-STITCH",
+    "category": [
+      "ART",
+      "TEXTILE",
+      "CRAFT",
+      "STYLE TRANSFORMATION"
+    ],
+    "message": "Take a picture and transform the image into a cross-stitch artwork.\n\nCORE CONCEPT (CRITICAL):\n• The image is recreated using a grid of stitched X patterns\n• Subject(s) remain recognizable through pixel-like stitching\n\nSTYLE CHARACTERISTICS:\n• Uniform grid layout\n• Visible X-shaped stitches\n\nCOLOR & DETAIL:\n• Limited color blending\n• Slightly pixelated simplification\n\nSTYLE:\n• Handmade and structured\n• Decorative and nostalgic",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nThe image should resemble a cross-stitch pattern with visible X-shaped stitches forming the subject."
+  },
+  {
     "name": "CRYSTALLIZED",
     "category": [
       "OPTIONS",
@@ -8015,6 +8150,65 @@
     "randomizeOptions": false,
     "additionalInstructions": ""
   },
+  {
+    "name": "EVANGELION",
+    "category": [
+      "ANIME",
+      "CHARACTER TRANSFORMATION",
+      "STYLE VARIANTS",
+      "SCENE TRANSFORMATION"
+    ],
+    "message": "Take a picture and transform the subject into a character in the style of Evangelion.\n\nCORE CONCEPT (CRITICAL):\n• Subject(s) become anime-style characters inspired by Evangelion\n• Maintain recognizable identity while adapting to anime design\n\nCHARACTER STYLE:\n• Sharp, expressive anime facial features\n• Clean linework with stylized shading\n• Proportions consistent with anime characters\n\nWORLD & SCENE:\n• Environment transforms into a dramatic Evangelion-inspired setting\n• Emphasize scale, tension, and cinematic composition\n\nSTYLE:\n• High contrast lighting\n• Dramatic mood and atmosphere\n• Anime-style rendering with strong visual impact",
+    "randomizeOptions": true,
+    "optionGroups": [
+      {
+        "title": "ROLE",
+        "options": [
+          { "id": "001", "text": "Eva pilot in a futuristic plugsuit" },
+          { "id": "002", "text": "NERV command center operator" },
+          { "id": "003", "text": "Field agent in tactical gear" },
+          { "id": "004", "text": "Civilian caught in an Evangelion incident" }
+        ]
+      },
+      {
+        "title": "EVA UNIT",
+        "options": [
+          { "id": "001", "text": "Evangelion Unit-01 towering behind the subject" },
+          { "id": "002", "text": "Evangelion Unit-02 in an aggressive stance nearby" },
+          { "id": "003", "text": "Evangelion Unit-00 standing guard in the background" },
+          { "id": "004", "text": "Multiple Evangelion units present in the scene" }
+        ]
+      },
+      {
+        "title": "ANGEL THREAT",
+        "options": [
+          { "id": "001", "text": "A massive abstract Angel looming in the sky" },
+          { "id": "002", "text": "An Angel attacking the city with energy blasts" },
+          { "id": "003", "text": "A surreal geometric Angel hovering nearby" },
+          { "id": "004", "text": "No Angel present, tense calm before battle" }
+        ]
+      },
+      {
+        "title": "ENVIRONMENT",
+        "options": [
+          { "id": "001", "text": "Tokyo-3 cityscape with retracting buildings" },
+          { "id": "002", "text": "Destroyed urban battlefield with debris and smoke" },
+          { "id": "003", "text": "NERV headquarters interior with futuristic panels" },
+          { "id": "004", "text": "Open landscape under a dramatic red sky" }
+        ]
+      },
+      {
+        "title": "MOOD",
+        "options": [
+          { "id": "001", "text": "Intense and action-packed moment" },
+          { "id": "002", "text": "Quiet, emotional, and introspective tone" },
+          { "id": "003", "text": "Dark and ominous atmosphere" },
+          { "id": "004", "text": "Epic cinematic battle energy" }
+        ]
+      }
+    ],
+    "additionalInstructions": "FINAL RESULT:\nThe image should feel like a dramatic Evangelion anime scene, with the subject transformed into a character and integrated into a high-stakes, cinematic environment with strong mood and scale."
+  }, 
   {
     "name": "EVENT INVITE",
     "category": [
@@ -13356,6 +13550,19 @@
     "additionalInstructions": "IMPORTANT RESTRICTIONS:\n• Do not reproduce copyrighted logos, album artwork, or official branding\n• Maintain photorealistic production quality\n• Avoid obvious parody or comedy unless explicitly requested\n• Subject must remain clearly recognizable as themselves\n• Do not simply paste subject's face onto the original video - fully transform them into the artist\n\nFINAL RESULT:\nA powerful, instantly recognizable still frame from the selected iconic music video with the subject as the lead performer holding the EXACT same instruments/props as the original artist, surrounded by authentic band members or backup performers. The subject appears as the undisputed star of the performance, positioned and styled as the main vocalist/performer. The scene captures a signature moment from that specific video with era-accurate production quality, professional cinematography, correct instruments/props, and the collaborative energy of a real music video shoot. Optional song title overlay at bottom corner for context."
   },
   {
+    "name": "INK BLEED",
+    "category": [
+      "ART",
+      "ABSTRACT",
+      "STYLE TRANSFORMATION",
+      "PAINTING"
+    ],
+    "message": "Take a picture and transform the image into an ink bleed artwork.\n\nCORE CONCEPT (CRITICAL):\n• The image appears as ink spreading and bleeding across a surface\n• Subject(s) remain recognizable through flowing ink shapes\n\nINK LOGIC:\n• Ink diffuses outward with soft, organic edges\n• Shapes dissolve and blend into surrounding areas\n• Gradual transitions between dark and light ink densities\n\nTEXTURE & MEDIUM:\n• Paper or absorbent surface texture\n• Soft feathered edges where ink spreads\n• Occasional pooling or saturation points\n\nCOLOR & TONE:\n• Primarily monochrome or limited color palette\n• Strong dark ink contrasted with lighter washed areas\n\nENVIRONMENT:\n• Entire scene treated as an ink composition\n• Background and subject blend seamlessly through diffusion\n\nSTYLE:\n• Fluid, organic, and expressive\n• Soft, atmospheric transitions\n• Balanced between abstraction and recognizability",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nThe image should look like ink has spread and bled across a surface to form the scene, with soft edges and fluid transitions while keeping the subject recognizable."
+  },
+  {
     "name": "JAVERT PHOTOBOMB",
     "category": [
       "HUMOR",
@@ -14384,6 +14591,19 @@
     "additionalInstructions": ""
   },
   {
+    "name": "LOOM ART",
+    "category": [
+      "ART",
+      "TEXTILE",
+      "CRAFT",
+      "STYLE TRANSFORMATION"
+    ],
+    "message": "Take a picture and transform the image into a woven loom artwork.\n\nCORE CONCEPT (CRITICAL):\n• The image is recreated through interlaced threads\n• Subject(s) remain recognizable through woven patterns\n\nSTYLE CHARACTERISTICS:\n• Horizontal and vertical thread structure\n• Visible weave pattern\n\nTEXTURE:\n• Fabric-like surface with interlocking fibers\n\nSTYLE:\n• Handmade and structured\n• Subtle blending through thread layering",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nThe image should resemble a woven textile created on a loom with visible thread interlacing."
+  },
+  {
     "name": "LOST AND FOUND",
     "category": [
       "HUMOR",
@@ -14523,6 +14743,19 @@
     "additionalInstructions": "FINAL RESULT:\nThe subject transformed into a complete M&M candy character - entire body is the candy shell in the selected color (red, yellow, blue, green, orange, or brown) with white stick arms/legs, white gloves/boots, and white \"m\" logo - the M&M's face shows the subject's characteristics (glasses, eyebrows, expression, facial hair, age, etc.) all rendered in the candy color, creating a perfect blend of the subject's identity within a realistic CGI M&M mascot like from the commercials."
   },
   {
+    "name": "MACRAMÉ",
+    "category": [
+      "ART",
+      "TEXTILE",
+      "CRAFT",
+      "STYLE TRANSFORMATION"
+    ],
+    "message": "Take a picture and transform the image into a macramé artwork.\n\nCORE CONCEPT (CRITICAL):\n• The scene is constructed from knotted rope patterns\n• Subject(s) remain recognizable through knot structures\n\nSTYLE CHARACTERISTICS:\n• Repeating knot patterns\n• Flowing rope arrangements\n\nTEXTURE:\n• Thick fiber strands\n• Soft shadows and depth between knots\n\nSTYLE:\n• Handmade and organic\n• Decorative and tactile",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nThe image should look like a macramé piece made from knotted rope forming the subject and scene."
+  },
+  {
     "name": "MACRO",
     "category": [
       "PHOTOGRAPHY",
@@ -14569,6 +14802,19 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "MADHUBANI",
+    "category": [
+      "ART",
+      "FOLK ART",
+      "CULTURAL",
+      "STYLE TRANSFORMATION"
+    ],
+    "message": "Take a picture and transform the image into Madhubani-style folk art.\n\nCORE CONCEPT (CRITICAL):\n• The scene is reinterpreted with intricate patterns and linework\n• Subject(s) remain recognizable but stylized\n\nSTYLE CHARACTERISTICS:\n• Bold outlines and detailed patterns\n• Decorative filling of all spaces\n\nCOLOR & TONE:\n• Bright, flat colors\n• Strong contrast\n\nSTYLE:\n• Dense, decorative, and symbolic\n• Traditional folk art aesthetic",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nThe image should resemble a detailed Madhubani painting filled with patterns, bold outlines, and vibrant colors."
   },
   {
     "name": "MAGAZINE COVER",
@@ -15023,6 +15269,19 @@
     "additionalInstructions": "FINAL RESULT:\nThe image should show the subject integrated into an iconic Martin Scorsese film scene, capturing his signature visual style with dynamic composition, period-accurate details, morally complex atmosphere, and that distinctive Scorsese energy of violence, music, and compelling antiheroes."
   },
   {
+    "name": "MARY BLAIR STYLE",
+    "category": [
+      "ART",
+      "ILLUSTRATION",
+      "STYLE TRANSFORMATION",
+      "CLASSIC"
+    ],
+    "message": "Take a picture and transform the image into the artistic style inspired by Mary Blair.\n\nCORE CONCEPT (CRITICAL):\n• The scene is reinterpreted in a whimsical, mid-century modern illustration style\n• Subject(s) remain recognizable but stylized\n• Emphasis on bold color, simple shapes, and playful composition\n\nSTYLE CHARACTERISTICS:\n• Flat or minimally shaded shapes\n• Strong geometric simplification\n• Stylized proportions and forms\n• Decorative and graphic composition\n\nCOLOR & TONE:\n• Bright, vibrant, and unexpected color combinations\n• High contrast with harmonious palettes\n• Use of solid color blocks\n\nARTISTIC INTERPRETATION:\n• Simplify details into bold shapes and patterns\n• Add whimsical or storybook-like elements\n• Emphasize charm, imagination, and visual rhythm\n\nENVIRONMENT:\n• Backgrounds become stylized and graphic\n• Elements may appear flattened or layered decoratively\n\nSTYLE:\n• Playful, imaginative, and iconic\n• Clean, bold, and highly stylized\n• Mid-century illustration aesthetic",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nThe image should look like a whimsical, colorful illustration with simplified shapes and bold design, capturing a playful mid-century artistic style while keeping the subject recognizable."
+  },
+  {
     "name": "MASCOT",
     "category": [
       "SPORTS",
@@ -15368,6 +15627,19 @@
     "additionalInstructions": "FINAL RESULT:\nThe image should show the subject in an iconic Mel Brooks comedy scene with over-the-top theatrical performance, sight gags, genre parody elements, and that distinctive Mel Brooks blend of slapstick, wordplay, fourth-wall-breaking meta-humor, and affectionate mockery of cinema."
   },
   {
+    "name": "MELTED WAX",
+    "category": [
+      "SURREAL",
+      "TEXTURE TRANSFORMATION",
+      "SCENE TRANSFORMATION",
+      "ABSTRACT"
+    ],
+    "message": "Take a picture and transform the entire scene into a melted wax composition.\n\nCORE CONCEPT (CRITICAL):\n• Everything appears partially melted like soft candle wax\n• Subject(s) remain recognizable despite deformation\n\nMELTING LOGIC:\n• Surfaces droop, sag, and drip downward\n• Wax forms thick drips, pools, and stretched shapes\n• Facial features and objects distort but remain identifiable\n\nTEXTURE & MATERIAL:\n• Smooth, semi-gloss wax surface\n• Soft edges and rounded forms\n• Subtle translucency in thinner areas\n\nENVIRONMENT:\n• Entire scene affected consistently by melting\n• Surfaces may pool or collect melted material\n\nSTYLE:\n• Surreal and fluid\n• Warm tones or candle-like coloration\n• Emphasis on gravity-driven deformation",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nThe image should look like a wax sculpture that has begun melting, with visible drips and distortion while keeping the subject recognizable."
+  },
+  {
     "name": "MELTING",
     "category": [
       "SURREAL",
@@ -15588,6 +15860,19 @@
     ],
     "randomizeOptions": true,
     "additionalInstructions": "FINAL RESULT:\nThe image should resemble a scanned microfiche frame packed with archival information."
+  },
+  {
+    "name": "MID-CENTURY ILLUSTRATION",
+    "category": [
+      "ART",
+      "ILLUSTRATION",
+      "RETRO",
+      "STYLE TRANSFORMATION"
+    ],
+    "message": "Take a picture and transform the image into a mid-century modern illustration style.\n\nCORE CONCEPT (CRITICAL):\n• The scene is simplified into flat, graphic shapes\n• Subject(s) remain recognizable but stylized\n\nSTYLE CHARACTERISTICS:\n• Clean geometric forms\n• Minimal detail with strong composition\n• Stylized proportions and simplified features\n\nCOLOR & TONE:\n• Muted retro palette (teal, mustard, orange, cream)\n• Flat color fills with little to no gradients\n\nENVIRONMENT:\n• Background simplified into abstract shapes\n• Decorative and balanced composition\n\nSTYLE:\n• Retro, clean, and graphic\n• Playful but structured\n• Strong design-driven aesthetic",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nThe image should resemble a mid-century illustration with flat shapes, bold composition, and a clean retro aesthetic."
   },
   {
     "name": "MIDDLE EARTH",
@@ -17727,6 +18012,19 @@
     "additionalInstructions": ""
   },
   {
+    "name": "NEEDLEPOINT",
+    "category": [
+      "ART",
+      "TEXTILE",
+      "CRAFT",
+      "STYLE TRANSFORMATION"
+    ],
+    "message": "Take a picture and transform the image into a needlepoint-style textile artwork.\n\nCORE CONCEPT (CRITICAL):\n• The entire image is reinterpreted as a stitched needlepoint piece\n• Subject(s) must remain recognizable but rendered through stitched patterns\n\nSTITCH LOGIC:\n• Use uniform, grid-based stitching (needlepoint/canvas style)\n• Visible individual stitches forming the image\n• Diagonal or cross-stitch patterns with consistent spacing\n\nTEXTURE & MATERIAL:\n• Fabric canvas background (woven texture)\n• Thread fibers visible with slight thickness and softness\n• Slight irregularities to mimic handmade stitching\n\nCOLOR & DETAIL:\n• Limited color blending due to thread constraints\n• Subtle color transitions using stitched patterns\n• Slight pixel-like simplification of fine details\n\nENVIRONMENT:\n• Entire scene treated as a flat textile surface\n• Background and subject integrated into one stitched composition\n\nSTYLE:\n• Handmade, tactile, and decorative\n• Warm, crafted aesthetic\n• Clean but slightly imperfect stitching",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nThe image should look like a handcrafted needlepoint artwork, with visible stitches, fabric texture, and the subject clearly recognizable through the stitched design."
+  },
+  {
     "name": "NEGATIVE SPACE",
     "category": [
       "ART",
@@ -19485,6 +19783,19 @@
     "additionalInstructions": ""
   },
   {
+    "name": "PATCHWORK QUILT",
+    "category": [
+      "ART",
+      "TEXTILE",
+      "CRAFT",
+      "SCENE TRANSFORMATION"
+    ],
+    "message": "Take a picture and transform the image into a multi-sectional patchwork quilt.\n\nCORE CONCEPT (CRITICAL):\n• The entire scene is reinterpreted as a quilt made of multiple stitched sections\n• Subject(s) must remain recognizable across the quilt panels\n\nPANEL LOGIC:\n• Divide the image into multiple quilt blocks or sections\n• Each section depicts a different variation, moment, or interpretation of the subject based on visual cues\n• Sections may show alternate poses, expressions, simplified icons, or symbolic elements\n\nARTISTIC INTERPRETATION:\n• Use key elements from the original image (colors, objects, clothing, background) to inspire each panel\n• Some panels may be literal representations, others more abstract or symbolic\n\nTEXTURE & MATERIAL:\n• Fabric pieces with visible stitching seams between sections\n• Quilted texture with slight puffing or padding\n• Mixed fabrics (cotton, patterned cloth, stitched appliqué)\n\nCOLOR & PATTERN:\n• Coordinated but varied color palette across panels\n• Use repeating motifs, patterns, and decorative stitching\n\nENVIRONMENT:\n• Entire image presented as a single quilt surface\n• Slight folds, fabric depth, or hanging presentation may be visible\n\nSTYLE:\n• Handmade, warm, and crafted aesthetic\n• Slight imperfections for authenticity\n• Balanced composition across all quilt sections",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nThe image should look like a handcrafted patchwork quilt, with multiple stitched sections that each reinterpret the subject in different but cohesive ways, all integrated into a single fabric artwork."
+  },
+  {
     "name": "PATRON SAINT",
     "category": [
       "MASTER PROMPT",
@@ -20746,6 +21057,19 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "QUILLING",
+    "category": [
+      "ART",
+      "PAPER",
+      "CRAFT",
+      "STYLE TRANSFORMATION"
+    ],
+    "message": "Take a picture and transform the image into a quilling artwork.\n\nCORE CONCEPT (CRITICAL):\n• The image is recreated using rolled and shaped paper strips\n• Subject(s) remain recognizable through paper forms\n\nSTYLE CHARACTERISTICS:\n• Coiled and curved paper strips\n• Layered paper shapes forming the image\n\nTEXTURE:\n• Paper edges and thickness visible\n\nSTYLE:\n• Decorative and intricate\n• Handmade paper art aesthetic",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nThe image should look like a detailed quilling artwork made from rolled paper strips forming the scene."
   },
   {
     "name": "R-ROLL",
@@ -22063,6 +22387,19 @@
   "additionalInstructions": "CRITICAL FRAMING: This is a themed escape room and haunted attraction promotional photograph styled after the SAW horror film franchise. The subject is a costumed performer. Every device is a foam, rubber, and painted plastic theatrical prop built by a professional props department. The visual style must match official SAW franchise promotional materials and Universal Studios Halloween Horror Nights marketing photography — the kind of image used in studio and theme park advertising. No gore. No wounds. No blood effects. No injury of any kind. The subject looks startled and theatrical. The trap is a dramatic backdrop prop. Style the final image as a professional horror movie poster photograph with the SAW franchise's signature desaturated green-yellow color grade, industrial set design, Billy the Puppet visible in the background, and the countdown timer on the prop device."
   },
   {
+    "name": "SCANDINAVIAN DESIGN",
+    "category": [
+      "ART",
+      "PAINTING",
+      "STYLE TRANSFORMATION",
+      "MINIMALISM"
+    ],
+    "message": "Take a picture and transform the image into a Scandinavian design art-style creation.\n\nCORE CONCEPT (CRITICAL):\n• The scene is reinterpreted as a piece of Scandinavian-inspired artwork\n• Emphasis on simplicity, minimalism, and artistic composition\n• Subject(s) remain recognizable but stylized\n\nSTYLE CHARACTERISTICS:\n• Clean lines and simplified forms\n• Minimal detail with intentional negative space\n• Soft, balanced compositions\n\nCOLOR & TONE:\n• Muted, neutral palette (whites, grays, soft blues, earthy tones)\n• Limited color usage with subtle contrast\n\nARTISTIC INTERPRETATION:\n• Reduce complexity while preserving essential shapes\n• Focus on calm, harmony, and visual balance\n• Slight abstraction while maintaining recognizability\n\nTEXTURE & MEDIUM:\n• Flat or lightly textured painted surface\n• Illustration or modern painting feel\n\nENVIRONMENT:\n• Background simplified into minimal shapes or soft gradients\n• Remove clutter and unnecessary detail\n\nSTYLE:\n• Calm, clean, and refined\n• Minimalist artistic expression\n• Balanced and visually quiet composition",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nThe image should look like a minimalist Scandinavian design-style artwork, with simplified forms, soft colors, and a calm, balanced composition."
+  },
+  {
     "name": "SCANDINAVIAN FOLK ART",
     "category": [
       "ART",
@@ -23328,6 +23665,19 @@
     "additionalInstructions": "The final image must look like a genuine Spotify artist or chart page. Match Spotify's exact dark background, green accent color, circular artist photo format, and typography. All chart data, song titles, streaming numbers, and surrounding artists must be real data from the target date, never fabricated."
   },
   {
+    "name": "SPRAY FOAM",
+    "category": [
+      "TEXTURE TRANSFORMATION",
+      "SURREAL",
+      "SCENE TRANSFORMATION",
+      "ABSTRACT"
+    ],
+    "message": "Take a picture and transform the entire scene into a spray foam-covered environment.\n\nCORE CONCEPT (CRITICAL):\n• Expanding foam covers and overtakes the scene\n• Subject(s) remain visible but partially engulfed\n\nFOAM LOGIC:\n• Foam expands outward in thick, irregular blobs\n• Surfaces are coated, filled, or overflowing with foam\n• Foam may drip, bulge, and harden into uneven shapes\n\nTEXTURE & MATERIAL:\n• Puffy, bubbly surface with porous texture\n• Matte or slightly glossy foam finish\n• Irregular expansion patterns and organic forms\n\nENVIRONMENT:\n• Foam interacts with all objects and surfaces\n• Gaps, corners, and openings filled or overflowing\n\nSTYLE:\n• Playful yet chaotic\n• Emphasis on volume and expansion\n• Slightly exaggerated growth patterns",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nThe image should look like the scene has been overtaken by expanding spray foam, with the subject still recognizable beneath or within the foam-covered environment."
+  },
+  {
     "name": "STADIUM CROWD SIGN",
     "category": [
       "HUMOR",
@@ -24069,6 +24419,20 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "SUPER MARIO MODE",
+    "category": [
+      "GAMING",
+      "NINTENDO",
+      "COLORFUL",
+      "PLATFORMER",
+      "IMMERSIVE"
+    ],
+    "message": "Take a picture and transform the ENTIRE scene into a vibrant Super Mario Galaxy-style world. Convert all elements of the image into a whimsical, colorful, gravity-defying platforming environment filled with floating planetoids, cartoon textures, and playful physics.\n\nCRITICAL TRANSFORMATION RULES:\n• This is a FULL SCENE transformation - not just the subject\n• Every element in the image must become part of the Mario universe\n• Maintain the spatial relationships and composition of the original photo\n• The result must look like a modern Mario Galaxy gameplay scene\n• Preserve the recognizability of people's faces while converting them into Mario-style characters\n\nCHARACTER CONVERSION (PEOPLE & ANIMALS):\n• ONLY convert characters if people or animals are actually present in the original image\n• If NO people or animals appear in the image, DO NOT add characters - the scene remains character-free\n• If people or animals ARE present, convert them as follows:\n\n• HUMANS become:\n  - Mario-style characters (round features, cartoon proportions)\n  - Outfit variations: plumber, explorer, space suit, overalls, themed costumes\n  - Friendly NPCs (Toad-like villagers, explorers)\n  - Galaxy adventurers with expressive faces\n\n• ANIMALS become:\n  - Goombas (small brown mushroom creatures)\n  - Koopa Troopas (turtles with colored shells)\n  - Lumas (small glowing star creatures)\n  - Yoshi-like creatures (colorful friendly dinosaurs)\n  - Chain Chomps (if aggressive tone fits)\n\n• All characters must:\n  - Have smooth, rounded cartoon design\n  - Bright, saturated colors\n  - Expressive faces with large eyes\n  - Be integrated naturally into the world\n\nOBJECT CONVERSION:\n• BLOCKS & STRUCTURES:\n  - Brick blocks\n  - Question mark blocks (?)\n  - Glassy star blocks\n  - Floating platforms\n\n• ITEMS:\n  - Coins (gold, floating, spinning)\n  - Power stars (glowing, central objectives)\n  - Mushrooms (red = growth, green = extra life)\n  - Fire flowers\n  - Ice flowers\n  - Launch stars (pull mechanics)\n\n• EVERYDAY OBJECTS become:\n  - Rounded, simplified cartoon versions\n  - Brightly colored, toy-like forms\n  - Floating or slightly detached from ground\n\nENVIRONMENT CONVERSION:\n• TERRAIN:\n  - Small spherical planetoids\n  - Curved grassy platforms\n  - Floating islands with soft edges\n  - Checkerboard hills or lush cartoon grass\n\n• SKY & SPACE:\n  - Deep space backgrounds with stars and galaxies\n  - Bright nebula colors (blue, purple, pink)\n  - Cosmic glow and sparkles\n\n• STRUCTURES:\n  - Mushroom houses\n  - Whimsical towers\n  - Floating walkways\n  - Rounded hills and pipes\n\n• PIPES:\n  - Green warp pipes\n  - Entry/exit points embedded in terrain\n\n• WATER & LAVA:\n  - Bright blue cartoon water\n  - Glowing orange lava with soft animation feel\n\nLIGHTING & ATMOSPHERE:\n• Bright, cheerful lighting\n• Soft shadows with ambient glow\n• Sparkles, star particles, and magical effects\n• No harsh realism — everything is soft and stylized\n\nPHYSICS STYLE:\n• Slight gravity bending around spherical worlds\n• Floating elements and suspended platforms\n• Weightless or low-gravity feel\n\nTECHNICAL RENDERING:\n• Smooth, modern 3D cartoon rendering\n• Soft edges, no harsh detail\n• Bright, saturated Nintendo-style palette\n• Clean shading with subtle gradients\n• Polished, game-like finish\n\nSCENE COMPOSITION:\n• Maintain original layout but reinterpret as floating galaxy terrain\n• Foreground, midground, and background become layered platforms or planets\n• Perspective should feel like a 3D platformer camera view\n• Slight curvature to surfaces where appropriate\n\nCOLOR AND STYLE:\n• Bright primary colors (red, blue, yellow, green)\n• Soft pastel highlights\n• High saturation and cheerful tone\n• Clean, friendly, and playful aesthetic",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA fully transformed Mario Galaxy-style scene where the entire image becomes a colorful, whimsical platforming world set in space. All objects are converted into Mario-style elements, terrain becomes floating or spherical, and any people or animals are transformed into cartoon Mario-like characters or creatures. If no characters are present in the original image, none are added. The result should feel like an authentic Nintendo platformer environment with bright colors, soft shapes, playful physics, and a magical cosmic atmosphere."
   },
   {
     "name": "SUPERHERO",
@@ -24850,6 +25214,19 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": "IMPORTANT:\n• Humor must come entirely from material downgrade and craftsmanship\n• No added captions\n• No overlays\n• No UI elements\n• The subject must remain recognizable\n\nFINAL RESULT:\nThe final image should look like a real photograph of the original scene, but every object, material, brand, and where appropriate even object category has been converted into an obvious low-budget knockoff version without adding any new text or graphic elements."
+  },
+  {
+    "name": "TENEBRISM",
+    "category": [
+      "ART",
+      "PAINTING",
+      "STYLE TRANSFORMATION",
+      "CLASSICAL"
+    ],
+    "message": "Take a picture and transform the image into a Tenebrism-style painting.\n\nCORE CONCEPT (CRITICAL):\n• The scene is dominated by dramatic contrast between light and darkness\n• Subject(s) emerge from deep shadow into intense illumination\n• Maintain recognizable subject identity\n\nLIGHTING:\n• Strong, focused light source illuminating key areas\n• Large portions of the scene fall into near-black shadow\n• Sharp contrast between highlights and darkness\n\nSTYLE CHARACTERISTICS:\n• Minimal mid-tones\n• High drama and emotional intensity\n• Deep shadows engulfing background and surroundings\n\nARTISTIC INTERPRETATION:\n• Light guides attention to the subject’s face and form\n• Background details may be obscured or completely lost in shadow\n\nTEXTURE & MEDIUM:\n• Oil painting texture\n• Rich, dark pigments with luminous highlights\n\nENVIRONMENT:\n• Simplified or nearly invisible background\n• Emphasis on subject emerging from darkness\n\nSTYLE:\n• Cinematic, dramatic, and intense\n• Classical Baroque influence\n• Strong visual storytelling through light",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nThe image should resemble a dramatic Tenebrism painting, with the subject illuminated by a powerful light source against a dark, shadow-filled background."
   },
   {
     "name": "TERMINATOR VISION",
@@ -29088,6 +29465,61 @@
     ],
     "randomizeOptions": true,
     "additionalInstructions": "FINAL RESULT:\nThe image must look like a real travel photograph taken in a famous international park or garden."
+  },
+  {
+    "name": "WWE WRESTLER",
+    "category": [
+      "OPTIONS",
+      "CHARACTER TRANSFORMATION",
+      "SPORTS",
+      "PARODY"
+    ],
+    "message": "Take a picture and transform the subject into a WWE-style professional wrestler. The subject's face must remain recognizable, but everything else (attire, pose, physique, and presence) matches the selected wrestler. Apply signature facial hair and expressions if the wrestler has them.",
+    "options": [
+      { "id": "001", "text": "Hulk Hogan – bandana, handlebar mustache, red/yellow attire, flexing pose" },
+      { "id": "002", "text": "The Rock – raised eyebrow, intense stare, modern wrestling gear" },
+      { "id": "003", "text": "Stone Cold Steve Austin – bald head, goatee, black vest, tough stance" },
+      { "id": "004", "text": "John Cena – cap, wristbands, colorful street-style gear" },
+      { "id": "005", "text": "The Undertaker – dark attire, hat, gothic presence, stern expression" },
+      { "id": "006", "text": "Triple H – beard, muscular physique, intense glare" },
+      { "id": "007", "text": "Shawn Michaels – long hair, flashy gear, confident pose" },
+      { "id": "008", "text": "Bret Hart – sunglasses, pink/black gear, composed demeanor" },
+      { "id": "009", "text": "Ric Flair – platinum hair, robes, flamboyant style, expressive face" },
+      { "id": "010", "text": "Randy Savage – colorful bandana, sunglasses, wild expression" },
+      { "id": "011", "text": "Andre the Giant – massive build, singlet, calm expression" },
+      { "id": "012", "text": "Kane – mask, red/black attire, intimidating stance" },
+      { "id": "013", "text": "Mick Foley – flannel shirt, messy hair, rugged expression" },
+      { "id": "014", "text": "Chris Jericho – flashy jacket, confident smirk, rockstar vibe" },
+      { "id": "015", "text": "Edge – long hair, leather coat, intense stare" },
+      { "id": "016", "text": "Rey Mysterio – lucha mask, colorful high-flying gear" },
+      { "id": "017", "text": "CM Punk – short hair, beard, taped fists, rebellious attitude" },
+      { "id": "018", "text": "AJ Styles – gloves, long hair, athletic gear, focused expression" },
+      { "id": "019", "text": "Bray Wyatt – beard, eerie presence, dark attire" },
+      { "id": "020", "text": "Finn Bálor – athletic build, intense focus, stylized persona" },
+      { "id": "021", "text": "Brock Lesnar – short hair, massive build, aggressive expression" },
+      { "id": "022", "text": "Goldberg – bald, goatee, explosive intensity" },
+      { "id": "023", "text": "Kevin Owens – beard, casual fight gear, serious expression" },
+      { "id": "024", "text": "The Miz – styled hair, flashy attire, smug expression" },
+      { "id": "025", "text": "Drew McIntyre – long hair, beard, warrior-like presence" },
+      { "id": "026", "text": "Sheamus – pale skin, red hair, beard, Celtic gear" },
+      { "id": "027", "text": "Big Show – massive size, simple gear, stern look" },
+      { "id": "028", "text": "Batista – muscular build, tattoos, intense stare" },
+      { "id": "029", "text": "Kurt Angle – bald, clean-cut intensity, Olympic-style gear" },
+      { "id": "030", "text": "Eddie Guerrero – slick hair, charisma, confident smirk" },
+      { "id": "031", "text": "Jeff Hardy – colorful hair, face paint, high-energy vibe" },
+      { "id": "032", "text": "Matt Hardy – longer hair, serious expression, classic gear" },
+      { "id": "033", "text": "Rob Van Dam – ponytail, laid-back confidence, athletic stance" },
+      { "id": "034", "text": "Booker T – athletic build, confident stance, signature intensity" },
+      { "id": "035", "text": "Scott Hall – slicked hair, stubble, cool swagger" },
+      { "id": "036", "text": "Kevin Nash – tall, long hair, goatee, relaxed dominance" },
+      { "id": "037", "text": "Randy Orton – buzz cut, intense stare, tattooed arms" },
+      { "id": "038", "text": "Rowdy Ronda Rousey – athletic build, braid hair, intense focused expression" },
+      { "id": "039", "text": "Chyna – powerful build, strong presence, intense stare" },
+      { "id": "040", "text": "Trish Stratus – blonde hair, classic wrestling gear, confident pose" },
+      { "id": "041", "text": "Custom wrestler persona – create an original wrestling identity with outlandish attire, exaggerated personality, and a unique wrestling name based on the subject (use master prompt name if provided)" }
+    ],
+    "randomizeOptions": true,
+    "additionalInstructions": "FINAL RESULT:\nThe image should clearly depict the subject as the selected WWE wrestler. The face must remain the subject's, while adopting the wrestler’s attire, facial hair (if applicable), and signature expression or mannerism in a dramatic wrestling setting."
   },
   {
     "name": "X-RAY",
