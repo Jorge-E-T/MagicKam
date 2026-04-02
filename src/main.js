@@ -307,6 +307,13 @@ let gallerySortOrder = 'newest';
 let isBatchMode = false;
 let selectedBatchImages = new Set();
 
+// GALLERY FOLDERS
+
+const FOLDERS_STORAGE_KEY = 'r1_gallery_folders';
+let galleryFolders = []; // [{ id, name, createdAt }]
+let currentFolderView = null; // null = root gallery, string = folderId
+// END GALLERY FOLDERS
+
 // Multiple preset variables
 let isMultiPresetMode = false;
 let isBatchPresetSelectionActive = false;
@@ -503,6 +510,10 @@ function showStyleReveal(styleName) {
   
   // If NO MAGIC MODE is on, always show NO MAGIC MODE in popup
   styleRevealText.textContent = noMagicMode ? '⚡ NO MAGIC MODE' : styleName;
+  // Force the CSS animation to restart cleanly on every call
+  styleRevealElement.style.display = 'none';
+  // Trigger reflow so the browser registers the display change before showing again
+  void styleRevealElement.offsetHeight;
   styleRevealElement.style.display = 'block';
   
   styleRevealTimeout = setTimeout(() => {
@@ -510,7 +521,7 @@ function showStyleReveal(styleName) {
       styleRevealElement.style.display = 'none';
     }
     styleRevealTimeout = null;
-  }, 1200);
+  }, 1800);
 }
 
 // ===================================
@@ -635,7 +646,7 @@ async function saveImageToDB(imageItem) {
     
     const transaction = db.transaction([STORE_NAME], 'readwrite');
     const objectStore = transaction.objectStore(STORE_NAME);
-    const request = objectStore.add(imageItem);
+    const request = objectStore.put(imageItem);
     
     return new Promise((resolve, reject) => {
       request.onsuccess = () => {
@@ -797,64 +808,203 @@ async function showGallery(renderOnly = false) {
     sortOrderSelect.value = gallerySortOrder;
   }
   
-  const filteredImages = getFilteredAndSortedGallery();
-  
-  if (filteredImages.length === 0) {
-    grid.innerHTML = '<div class="gallery-empty">No photos match the selected filter.</div>';
+  // Show or hide the folder breadcrumb bar
+  let breadcrumb = document.getElementById('gallery-folder-breadcrumb');
+  if (!breadcrumb) {
+    breadcrumb = document.createElement('div');
+    breadcrumb.id = 'gallery-folder-breadcrumb';
+    breadcrumb.className = 'gallery-folder-breadcrumb';
+    grid.parentNode.insertBefore(breadcrumb, grid);
+  }
+  if (currentFolderView !== null) {
+    const folder = galleryFolders.find(f => f.id === currentFolderView);
+    breadcrumb.style.display = 'flex';
+    breadcrumb.innerHTML = '';
+    const backBtn = document.createElement('button');
+    backBtn.className = 'gallery-folder-breadcrumb-back';
+    backBtn.textContent = '← Back';
+    backBtn.addEventListener('click', closeFolderView);
+    const label = document.createElement('span');
+    label.textContent = `📁 ${folder ? folder.name : 'Folder'}`;
+    breadcrumb.appendChild(backBtn);
+    breadcrumb.appendChild(label);
+  } else {
+    breadcrumb.style.display = 'none';
+  }
+
+  // Get images for current view (root or folder)
+  const viewImages = getImagesInCurrentView();
+  const filteredImages = viewImages.filter(img => {
+    if (!galleryStartDate && !galleryEndDate) return true;
+    const d = new Date(img.timestamp);
+    d.setHours(0,0,0,0);
+    const t = d.getTime();
+    if (galleryStartDate && t < new Date(galleryStartDate).getTime()) return false;
+    if (galleryEndDate && t > new Date(galleryEndDate).getTime()) return false;
+    return true;
+  });
+  const sortedImages = gallerySortOrder === 'oldest'
+    ? [...filteredImages].sort((a,b) => a.timestamp - b.timestamp)
+    : [...filteredImages].sort((a,b) => b.timestamp - a.timestamp);
+
+  // Build a combined list of all items for the current view.
+  // At root: folders come first (as pseudo-items), then images.
+  // Inside a folder: images only.
+  const showFolders = currentFolderView === null && !galleryStartDate && !galleryEndDate;
+
+  // Each entry is either { type:'folder', folder } or { type:'image', item }
+  const allItems = [];
+  if (showFolders) {
+    galleryFolders.forEach(folder => allItems.push({ type: 'folder', folder }));
+  }
+  sortedImages.forEach(item => allItems.push({ type: 'image', item }));
+
+  const fragment = document.createDocumentFragment();
+
+  if (allItems.length === 0) {
+    grid.innerHTML = currentFolderView !== null
+      ? '<div class="gallery-empty">This folder is empty.</div>'
+      : '<div class="gallery-empty">No photos yet.</div>';
     pagination.style.display = 'none';
   } else {
-    const totalPages = Math.ceil(filteredImages.length / ITEMS_PER_PAGE);
+    const totalPages = Math.ceil(allItems.length / ITEMS_PER_PAGE) || 1;
     currentGalleryPage = Math.min(currentGalleryPage, totalPages);
-    
+
     const startIndex = (currentGalleryPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, filteredImages.length);
-    const pageImages = filteredImages.slice(startIndex, endIndex);
-    
-    const fragment = document.createDocumentFragment();
-    
-    pageImages.forEach((item) => {
-      const imgContainer = document.createElement('div');
-      imgContainer.className = 'gallery-item';
-      imgContainer.dataset.imageId = item.id;
-      
-      if (isBatchMode && selectedBatchImages.has(item.id)) {
-        imgContainer.classList.add('selected');
-      }
-      
-      if (isBatchMode) {
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.className = 'gallery-item-checkbox';
-        checkbox.checked = selectedBatchImages.has(item.id);
-        checkbox.addEventListener('click', (e) => {
-          e.stopPropagation();
-          toggleBatchImageSelection(item.id);
-        });
-        imgContainer.appendChild(checkbox);
-      }
-      
-      const img = document.createElement('img');
-      img.src = item.imageBase64;
-      img.alt = 'Gallery image';
-      img.loading = 'lazy';
-      
-      imgContainer.appendChild(img);
-      
-      imgContainer.onclick = () => {
-        if (isBatchMode) {
-          toggleBatchImageSelection(item.id);
-        } else {
-          const originalIndex = galleryImages.findIndex(i => i.id === item.id);
-          openImageViewer(originalIndex);
+    const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, allItems.length);
+    const pageItems = allItems.slice(startIndex, endIndex);
+
+    pageItems.forEach(entry => {
+      if (entry.type === 'folder') {
+        const folder = entry.folder;
+        const folderEl = document.createElement('div');
+        folderEl.className = 'gallery-item gallery-folder';
+        folderEl.dataset.folderId = folder.id;
+
+        if (isBatchMode && selectedBatchImages.has(folder.id)) {
+          folderEl.classList.add('selected');
         }
-      };
-      
-      fragment.appendChild(imgContainer);
+
+        if (isBatchMode) {
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.className = 'gallery-item-checkbox';
+          checkbox.checked = selectedBatchImages.has(folder.id);
+          checkbox.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleBatchImageSelection(folder.id);
+          });
+          folderEl.appendChild(checkbox);
+        }
+
+        const icon = document.createElement('div');
+        icon.className = 'gallery-folder-icon';
+        icon.textContent = '📁';
+        folderEl.appendChild(icon);
+
+        const nameEl = document.createElement('div');
+        nameEl.className = 'gallery-folder-name';
+        nameEl.textContent = folder.name;
+        folderEl.appendChild(nameEl);
+
+        // Long press to rename; tap to open (or select in batch)
+        let pressTimer = null;
+        folderEl.addEventListener('touchstart', () => {
+          pressTimer = setTimeout(() => {
+            pressTimer = null;
+            if (!isBatchMode) startFolderRename(folder.id);
+          }, 600);
+        }, { passive: true });
+        folderEl.addEventListener('touchend', () => {
+          if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+        });
+        folderEl.addEventListener('touchmove', () => {
+          if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+        });
+
+        folderEl.onclick = (e) => {
+          if (isBatchMode) {
+            if (e.target.type === 'checkbox') return;
+            const rect = folderEl.getBoundingClientRect();
+            const relX = e.clientX - rect.left;
+            const relY = e.clientY - rect.top;
+            if (relX < rect.width * 0.4 && relY < rect.height * 0.4) {
+              toggleBatchImageSelection(folder.id);
+            } else {
+              openFolderView(folder.id);
+            }
+          } else {
+            openFolderView(folder.id);
+          }
+        };
+
+        fragment.appendChild(folderEl);
+
+      } else {
+        // Image entry
+        const item = entry.item;
+        const imgContainer = document.createElement('div');
+        imgContainer.className = 'gallery-item';
+        imgContainer.dataset.imageId = item.id;
+
+        if (isBatchMode && selectedBatchImages.has(item.id)) {
+          imgContainer.classList.add('selected');
+        }
+
+        if (isBatchMode) {
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.className = 'gallery-item-checkbox';
+          checkbox.checked = selectedBatchImages.has(item.id);
+          checkbox.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleBatchImageSelection(item.id);
+          });
+          imgContainer.appendChild(checkbox);
+        }
+
+        const img = document.createElement('img');
+        img.src = item.imageBase64;
+        img.alt = 'Gallery image';
+        img.loading = 'lazy';
+        imgContainer.appendChild(img);
+
+        // Long press on image in batch mode = show move-to-folder modal
+        let imgPressTimer = null;
+        if (isBatchMode) {
+          imgContainer.addEventListener('touchstart', () => {
+            imgPressTimer = setTimeout(() => {
+              imgPressTimer = null;
+              if (!selectedBatchImages.has(item.id)) {
+                toggleBatchImageSelection(item.id);
+              }
+              showMoveToFolderModal();
+            }, 600);
+          }, { passive: true });
+          imgContainer.addEventListener('touchend', () => {
+            if (imgPressTimer) { clearTimeout(imgPressTimer); imgPressTimer = null; }
+          });
+          imgContainer.addEventListener('touchmove', () => {
+            if (imgPressTimer) { clearTimeout(imgPressTimer); imgPressTimer = null; }
+          });
+        }
+
+        imgContainer.onclick = () => {
+          if (isBatchMode) {
+            toggleBatchImageSelection(item.id);
+          } else {
+            const originalIndex = galleryImages.findIndex(i => i.id === item.id);
+            openImageViewer(originalIndex);
+          }
+        };
+
+        fragment.appendChild(imgContainer);
+      }
     });
-    
+
     grid.innerHTML = '';
     grid.appendChild(fragment);
-    
+
     if (totalPages > 1) {
       pagination.style.display = 'flex';
       pageInfo.textContent = `Page ${currentGalleryPage} of ${totalPages}`;
@@ -864,7 +1014,7 @@ async function showGallery(renderOnly = false) {
       pagination.style.display = 'none';
     }
   }
-  
+
   modal.style.display = 'flex';
 }
 
@@ -897,8 +1047,12 @@ async function hideGallery() {
 }
 
 function nextGalleryPage() {
-  const filteredImages = getFilteredAndSortedGallery();
-  const totalPages = Math.ceil(filteredImages.length / ITEMS_PER_PAGE);
+  // Count folders + images together, matching how showGallery paginates
+  const showFolders = currentFolderView === null && !galleryStartDate && !galleryEndDate;
+  const folderCount = showFolders ? galleryFolders.length : 0;
+  const imageCount = getFilteredAndSortedGallery().length;
+  const totalItems = folderCount + imageCount;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
   if (currentGalleryPage < totalPages) {
     currentGalleryPage++;
     showGallery(true);
@@ -1766,9 +1920,13 @@ function updateBatchSelection() {
 }
 
 function selectAllBatchImages() {
-  const filteredImages = getFilteredAndSortedGallery();
   selectedBatchImages.clear();
-  filteredImages.forEach(img => selectedBatchImages.add(img.id));
+  // Include folders if at root
+  if (currentFolderView === null) {
+    galleryFolders.forEach(f => selectedBatchImages.add(f.id));
+  }
+  // Include images in current view
+  getImagesInCurrentView().forEach(img => selectedBatchImages.add(img.id));
   updateBatchSelection();
   showGallery(true);
 }
@@ -1963,6 +2121,7 @@ function toggleCameraLiveCombineMode() {
     if (window.isCameraLiveCombineMode) {
       btn.classList.add('combine-active');
       if (statusElement) statusElement.textContent = '🖼️🖼️ Combine ON — press side button to take first photo';
+      showStyleReveal('🖼️🖼️ COMBINE ON\nTAKE 1ST PHOTO');
     } else {
       btn.classList.remove('combine-active');
       if (statusElement) updatePresetDisplay();
@@ -1973,6 +2132,13 @@ function toggleCameraLiveCombineMode() {
 // Takes two base64 images and returns a combined base64 using the same
 // side-by-side 3:4 canvas logic as the gallery combine function.
 async function buildCombinedImageBase64(base64A, base64B) {
+  // Resize each photo to valid resolution and 3:4 aspect ratio before combining,
+  // so the combined canvas dimensions are consistent with gallery combine behaviour.
+  const [resizedA, resizedB] = await Promise.all([
+    resizeImageForSubmission(base64A),
+    resizeImageForSubmission(base64B)
+  ]);
+
   const loadImg = (src) => new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);
@@ -1980,7 +2146,7 @@ async function buildCombinedImageBase64(base64A, base64B) {
     img.src = src;
   });
 
-  const [imageA, imageB] = await Promise.all([loadImg(base64A), loadImg(base64B)]);
+  const [imageA, imageB] = await Promise.all([loadImg(resizedA), loadImg(resizedB)]);
 
   const targetHeight = Math.max(imageA.height, imageB.height);
   const scaleA = targetHeight / imageA.height;
@@ -2073,6 +2239,7 @@ async function finalizeCameraLiveCombine(photo1Base64, photo2Base64, presetOverr
           imageBase64: combinedBase64,
           preset: p,
           manualSelection: manualSelection,
+          isCombined: true,
           timestamp: Date.now()
         };
         photoQueue.push(queueItem);
@@ -2105,6 +2272,7 @@ async function finalizeCameraLiveCombine(photo1Base64, photo2Base64, presetOverr
         id: Date.now().toString() + '-cam-comb',
         imageBase64: combinedBase64,
         preset: preset,
+        isCombined: !isVoiceMode,
         timestamp: Date.now()
       };
       photoQueue.push(queueItem);
@@ -2132,7 +2300,153 @@ async function finalizeCameraLiveCombine(photo1Base64, photo2Base64, presetOverr
   }
 }
 
-// ── END CAMERA LIVE COMBINE MODE ─────────────────────────────────────────
+// END CAMERA LIVE COMBINE MODE
+
+// GALLERY FOLDER FUNCTIONS
+
+function loadFolders() {
+  try {
+    const saved = localStorage.getItem(FOLDERS_STORAGE_KEY);
+    galleryFolders = saved ? JSON.parse(saved) : [];
+    if (!Array.isArray(galleryFolders)) galleryFolders = [];
+  } catch (e) {
+    galleryFolders = [];
+  }
+}
+
+function saveFolders() {
+  localStorage.setItem(FOLDERS_STORAGE_KEY, JSON.stringify(galleryFolders));
+}
+
+function createNewFolder() {
+  const id = 'folder-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6);
+  const folder = { id, name: 'New Folder', createdAt: Date.now() };
+  galleryFolders.push(folder);
+  saveFolders();
+  showGallery(true);
+  // Immediately enter rename mode for the new folder
+  setTimeout(() => startFolderRename(id), 100);
+}
+
+function startFolderRename(folderId) {
+  const el = document.querySelector(`.gallery-folder[data-folder-id="${folderId}"]`);
+  if (!el) return;
+  el.classList.add('gallery-folder-renaming');
+  const nameEl = el.querySelector('.gallery-folder-name');
+  const folder = galleryFolders.find(f => f.id === folderId);
+  if (!folder) return;
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'gallery-folder-rename-input';
+  input.value = folder.name === 'New Folder' ? '' : folder.name;
+  input.placeholder = 'Folder name';
+  input.maxLength = 30;
+  el.appendChild(input);
+  input.focus();
+
+  const save = () => {
+    const newName = input.value.trim() || 'New Folder';
+    folder.name = newName;
+    saveFolders();
+    el.classList.remove('gallery-folder-renaming');
+    input.remove();
+    if (nameEl) nameEl.textContent = newName;
+  };
+
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); save(); }
+  });
+}
+
+function openFolderView(folderId) {
+  currentFolderView = folderId;
+  currentGalleryPage = 1;
+  showGallery(true);
+}
+
+function closeFolderView() {
+  currentFolderView = null;
+  currentGalleryPage = 1;
+  showGallery(true);
+}
+
+function getImagesInCurrentView() {
+  // Returns images belonging to the current view (root or folder)
+  if (currentFolderView === null) {
+    return galleryImages.filter(img => !img.folderId && !img.isCombinedTemp);
+  } else {
+    return galleryImages.filter(img => img.folderId === currentFolderView);
+  }
+}
+
+async function moveSelectedImagesToFolder(targetFolderId) {
+  // targetFolderId = null means move to root gallery
+  const ids = Array.from(selectedBatchImages);
+  for (const imageId of ids) {
+    const img = galleryImages.find(i => i.id === imageId);
+    if (!img) continue;
+    if (targetFolderId === null) {
+      delete img.folderId;
+    } else {
+      img.folderId = targetFolderId;
+    }
+    // Persist the updated folderId to IndexedDB
+    await saveImageToDB(img);
+  }
+  selectedBatchImages.clear();
+  updateBatchSelection();
+  showGallery(true);
+}
+
+function showMoveToFolderModal() {
+  if (selectedBatchImages.size === 0) return;
+  const modal = document.getElementById('move-to-folder-modal');
+  const list = document.getElementById('move-to-folder-list');
+  list.innerHTML = '';
+
+  // Gallery (root) option
+  const rootItem = document.createElement('div');
+  rootItem.className = 'move-to-folder-item gallery-root';
+  rootItem.innerHTML = '🖼️ Gallery (root)';
+  rootItem.addEventListener('click', async () => {
+    modal.style.display = 'none';
+    await moveSelectedImagesToFolder(null);
+  });
+  list.appendChild(rootItem);
+
+  // Each folder
+  galleryFolders.forEach(folder => {
+    const item = document.createElement('div');
+    item.className = 'move-to-folder-item';
+    item.innerHTML = `📁 ${folder.name}`;
+    item.addEventListener('click', async () => {
+      modal.style.display = 'none';
+      await moveSelectedImagesToFolder(folder.id);
+    });
+    list.appendChild(item);
+  });
+
+  modal.style.display = 'flex';
+}
+
+async function deleteFolderAndContents(folderId) {
+  // When a folder is deleted, move its images back to root
+  for (const img of galleryImages) {
+    if (img.folderId === folderId) {
+      delete img.folderId;
+      await saveImageToDB(img);
+    }
+  }
+  galleryFolders = galleryFolders.filter(f => f.id !== folderId);
+  saveFolders();
+  if (currentFolderView === folderId) {
+    currentFolderView = null;
+  }
+}
+
+// END GALLERY FOLDER FUNCTIONS
 
 async function combineTwoImages() {
   if (selectedBatchImages.size !== 2) {
@@ -2286,7 +2600,14 @@ async function batchDeleteImages() {
   
   if (!confirmed) return;
   
-  const imagesToDelete = Array.from(selectedBatchImages);
+  // Separate folders from images in the selection
+  const foldersToDelete = Array.from(selectedBatchImages).filter(id => id.startsWith('folder-'));
+  const imagesToDelete = Array.from(selectedBatchImages).filter(id => !id.startsWith('folder-'));
+
+  // Delete selected folders (images inside move to root)
+  for (const folderId of foldersToDelete) {
+    await deleteFolderAndContents(folderId);
+  }
   
   // Show progress
   const overlay = document.createElement('div');
@@ -2313,14 +2634,25 @@ async function batchDeleteImages() {
   }
   
   document.body.removeChild(overlay);
-  
-  // Exit batch mode and reload gallery
+
+  // Exit batch mode cleanly — set flag first then update UI without toggling
   isBatchMode = false;
   selectedBatchImages.clear();
   await loadGallery();
-  toggleBatchMode();
-  
-  alert(`${deleted} of ${count} image${deleted > 1 ? 's' : ''} deleted successfully.`);
+
+  // Update UI to reflect batch mode is off without calling toggleBatchMode()
+  // (toggleBatchMode would flip isBatchMode back to true since it's already false)
+  const toggleBtn = document.getElementById('batch-mode-toggle');
+  const batchControls = document.getElementById('batch-controls');
+  const batchActionBar = document.getElementById('batch-action-bar');
+  if (toggleBtn) { toggleBtn.textContent = 'Select'; toggleBtn.classList.remove('active'); }
+  if (batchControls) batchControls.style.display = 'none';
+  if (batchActionBar) batchActionBar.style.display = 'none';
+
+  showGallery(true);
+
+  const totalDeleted = deleted + foldersToDelete.length;
+  alert(`${totalDeleted} item${totalDeleted !== 1 ? 's' : ''} deleted successfully.`);
 }
 
 function openMultiPresetSelector(imageId) {
@@ -2877,23 +3209,23 @@ async function loadStyles() {
     const modifications = await presetStorage.getAllModifications();
     const hasModifications = modifications.length > 0;
     
-    // Always fetch total factory count from presets.json for display purposes
-    try {
-        const countResponse = await fetch('./presets.json');
-        if (countResponse.ok) {
-            const allFactoryPresets = await countResponse.json();
-            totalFactoryPresetCount = allFactoryPresets.length;
-            const tutorialCountEl = document.getElementById('tutorial-preset-count');
-            if (tutorialCountEl) tutorialCountEl.textContent = totalFactoryPresetCount;
-        }
-    } catch (e) {
-        console.log('Could not fetch preset count:', e);
-    }
-
     // Only load presets if user has imports or modifications
     if (hasImports || hasModifications) {
         // Merge factory presets with user modifications
         CAMERA_PRESETS = await mergePresetsWithStorage();
+
+        // Fetch total factory count for display — only needed for returning users
+        try {
+            const countResponse = await fetch('./presets.json');
+            if (countResponse.ok) {
+                const allFactoryPresets = await countResponse.json();
+                totalFactoryPresetCount = allFactoryPresets.length;
+                const tutorialCountEl = document.getElementById('tutorial-preset-count');
+                if (tutorialCountEl) tutorialCountEl.textContent = totalFactoryPresetCount;
+            }
+        } catch (e) {
+            console.log('Could not fetch preset count:', e);
+        }
     } else {
         // First time user - don't load anything yet
         CAMERA_PRESETS = [];
@@ -2915,32 +3247,33 @@ async function loadStyles() {
                 }, 100);
             }
         }, 500);
-    }
     
-    // Still load old localStorage custom presets for migration
-    const storedStyles = localStorage.getItem(STORAGE_KEY);
-    if (storedStyles) {
-        try {
-            const loadedStyles = JSON.parse(storedStyles);
-            
-            // Only add custom presets (those with internal: false)
-            const customPresets = loadedStyles.filter(p => p.internal === false);
-            
-            // Migrate old custom presets to new storage
-            for (const preset of customPresets) {
-                await presetStorage.saveNewPreset(preset);
-                if (!CAMERA_PRESETS.find(p => p.name === preset.name)) {
-                    CAMERA_PRESETS.push(preset);
+        // Still load old localStorage custom presets for migration
+        const storedStyles = localStorage.getItem(STORAGE_KEY);
+        if (storedStyles) {
+            try {
+                const loadedStyles = JSON.parse(storedStyles);
+                
+                // Only add custom presets (those with internal: false)
+                const customPresets = loadedStyles.filter(p => p.internal === false);
+                
+                // Migrate old custom presets to new storage
+                for (const preset of customPresets) {
+                    await presetStorage.saveNewPreset(preset);
+                    if (!CAMERA_PRESETS.find(p => p.name === preset.name)) {
+                        CAMERA_PRESETS.push(preset);
+                    }
                 }
+                
+                // Clear old storage after migration
+                localStorage.removeItem(STORAGE_KEY);
+            } catch (e) {
+                console.error("Error loading styles:", e);
             }
-            
-            // Clear old storage after migration
-            localStorage.removeItem(STORAGE_KEY);
-        } catch (e) {
-            console.error("Error loading styles:", e);
         }
     }
-    
+
+    // Load favorites — runs for all users every startup
     const favoritesJson = localStorage.getItem(FAVORITE_STYLES_KEY);
     if (favoritesJson) {
         try {
@@ -2959,7 +3292,7 @@ async function loadStyles() {
     loadResolution();
     // loadWhiteBalanceSettings();
     
-    // Load visible presets
+    // Load visible presets — runs for all users every startup
     const visibleJson = localStorage.getItem(VISIBLE_PRESETS_KEY);
     if (visibleJson) {
         try {
@@ -2968,7 +3301,7 @@ async function loadStyles() {
                 visiblePresets = [];
             }
         } catch (e) {
-            console.error("Error parsing visible presets:", error);
+            console.error("Error parsing visible presets:", e);
             visiblePresets = [];
         }
     }
@@ -2992,10 +3325,10 @@ async function loadStyles() {
     // Update the display to show correct count on startup
     updateVisiblePresetsDisplay();
 
-// Check for updates after loading
-  setTimeout(() => {
-    checkForPresetsUpdates();
-  }, 1000);
+    // Check for updates after loading
+    setTimeout(() => {
+        checkForPresetsUpdates();
+    }, 1000);
 }
 
 // Check for updates on startup
@@ -6936,8 +7269,11 @@ async function syncQueuedPhotos() {
       statusElement.textContent = `Syncing ${successCount + 1}/${originalCount}...`;
       
       if (typeof PluginMessageHandler !== 'undefined' && !noMagicMode) {
+        if (item.isCombined) window.isCombinedMode = true;
+        const syncedPrompt = getFinalPrompt(item.preset, item.manualSelection || null);
+        if (item.isCombined) window.isCombinedMode = false;
         PluginMessageHandler.postMessage(JSON.stringify({
-          message: getFinalPrompt(item.preset, item.manualSelection || null),
+          message: syncedPrompt,
           pluginId: 'com.r1.pixelart',
           imageBase64: item.imageBase64
         }));
@@ -7254,6 +7590,7 @@ window.addEventListener('sideClick', () => {
           capturedImage.style.display = 'none';
           video.style.display = 'block';
           statusElement.textContent = '✅ First photo taken! Press side button for second photo';
+          showStyleReveal('📸 1st done!\nTake 2nd photo');
         }
       } else {
         // Take photo 2
@@ -8626,25 +8963,22 @@ function populateStylesList(preserveScroll = false) {
       // First apply text search filter
       if (styleFilterText) {
         const searchText = styleFilterText.toLowerCase();
-                   const categoryMatch = preset.category && preset.category.some(cat => cat.toLowerCase().includes(searchText));
-                   const optionsMatch = (
-        (preset.options && preset.options.some(o => o.text && o.text.toLowerCase().includes(searchText))) ||
-        (preset.optionGroups && preset.optionGroups.some(g => g.title && g.title.toLowerCase().includes(searchText) || g.options && g.options.some(o => o.text && o.text.toLowerCase().includes(searchText))))
-      );
-                   const textMatch = preset.name.toLowerCase().includes(searchText) || 
-                                   preset.message.toLowerCase().includes(searchText) ||
-                                   categoryMatch || optionsMatch;
-                   if (!textMatch) return false;
+        const categoryMatch = preset.category && preset.category.some(cat => cat.toLowerCase().includes(searchText));
+        const optionsMatch = (
+          (preset.options && preset.options.some(o => o.text && o.text.toLowerCase().includes(searchText))) ||
+          (preset.optionGroups && preset.optionGroups.some(g => g.title && g.title.toLowerCase().includes(searchText) || g.options && g.options.some(o => o.text && o.text.toLowerCase().includes(searchText))))
+        );
+        const textMatch = preset.name.toLowerCase().includes(searchText) ||
+                         preset.message.toLowerCase().includes(searchText) ||
+                         categoryMatch || optionsMatch;
+        if (!textMatch) return false;
       }
-      
-      // Then apply category filter if active
       if (mainMenuFilterByCategory) {
         return preset.category && preset.category.includes(mainMenuFilterByCategory);
       }
-      
       return true;
     });
-    
+
     const filtered = regular.filter(preset => {
       if (styleFilterText) {
         const searchText = styleFilterText.toLowerCase();
@@ -8653,17 +8987,14 @@ function populateStylesList(preserveScroll = false) {
           (preset.options && preset.options.some(o => o.text && o.text.toLowerCase().includes(searchText))) ||
           (preset.optionGroups && preset.optionGroups.some(g => g.title && g.title.toLowerCase().includes(searchText) || g.options && g.options.some(o => o.text && o.text.toLowerCase().includes(searchText))))
         );
-        const textMatch = preset.name.toLowerCase().includes(searchText) || 
+        const textMatch = preset.name.toLowerCase().includes(searchText) ||
                          preset.message.toLowerCase().includes(searchText) ||
                          categoryMatch || optionsMatch;
         if (!textMatch) return false;
       }
-      
-      // Then apply category filter if active
       if (mainMenuFilterByCategory) {
         return preset.category && preset.category.includes(mainMenuFilterByCategory);
       }
-      
       return true;
     });
 
@@ -11314,9 +11645,21 @@ const result = await presetImporter.import();
     batchModeToggle.addEventListener('click', toggleBatchMode);
   }
 
+  const batchNewFolder = document.getElementById('batch-new-folder');
+  if (batchNewFolder) {
+    batchNewFolder.addEventListener('click', createNewFolder);
+  }
+
   const batchSelectAll = document.getElementById('batch-select-all');
   if (batchSelectAll) {
     batchSelectAll.addEventListener('click', selectAllBatchImages);
+  }
+
+  const closeMoveToFolder = document.getElementById('close-move-to-folder');
+  if (closeMoveToFolder) {
+    closeMoveToFolder.addEventListener('click', () => {
+      document.getElementById('move-to-folder-modal').style.display = 'none';
+    });
   }
 
   const batchDeselectAll = document.getElementById('batch-deselect-all');
@@ -11343,6 +11686,9 @@ const result = await presetImporter.import();
   if (batchDelete) {
     batchDelete.addEventListener('click', batchDeleteImages);
   }
+
+  // Load folder structure
+  loadFolders();
 
   // Initialize IndexedDB and load gallery
   initDB().then(async () => {
@@ -11964,6 +12310,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Gallery image viewer — double-tap to toggle both carousels
+
 (function() {
   const viewerEl = document.getElementById('image-viewer');
   if (!viewerEl) return;
@@ -12022,6 +12369,7 @@ document.addEventListener('DOMContentLoaded', function() {
 })();
 
 // ===== LEFT CAMERA CAROUSEL =====
+
 (function() {
   // Sync enabled state of MP and Options buttons on load
   function syncLeftCamBtns() {
@@ -12071,6 +12419,7 @@ document.addEventListener('DOMContentLoaded', function() {
 console.log('AI Camera Styles app initialized!');
 
 // --- Double-tap to toggle BOTH main camera carousels ---
+
 (function() {
   let lastTapTime = 0;
   let lastTapX = 0;
@@ -12323,6 +12672,7 @@ console.log('AI Camera Styles app initialized!');
             const spokenPreset = window.voicePreset;
             window.voicePreset = null;
             statusElement.textContent = '✅ First photo taken! Press side button for second photo';
+            showStyleReveal('📸 1st done!\nTake 2nd photo');
             // Override the sideClick for next press to capture photo 2 with this voice preset
             window.cameraCombineVoicePreset = spokenPreset;
           }
