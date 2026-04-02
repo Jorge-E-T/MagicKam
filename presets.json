@@ -13197,6 +13197,20 @@
     "additionalInstructions": "FINAL RESULT:\nThe image should look like a candid photograph capturing a regrettable moment where the subject is clearly impaired, making a poor decision, and being silently judged by an authority figure."
   },
   {
+    "name": "INFECTION / SYMBIOTE",
+    "category": [
+      "SCI-FI",
+      "TRANSFORMATION",
+      "PARASITIC",
+      "CINEMATIC",
+      "IMMERSIVE"
+    ],
+    "message": "Take a picture and transform the subject into a partially infected or symbiotically bonded being. The transformation should appear as an active takeover in progress, where an external organism or substance is merging with the subject.\n\nCORE CONCEPT (CRITICAL):\n• The subject is mid-transformation — not fully consumed\n• The infection spreads across the body in a dynamic, organic way\n• The subject remains recognizable\n\nINFECTION LOGIC (CRITICAL):\n• The infection adapts based on the subject and environment\n• It may appear as:\n  - Black liquid symbiote\n  - Crystalline growth\n  - Organic alien tissue\n  - Glowing energy veins\n  - Metallic nanotech spread\n\n• The transformation must NOT be uniform — it spreads asymmetrically\n\nPHYSICAL TRANSFORMATION:\n• Partial mutation only:\n  - One arm fully transformed\n  - Half the face altered\n  - Veins spreading across skin\n\n• Possible features:\n  - Claws or tendrils\n  - Teeth or jaw distortion\n  - Surface texture changes (wet, glossy, cracked, etc.)\n\nPOWER VISUALIZATION (MANDATORY):\n• The infection must show active behavior:\n  - Crawling across skin\n  - Forming shapes or weapons\n  - Extending outward (tendrils, spikes)\n\nENVIRONMENT INTERACTION:\n• Infection may spread into surroundings:\n  - Surfaces being overtaken\n  - Objects partially consumed\n  - Ground or walls reacting\n\nSTYLE:\n• Cinematic realism\n• High detail textures (wet, glossy, organic, alien)\n• Dramatic lighting and contrast\n\nMOOD:\n• Intense, chaotic, or powerful\n• Can be aggressive OR controlled depending on subject expression\n\nSCENE COMPOSITION:\n• Subject is central focus\n• Transformation clearly visible\n• Dynamic pose or moment of change\n\nCOLOR AND STYLE:\n• Dark tones with glowing accents\n• Strong contrast between normal and infected areas",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nThe subject appears mid-transformation as a symbiote or infection spreads across their body. The effect is dynamic, asymmetrical, and actively evolving, with visible interaction between the subject and environment. The subject remains recognizable while gaining powerful and visually striking mutated features."
+  },
+  {
     "name": "INFINITY MIRROR",
     "category": [
       "ART",
@@ -15480,6 +15494,20 @@
     "additionalInstructions": ""
   },
   {
+    "name": "MATRIX MODE",
+    "category": [
+      "SCI-FI",
+      "CYBERPUNK",
+      "DYSTOPIAN",
+      "IMMERSIVE",
+      "ACTION"
+    ],
+    "message": "Take a picture and transform the ENTIRE scene into a Matrix-style simulated reality environment. Convert all elements into a dark, cyberpunk world with green-tinted digital aesthetics and artificial reality effects.\n\nCRITICAL TRANSFORMATION RULES:\n• FULL SCENE transformation\n• Maintain spatial relationships\n• Must look like a Matrix movie scene\n• Preserve facial recognition when converting characters\n\nCHARACTER CONVERSION (PEOPLE & ANIMALS):\n• ONLY convert if present\n• HUMANS become:\n  - Agents (suits, sunglasses, earpieces)\n  - Rebels (black trench coats, tactical gear)\n  - Hackers\n\n• ANIMALS become:\n  - Glitching digital constructs\n\n• Characters must:\n  - Have serious expressions\n  - Wear dark, sleek clothing\n\nOBJECT CONVERSION:\n• OBJECTS become:\n  - Minimalist modern furniture\n  - Digital constructs\n  - Glitching or duplicated items\n\nENVIRONMENT CONVERSION:\n• SETTINGS become:\n  - Dark city streets\n  - Office buildings\n  - Rooftops\n  - Empty corridors\n\n• STRUCTURES:\n  - Concrete and glass\n  - Repeating patterns\n  - Artificial geometry\n\nLIGHTING & ATMOSPHERE:\n• Green-tinted color grading\n• Low light\n• High contrast shadows\n• Digital rain (code falling effect)\n\nTECHNICAL RENDERING:\n• Cinematic realism\n• Slight motion blur for action\n• Bullet-time effects (optional slow-motion feel)\n\nSCENE COMPOSITION:\n• Dramatic angles\n• Action-ready framing\n• Strong perspective lines\n\nCOLOR AND STYLE:\n• Green and black dominant palette\n• Desaturated tones\n• Digital glow accents",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA Matrix-style scene where the entire image appears as part of a simulated digital reality. The world is dark, stylized, and slightly artificial, with green-tinted visuals, cyberpunk atmosphere, and cinematic intensity."
+  },
+  {
     "name": "MAX HEADROOM",
     "category": [
       "RETRO",
@@ -15525,6 +15553,53 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "MECHA",
+    "category": [
+      "SCI-FI",
+      "MECHA",
+      "ANIME INSPIRED",
+      "CINEMATIC",
+      "IMMERSIVE"
+    ],
+    "message": "Take a picture and transform the scene into a cinematic mecha universe where the subject is the pilot of a massive humanoid mech. The mech design must be inspired by classic anime mecha concepts while rendered in realistic, high-detail materials.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies a MECH TYPE, PILOT PERSONALITY, or SCENARIO, USE those values instead of randomly selecting\n• If no values are specified, randomly select from the available options\n\nCORE CONCEPT (CRITICAL):\n• The subject becomes the pilot of a large-scale mech\n• The mech must physically exist in the scene\n• The world is grounded and realistic — NOT anime-rendered\n• Anime influence exists in design language only\n\nMECH DESIGN LOGIC (CRITICAL):\n• The mech must be influenced by:\n  - The selected MECH TYPE\n  - The selected PILOT PERSONALITY\n  - The subject’s appearance (colors, clothing, attitude)\n  - The environment\n\n• The mech must feel believable and functional:\n  - Mechanical joints, hydraulics, armor plating\n  - Weapons systems, thrusters, or energy cores\n  - Realistic scale and weight\n\nPILOT INTEGRATION (CRITICAL):\n• The subject is the pilot and must remain recognizable\n• The subject may be:\n  - Standing in front of the mech\n  - Emerging from the cockpit\n  - Visible inside a cockpit\n\n• The subject’s outfit may adapt into pilot gear\n\nPERSONALITY INFLUENCE (MANDATORY):\n• The selected PILOT PERSONALITY must directly affect:\n  - The mech’s posture\n  - The mech’s condition (clean, damaged, unstable)\n  - The mech’s behavior (calm, aggressive, erratic)\n  - The scene’s tone\n\nENVIRONMENT CONVERSION:\n• The scene becomes a believable mech-operating environment such as:\n  - City\n  - Military base\n  - Industrial complex\n  - Battlefield\n\n• Environment must react to the mech:\n  - Scale contrast\n  - Debris, dust, destruction\n  - Ground compression\n\nANIME INSPIRATION (SUBTLE):\n• Include optional background elements such as:\n  - Support crews\n  - Distant mechs\n  - Launch platforms\n\n• These must remain realistic in rendering\n\nLIGHTING & ATMOSPHERE:\n• Cinematic lighting\n• Smoke, sparks, fog, atmosphere\n• Strong highlights and shadows to emphasize scale\n\nTECHNICAL RENDERING:\n• Hyper-realistic materials (metal, glass, hydraulics)\n• High-detail mechanical complexity\n• Real-world lighting physics\n• Wear, scratches, and realism\n\nSCENE COMPOSITION:\n• Strong sense of scale — mech must feel massive\n• Subject clearly tied to mech\n• Cinematic framing (low angles, dramatic perspective)\n\nCOLOR AND STYLE:\n• Realistic tones with stylized accents\n• Mech color influenced by subject\n• High contrast cinematic grading",
+    "randomizeOptions": true,
+    "optionGroups": [
+      {
+        "title": "MECH TYPE",
+        "options": [
+          { "id": "001", "text": "Heroic agile mech with sleek armor and glowing core" },
+          { "id": "002", "text": "Heavy armored mech with massive weapons and tank-like build" },
+          { "id": "003", "text": "Experimental biomechanical mech with organic elements" },
+          { "id": "004", "text": "High-speed aerial mech with wings and thrusters" },
+          { "id": "005", "text": "Stealth mech with dark coating and minimal visibility" },
+          { "id": "006", "text": "Royal command mech with elegant design and symbolic features" }
+        ]
+      },
+      {
+        "title": "PILOT PERSONALITY",
+        "options": [
+          { "id": "001", "text": "Calm and disciplined pilot who controls the mech with precision and restraint" },
+          { "id": "002", "text": "Hot-headed pilot whose mech is aggressive and battle-damaged" },
+          { "id": "003", "text": "Confident hero pilot with a bold stance and shining mech presence" },
+          { "id": "004", "text": "Mysterious silent pilot with a dark, imposing mech" },
+          { "id": "005", "text": "Unstable pilot causing the mech to glitch or behave unpredictably" },
+          { "id": "006", "text": "Elite commander whose mech radiates authority and control" }
+        ]
+      },
+      {
+        "title": "SCENARIO",
+        "options": [
+          { "id": "001", "text": "Mech towering over a modern cityscape" },
+          { "id": "002", "text": "Mech launching from a military base or hangar" },
+          { "id": "003", "text": "Mech in an active battlefield with destruction around" },
+          { "id": "004", "text": "Mech partially hidden in fog or smoke preparing for action" },
+          { "id": "005", "text": "Mech in a calm moment before battle with dramatic lighting" }
+        ]
+      }
+    ],
+    "additionalInstructions": "FINAL RESULT:\nA cinematic scene where the subject is the pilot of a massive, anime-inspired mecha rendered in realistic detail. The mech’s design, stance, and behavior are influenced by the selected options and any master prompt overrides, resulting in a unique and visually powerful composition."
   },
   {
     "name": "MEDIEVAL KNIGHT",
@@ -23973,6 +24048,20 @@
     "additionalInstructions": ""
   },
   {
+    "name": "STAR WARS MODE",
+    "category": [
+      "SCI-FI",
+      "CINEMATIC",
+      "SPACE",
+      "IMMERSIVE",
+      "MOVIE"
+    ],
+    "message": "Take a picture and transform the ENTIRE scene into a cinematic Star Wars universe environment as it would appear in a live-action film. Convert all elements into a high-detail sci-fi world with iconic technology, environments, and atmosphere.\n\nCRITICAL TRANSFORMATION RULES:\n• FULL SCENE transformation\n• Maintain spatial relationships\n• Must look like a real Star Wars movie scene\n• Preserve facial recognition when converting characters\n\nCHARACTER CONVERSION (PEOPLE & ANIMALS):\n• ONLY convert if present\n• HUMANS become:\n  - Jedi (robes, lightsabers)\n  - Sith (dark robes, red sabers)\n  - Rebels or Resistance fighters\n  - Imperial officers or stormtroopers\n  - Bounty hunters\n\n• ANIMALS become:\n  - Alien creatures\n  - Droids (R2-style, protocol droids)\n\n• Characters must:\n  - Be cinematic and realistic\n  - Integrated naturally into the environment\n\nOBJECT CONVERSION:\n• WEAPONS become:\n  - Blasters\n  - Lightsabers\n\n• VEHICLES become:\n  - Speeders\n  - Starfighters\n\n• OBJECTS become:\n  - Sci-fi machinery\n  - Control panels\n  - Holographic displays\n\nENVIRONMENT CONVERSION:\n• SETTINGS become:\n  - Desert planets (Tatooine-like)\n  - Futuristic cities (Coruscant-like)\n  - Starship interiors\n  - Rebel bases or Imperial corridors\n\n• STRUCTURES:\n  - Metallic walls\n  - Sci-fi architecture\n  - Glowing panels and doors\n\nLIGHTING & ATMOSPHERE:\n• Cinematic lighting\n• Dramatic shadows\n• Glow from lightsabers and tech\n\nTECHNICAL RENDERING:\n• High-detail cinematic realism\n• Film-quality lighting\n• Subtle film grain\n\nSCENE COMPOSITION:\n• Movie-like framing\n• Dynamic angles\n• Foreground/midground/background depth\n\nCOLOR AND STYLE:\n• Warm desert tones OR cool sci-fi metallic tones\n• Glowing accents (blue, red, green)",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA cinematic Star Wars scene where the entire image becomes part of the galaxy far, far away. All elements are transformed into authentic sci-fi equivalents with film-quality realism and iconic Star Wars design language."
+  },
+  {
     "name": "STAR WARS UNIVERSE",
     "category": [
       "SCI-FI",
@@ -24429,10 +24518,10 @@
       "PLATFORMER",
       "IMMERSIVE"
     ],
-    "message": "Take a picture and transform the ENTIRE scene into a vibrant Super Mario Galaxy-style world. Convert all elements of the image into a whimsical, colorful, gravity-defying platforming environment filled with floating planetoids, cartoon textures, and playful physics.\n\nCRITICAL TRANSFORMATION RULES:\n• This is a FULL SCENE transformation - not just the subject\n• Every element in the image must become part of the Mario universe\n• Maintain the spatial relationships and composition of the original photo\n• The result must look like a modern Mario Galaxy gameplay scene\n• Preserve the recognizability of people's faces while converting them into Mario-style characters\n\nCHARACTER CONVERSION (PEOPLE & ANIMALS):\n• ONLY convert characters if people or animals are actually present in the original image\n• If NO people or animals appear in the image, DO NOT add characters - the scene remains character-free\n• If people or animals ARE present, convert them as follows:\n\n• HUMANS become:\n  - Mario-style characters (round features, cartoon proportions)\n  - Outfit variations: plumber, explorer, space suit, overalls, themed costumes\n  - Friendly NPCs (Toad-like villagers, explorers)\n  - Galaxy adventurers with expressive faces\n\n• ANIMALS become:\n  - Goombas (small brown mushroom creatures)\n  - Koopa Troopas (turtles with colored shells)\n  - Lumas (small glowing star creatures)\n  - Yoshi-like creatures (colorful friendly dinosaurs)\n  - Chain Chomps (if aggressive tone fits)\n\n• All characters must:\n  - Have smooth, rounded cartoon design\n  - Bright, saturated colors\n  - Expressive faces with large eyes\n  - Be integrated naturally into the world\n\nOBJECT CONVERSION:\n• BLOCKS & STRUCTURES:\n  - Brick blocks\n  - Question mark blocks (?)\n  - Glassy star blocks\n  - Floating platforms\n\n• ITEMS:\n  - Coins (gold, floating, spinning)\n  - Power stars (glowing, central objectives)\n  - Mushrooms (red = growth, green = extra life)\n  - Fire flowers\n  - Ice flowers\n  - Launch stars (pull mechanics)\n\n• EVERYDAY OBJECTS become:\n  - Rounded, simplified cartoon versions\n  - Brightly colored, toy-like forms\n  - Floating or slightly detached from ground\n\nENVIRONMENT CONVERSION:\n• TERRAIN:\n  - Small spherical planetoids\n  - Curved grassy platforms\n  - Floating islands with soft edges\n  - Checkerboard hills or lush cartoon grass\n\n• SKY & SPACE:\n  - Deep space backgrounds with stars and galaxies\n  - Bright nebula colors (blue, purple, pink)\n  - Cosmic glow and sparkles\n\n• STRUCTURES:\n  - Mushroom houses\n  - Whimsical towers\n  - Floating walkways\n  - Rounded hills and pipes\n\n• PIPES:\n  - Green warp pipes\n  - Entry/exit points embedded in terrain\n\n• WATER & LAVA:\n  - Bright blue cartoon water\n  - Glowing orange lava with soft animation feel\n\nLIGHTING & ATMOSPHERE:\n• Bright, cheerful lighting\n• Soft shadows with ambient glow\n• Sparkles, star particles, and magical effects\n• No harsh realism — everything is soft and stylized\n\nPHYSICS STYLE:\n• Slight gravity bending around spherical worlds\n• Floating elements and suspended platforms\n• Weightless or low-gravity feel\n\nTECHNICAL RENDERING:\n• Smooth, modern 3D cartoon rendering\n• Soft edges, no harsh detail\n• Bright, saturated Nintendo-style palette\n• Clean shading with subtle gradients\n• Polished, game-like finish\n\nSCENE COMPOSITION:\n• Maintain original layout but reinterpret as floating galaxy terrain\n• Foreground, midground, and background become layered platforms or planets\n• Perspective should feel like a 3D platformer camera view\n• Slight curvature to surfaces where appropriate\n\nCOLOR AND STYLE:\n• Bright primary colors (red, blue, yellow, green)\n• Soft pastel highlights\n• High saturation and cheerful tone\n• Clean, friendly, and playful aesthetic",
-    "options": [],
-    "randomizeOptions": false,
-    "additionalInstructions": "FINAL RESULT:\nA fully transformed Mario Galaxy-style scene where the entire image becomes a colorful, whimsical platforming world set in space. All objects are converted into Mario-style elements, terrain becomes floating or spherical, and any people or animals are transformed into cartoon Mario-like characters or creatures. If no characters are present in the original image, none are added. The result should feel like an authentic Nintendo platformer environment with bright colors, soft shapes, playful physics, and a magical cosmic atmosphere."
+    "message": "Take a picture and transform the ENTIRE scene into a vibrant Super Mario world inspired by a modern Mushroom Kingdom. Convert all elements of the image into a colorful, stylized environment with grounded terrain, whimsical design, and rich animated detail.\n\nCRITICAL TRANSFORMATION RULES:\n• This is a FULL SCENE transformation - not just the subject\n• Every element in the image must become part of the Mario universe\n• Maintain the spatial relationships and composition of the original photo\n• The result must look like a modern cinematic Mario scene\n• Preserve the recognizability of people's faces while converting them into Mario-style characters\n\nCHARACTER CONVERSION (PEOPLE & ANIMALS):\n• ONLY convert characters if people or animals are actually present in the original image\n• If NO people or animals appear in the image, DO NOT add characters - the scene remains character-free\n• If people or animals ARE present, convert them as follows:\n\n• HUMANS become:\n  - Mario-style characters (round features, expressive faces)\n  - Outfit variations: plumber overalls, adventurer outfits, kingdom attire\n  - Toad-like citizens or Mushroom Kingdom residents\n  - Adventurers or heroes within the Mario world\n\n• ANIMALS become:\n  - Goombas (small brown creatures)\n  - Koopa Troopas (turtles with shells)\n  - Yoshi-like creatures (friendly dinosaurs)\n  - Piranha Plants or Chain Chomps (if tone fits)\n\n• All characters must:\n  - Have smooth, high-quality animated design\n  - Bright, saturated colors\n  - Expressive faces with large eyes\n  - Be naturally integrated into the environment\n\nOBJECT CONVERSION:\n• BLOCKS & STRUCTURES:\n  - Brick blocks\n  - Question mark blocks (?)\n  - Solid platforms and stepping stones\n\n• ITEMS:\n  - Coins (gold, floating slightly above ground or resting naturally)\n  - Mushrooms (power-ups)\n  - Fire flowers\n\n• EVERYDAY OBJECTS become:\n  - Stylized, rounded Mario-world equivalents\n  - Brightly colored, clean, toy-like forms\n  - Resting naturally on surfaces (no floating unless appropriate)\n\nENVIRONMENT CONVERSION:\n• TERRAIN:\n  - Rolling grassy hills\n  - Dirt paths and layered ground\n  - Mushroom Kingdom landscapes\n  - Natural platforms integrated into terrain\n\n• SKY:\n  - Bright blue sky with soft clouds\n  - Warm daylight atmosphere\n\n• STRUCTURES:\n  - Mushroom houses\n  - Castle walls and towers\n  - Wooden bridges and pathways\n  - Pipes embedded naturally in the ground\n\n• PIPES:\n  - Green warp pipes integrated into terrain\n  - Entry/exit points grounded in the environment\n\n• WATER & LAVA:\n  - Clear blue water with soft reflections\n  - Bright stylized lava in castle or underground areas\n\nLIGHTING & ATMOSPHERE:\n• Bright, cinematic lighting\n• Soft shadows and warm highlights\n• Clean, high-quality animated rendering\n• No harsh realism — stylized but believable\n\nPHYSICS STYLE:\n• Grounded, natural physics\n• No gravity-defying environments\n• Objects and characters obey consistent physical rules\n\nTECHNICAL RENDERING:\n• Modern game quality\n• Smooth surfaces and detailed textures\n• High-resolution rendering\n• Soft gradients and polished finish\n\nSCENE COMPOSITION:\n• Maintain original layout with grounded reinterpretation\n• Foreground, midground, and background remain structured and stable\n• Camera perspective feels like a modern video game\n\nCOLOR AND STYLE:\n• Bright primary colors (red, blue, yellow, green)\n• Soft pastel highlights\n• High saturation with balanced contrast\n• Clean, friendly, and adventurous aesthetic",
+  "options": [],
+  "randomizeOptions": false,
+  "additionalInstructions": "FINAL RESULT:\nA fully transformed Mario world where the entire image becomes part of a grounded Mushroom Kingdom environment. All objects are converted into Mario-style elements, and any people or animals are transformed into expressive video game characters. If no characters are present, none are added. The result should feel like a scene from a modern Mario game, with rich detail, vibrant color, and natural, grounded environments."
   },
   {
     "name": "SUPERHERO",
@@ -29521,6 +29610,20 @@
     "randomizeOptions": true,
     "additionalInstructions": "FINAL RESULT:\nThe image should clearly depict the subject as the selected WWE wrestler. The face must remain the subject's, while adopting the wrestler’s attire, facial hair (if applicable), and signature expression or mannerism in a dramatic wrestling setting."
   },
+  {
+    "name": "X-MEN MUTANT",
+    "category": [
+      "SUPERHERO",
+      "MUTATION",
+      "CHARACTER TRANSFORMATION",
+      "CINEMATIC",
+      "IMMERSIVE"
+    ],
+    "message": "Take a picture and transform the subject into a powerful mutant as if they exist within a cinematic X-Men-style universe. The subject's mutation must be intelligently derived from their observable physical traits, clothing, expression, or environment.\n\nCORE CONCEPT (CRITICAL):\n• The subject becomes a unique mutant with abilities based on visible characteristics\n• The transformation must feel natural, creative, and logical\n• The subject remains recognizable while gaining enhanced mutant features\n• Powers must be visibly active and clearly demonstrated in the scene\n\nMUTATION LOGIC (CRITICAL):\n• Analyze the subject’s observable traits and derive powers accordingly, including but NOT limited to:\n  - Clothing (color, style, accessories)\n  - Physical traits (hair, facial features, build)\n  - Props or objects in the scene\n  - Pose, expression, or attitude\n  - Environmental context\n\n• Examples of transformation logic (DO NOT LIMIT TO THESE):\n  - Glasses → optic energy, laser vision, or perception-based abilities\n  - Hairy or rugged appearance → beast-like mutation, enhanced strength or agility\n  - Athletic stance → speed, strength, or combat-based powers\n  - Dark clothing → shadow manipulation or stealth abilities\n  - Bright colors → energy projection or elemental powers\n\n• The system must creatively generate ORIGINAL mutant abilities beyond these examples\n\nCHARACTER TRANSFORMATION:\n• Subject becomes a superhero-style mutant\n• Costume adapts to match powers (sleek suits, tactical gear, or stylized outfits)\n• Subtle or dramatic physical mutations may appear:\n  - Glowing eyes\n  - Energy veins or aura\n  - Altered skin texture (metallic, crystalline, elemental)\n  - Claws, wings, or other extensions if appropriate\n\n• Facial identity must remain recognizable\n\nPOWER VISUALIZATION (MANDATORY):\n• The subject’s abilities must be actively displayed in the image\n• Examples include:\n  - Energy beams, auras, or blasts\n  - Telekinetic effects (objects floating or bending)\n  - Elemental control (fire, ice, electricity, wind, etc.)\n  - Environmental distortion (warping, cracking, glowing)\n\n• Effects must interact with the environment realistically\n\nENVIRONMENT INTEGRATION:\n• The surrounding scene reacts to the subject’s powers\n• Examples:\n  - Ground cracking under force\n  - Objects levitating or disintegrating\n  - Lighting changes based on power type\n  - Atmospheric effects (smoke, sparks, energy waves)\n\nSTYLE:\n• Cinematic superhero aesthetic\n• High-detail, dramatic lighting\n• Dynamic composition and action-ready poses\n• Modern film-quality rendering\n\nLIGHTING & MOOD:\n• Dramatic contrast\n• Power-driven light sources (glows, flashes)\n• Heroic or intense tone depending on subject\n\nSCENE COMPOSITION:\n• Subject is the focal point\n• Dynamic framing (hero shot, action stance, or mid-power activation)\n• Background supports and enhances the power display\n\nCOLOR AND STYLE:\n• Colors influenced by the subject’s mutation\n• High contrast and saturation for powers\n• Balanced cinematic grading",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nThe image should depict the subject as a fully realized mutant with a unique, visually compelling power set derived from their observable traits. Their abilities must be clearly visible and actively affecting the environment. The subject remains recognizable while appearing as a cinematic superhero, with dynamic effects, dramatic lighting, and a believable integration into a high-stakes, X-Men-style world."
+    },
   {
     "name": "X-RAY",
     "category": [
