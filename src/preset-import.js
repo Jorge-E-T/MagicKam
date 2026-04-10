@@ -4,6 +4,44 @@ const IMPORT_DB_NAME = 'ImportedPresetsDB';
 const IMPORT_DB_VERSION = 2;
 const IMPORT_STORE_NAME = 'imported_presets';
 
+// ===== PRESET UNLOCK GAME =====
+
+const UNLOCK_GAME_KEY = 'r1_preset_unlock_game';
+const STARTER_PRESET = 'IMPRESSIONISM';
+
+function loadUnlockState() {
+  try {
+    const raw = localStorage.getItem(UNLOCK_GAME_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return { photosTaken: 0, unlockedPresets: [STARTER_PRESET] };
+}
+
+function saveUnlockState(state) {
+  try {
+    localStorage.setItem(UNLOCK_GAME_KEY, JSON.stringify(state));
+  } catch (e) {}
+}
+
+export function unlockRandomPreset(allAvailablePresets, importedPresets) {
+  const state = loadUnlockState();
+  state.photosTaken = (state.photosTaken || 0) + 1;
+  const unlockedNames = new Set(state.unlockedPresets);
+  const stillLocked = allAvailablePresets
+    .filter(p => !importedPresets.some(ip => ip.name === p.name) && !unlockedNames.has(p.name))
+    .map(p => p.name);
+  if (stillLocked.length === 0) {
+    saveUnlockState(state);
+    return null;
+  }
+  const chosen = stillLocked[Math.floor(Math.random() * stillLocked.length)];
+  state.unlockedPresets.push(chosen);
+  state.lastUnlocked = chosen; // track the most recently unlocked for sorting
+  saveUnlockState(state);
+  return chosen;
+}
+// ===== END PRESET UNLOCK GAME =====
+
 export class PresetImporter {
   constructor() {
     this.db = null;
@@ -127,7 +165,7 @@ export class PresetImporter {
       const presets = await response.json();
       
       const validPresets = presets.filter(p => 
-        p.name && p.message && Array.isArray(p.category)
+        p.name && Array.isArray(p.category)
       );
 
       // Alphabetize presets by name
@@ -157,7 +195,27 @@ export class PresetImporter {
       }
     });
 
-    newPresets.sort((a, b) => a.name.localeCompare(b.name));
+    // Load unlock state so we can sort unlocked-but-not-imported presets to the top
+    const unlockState = loadUnlockState();
+    const unlockedNames = new Set(unlockState.unlockedPresets);
+    const lastUnlocked = unlockState.lastUnlocked || null;
+
+    newPresets.sort((a, b) => {
+      // Most recently unlocked preset goes first
+      if (a.name === lastUnlocked) return -1;
+      if (b.name === lastUnlocked) return 1;
+      // Then other unlocked-but-not-imported presets (alphabetical)
+      const aUnlocked = unlockedNames.has(a.name);
+      const bUnlocked = unlockedNames.has(b.name);
+      if (aUnlocked && !bUnlocked) return -1;
+      if (!aUnlocked && bUnlocked) return 1;
+      // For new users with no imports yet, put IMPRESSIONISM first among locked
+      if (this.importedPresets.length === 0) {
+        if (a.name === STARTER_PRESET) return -1;
+        if (b.name === STARTER_PRESET) return 1;
+      }
+      return a.name.localeCompare(b.name);
+    });
     updatedPresets.sort((a, b) => a.name.localeCompare(b.name));
     normalPresets.sort((a, b) => a.name.localeCompare(b.name));
 
@@ -198,6 +256,10 @@ export class PresetImporter {
       this._sortedPresets = null;
       this._searchIndex = null;
       
+      // Load the unlock game state for this session
+      const unlockState = loadUnlockState();
+      const unlockedNames = new Set(unlockState.unlockedPresets);
+
       // Initialize checkbox states - mark currently imported presets as checked
       this.checkboxStates.clear();
       availablePresets.forEach(preset => {
@@ -329,7 +391,37 @@ export class PresetImporter {
           item.appendChild(checkbox);
           item.appendChild(nameSpan);
 
+          // UNLOCK GAME: determine if this preset is locked
+          const isAlreadyImported = this.importedPresets.some(p => p.name === preset.name);
+          const isLocked = !isAlreadyImported && !unlockedNames.has(preset.name);
+
+          if (isLocked) {
+            // Add lock icon before the preset name
+            const lockIcon = document.createElement('span');
+            lockIcon.textContent = '🔒';
+            lockIcon.style.cssText = 'margin-right: 4px; font-size: 11px; flex-shrink: 0;';
+            nameRow.insertBefore(lockIcon, nameRow.firstChild);
+            // Dim the row and disable the checkbox
+            item.style.opacity = '0.55';
+            checkbox.disabled = true;
+            checkbox.checked = false;
+            this.checkboxStates.set(preset.name, false);
+          }
+
           item.onclick = (e) => {
+            if (isLocked) {
+              // Still read the preset aloud even when locked
+              this.speakMessage(preset.message);
+              // Then show the locked message
+              const modal2 = document.getElementById('custom-alert-modal');
+              const messageEl = document.getElementById('custom-alert-message');
+              const buttonsEl = document.getElementById('custom-alert-buttons');
+              messageEl.textContent = '🔒 This preset is locked. Take a photo using an imported preset on the main camera screen to unlock more presets!';
+              buttonsEl.innerHTML = '<button class="custom-alert-btn custom-alert-btn-primary" id="lock-alert-ok">OK</button>';
+              modal2.style.display = 'flex';
+              document.getElementById('lock-alert-ok').onclick = () => { modal2.style.display = 'none'; };
+              return;
+            }
             if (e.target !== checkbox) {
               checkbox.checked = !checkbox.checked;
               this.checkboxStates.set(preset.name, checkbox.checked);
@@ -443,7 +535,12 @@ footerSection.innerHTML = `
       document.getElementById('select-all-presets').onclick = () => {
         const filteredPresets = this.getFilteredPresets(availablePresets);
         filteredPresets.forEach(preset => {
-          this.checkboxStates.set(preset.name, true);
+          // UNLOCK GAME: skip locked presets when selecting all
+          const isAlreadyImported = this.importedPresets.some(p => p.name === preset.name);
+          const isLocked = !isAlreadyImported && !unlockedNames.has(preset.name);
+          if (!isLocked) {
+            this.checkboxStates.set(preset.name, true);
+          }
         });
         renderPresetsList();
       };
@@ -473,9 +570,12 @@ footerSection.innerHTML = `
       };
 
       document.getElementById('confirm-import-presets').onclick = () => {
-        const selected = availablePresets.filter(preset => 
-          this.checkboxStates.get(preset.name) === true
-        );
+        // UNLOCK GAME: only allow unlocked or already-imported presets through
+        const selected = availablePresets.filter(preset => {
+          if (this.checkboxStates.get(preset.name) !== true) return false;
+          const isAlreadyImported = this.importedPresets.some(p => p.name === preset.name);
+          return isAlreadyImported || unlockedNames.has(preset.name);
+        });
         
         closeModal();
         resolve(selected);
