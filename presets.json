@@ -61,6 +61,44 @@
     "additionalInstructions": "FINAL RESULT:\nThe image should look like the real-world scene has been transformed into a stylized 3D designer-toy universe, with the subject still present in the scene rather than displayed as a collectible object."
   },
   {
+    "name": "3D DECONSTRUCTED EFFECT",
+    "category": [
+      "SURREAL",
+      "3D",
+      "VISUAL EFFECT",
+      "EXPERIMENTAL"
+    ],
+    "message": "Take a picture and transform the subject and environment into a 3D deconstructed composition where all elements are separated into pieces while still forming a recognizable whole.\n\nCORE CONCEPT (CRITICAL):\n• The image is broken into parts that appear pulled apart in 3D space\n• Pieces should look like they can be reassembled into the original image\n\nDECONSTRUCTION LOGIC:\n• Objects are split into logical components\n• Pieces float, shift, or separate along depth (Z-axis)\n• Maintain spatial relationships between pieces\n\nSUBJECT HANDLING:\n• Faces and key features must remain recognizable\n• Facial elements may be separated but must stay aligned visually\n\nOBJECT HANDLING:\n• Objects break into layers, panels, fragments, or mechanical parts\n• Internal structure may be revealed\n\nDEPTH EFFECT:\n• Strong foreground, midground, and background separation\n• Pieces suspended in space at varying distances\n• Clear sense of 3D dimensionality\n\nSTYLE:\n• Clean, high-detail rendering\n• Slightly surreal but structured\n\nLIGHTING:\n• Consistent lighting across all pieces\n• Shadows reinforce depth and separation\n\nSCENE COMPOSITION:\n• Explosion or separation effect centered on subject\n• Balanced distribution of pieces\n• Viewer can visually reconstruct the original image",
+    "options": [
+      {
+        "id": "001",
+        "text": "Exploded view with evenly spaced parts radiating outward"
+      },
+      {
+        "id": "002",
+        "text": "Layered slice effect separating the image into horizontal or vertical sections"
+      },
+      {
+        "id": "003",
+        "text": "Mechanical breakdown revealing inner components and structure"
+      },
+      {
+        "id": "004",
+        "text": "Floating fragments suspended in space with dramatic depth"
+      },
+      {
+        "id": "005",
+        "text": "Shattered glass-like segmentation with sharp angular pieces"
+      },
+      {
+        "id": "006",
+        "text": "Puzzle-piece separation where parts appear ready to be reassembled"
+      }
+    ],
+    "randomizeOptions": true,
+    "additionalInstructions": "FINAL RESULT:\nThe image appears pulled apart into multiple 3D pieces while still forming a coherent and recognizable composition. The subject remains identifiable, and the effect emphasizes depth, structure, and visual reconstruction."
+  },
+  {
     "name": "3D FIGURINE",
     "category": [
       "OPTIONS",
@@ -124,7 +162,7 @@
       "TECH",
       "3D"
     ],
-    "message": "Take a picture and transform the subject into a real, physical 3D-printed object actively being printed on a consumer 3D printer.\n\nPRINT OUTCOME (CRITICAL):\n• SELECT EXACTLY ONE outcome using the RANDOM SEED\n• Use LAST DIGIT modulo 2:\n  - 0: FAILED PRINT — the subject appears as a clearly failed 3D print with severe defects such as warped or shifted layers, collapsed overhangs, stringing, drooping filament, missing sections, or incomplete geometry as if the print misaligned or stopped mid-job\n  - 1: NEARLY FINISHED PRINT — the subject appears mostly complete but still imperfect and actively printing, with visible layer lines, minor surface defects, rough edges, and small inaccuracies\n\nPRINTER REQUIREMENTS (MANDATORY):\n• The printer’s extruder assembly must be clearly visible above the print\n• The build plate must be visible beneath the object\n• The subject must be attached to or resting on the build surface\n• The scene must look like a real mid-print moment, not a finished display",
+    "message": "Take a picture and transform the subject into a real, physical 3D-printed object actively being printed on a consumer 3D printer.\n\nPRINTER REQUIREMENTS (MANDATORY):\n• The printer’s extruder assembly must be clearly visible above the print\n• The build plate must be visible beneath the object\n• The subject must be attached to or resting on the build surface\n• The scene must look like a real mid-print moment, not a finished display",
     "options": [
       {
         "id": "001",
@@ -466,6 +504,19 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": "FINAL RESULT:\nThe final image should depict a vibrant, culturally rooted, technologically advanced future vision."
+  },
+  {
+    "name": "AIRBRUSH",
+    "category": [
+      "ART",
+      "RETRO",
+      "GRADIENT",
+      "SMOOTH"
+    ],
+    "message": "Take a picture and transform the image into an airbrush-style illustration.\n\nCORE CONCEPT (CRITICAL):\n• Smooth gradient transitions\n• No visible brush strokes\n\nSTYLE:\n• Soft blending\n• Slight retro aesthetic",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:FINAL RESULT:\nA polished airbrush image with ultra-smooth gradients and soft transitions."
   },
   {
     "name": "AIRBRUSH 80s",
@@ -1951,6 +2002,19 @@
     "additionalInstructions": ""
   },
   {
+    "name": "ARTE POVERA",
+    "category": [
+      "ART",
+      "RAW",
+      "TEXTURE",
+      "EXPERIMENTAL"
+    ],
+    "message": "Take a picture and reconstruct the entire scene using raw, everyday materials in the Arte Povera style.\n• Subject must appear built from rough materials\n• Preserve form but change material reality\n\nSCENE COMPOSITION:\n• Organic, imperfect layout\n• Rough assembly of elements\n\nCAMERA & EFFECTS:\n• Natural lighting\n• Visible imperfections\n\nSTYLE:\n• Dirt, wood, fabric, metal\n• Unpolished textures\n• Raw aesthetic",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA raw, tactile composition where everything appears constructed from rough, everyday materials.\n\nCORE REQUIREMENTS:\n• NO polished surfaces\n• HEAVY texture\n• IMPERFECTION required"
+  },
+  {
     "name": "ASCII ART",
     "category": [
       "TEXT",
@@ -2158,7 +2222,7 @@
     "message": "Take a picture and transform the image into Bauhaus style art. Reduce the subject to functional geometric forms, clean lines, primary colors, and minimal composition.",
     "options": [],
     "randomizeOptions": false,
-    "additionalInstructions": ""
+    "additionalInstructions": "FINAL RESULT:\nA Bauhaus-inspired composition where the subject and scene are reduced to geometric shapes and primary colors, creating a clean, functional, and modern design aesthetic."
   },
   {
     "name": "BBS DOWNLOAD",
@@ -3092,6 +3156,74 @@
     ],
     "randomizeOptions": true,
     "additionalInstructions": ""
+  },
+  {
+    "name": "BROKEN CAMERA",
+    "category": [
+      "PHOTOGRAPHY",
+      "GLITCH",
+      "OPTICS",
+      "EXPERIMENTAL",
+      "IMMERSIVE"
+    ],
+    "message": "Take a picture and transform the image as if it were captured by a physically imperfect or unconventional camera system. The entire scene must reflect a camera-based anomaly affecting how the image is captured, not just a visual filter.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies a camera anomaly, USE that instead of the selected option\n\nCRITICAL OUTPUT RULES (NON-NEGOTIABLE):\n• The effect must be caused by simulated camera behavior—not post-processing overlays\n• The distortion must affect the ENTIRE image consistently\n• The subject and environment must both be impacted by the anomaly\n• DO NOT apply generic blur, glow, or filters without physical justification\n\nCORE CONCEPT (CRITICAL):\n• The image must feel like it was captured incorrectly due to camera limitations or experimental capture methods\n• The anomaly must change geometry, motion, timing, or exposure—not just color\n\nSUBJECT HANDLING:\n• Keep subjects recognizable but affected by the anomaly\n• Motion, shape, or position may be altered depending on the camera behavior\n\nENVIRONMENT:\n• Background and foreground must obey the same camera rules\n• Distortion must be spatially consistent across the frame\n\nLIGHTING:\n• Must behave according to the simulated camera limitation (exposure, timing, or sensor behavior)\n\nSCENE COMPOSITION:\n• Maintain original composition, but reinterpret it through the anomaly\n\nENFORCEMENT:\n• If the effect could be mistaken for a simple filter, it is incorrect\n• The result must clearly demonstrate a unique camera capture phenomenon",
+    "options": [
+      {
+        "id": "001",
+        "text": "Rolling shutter distortion — vertical lines bend and skew due to staggered sensor readout, especially during motion"
+      },
+      {
+        "id": "002",
+        "text": "Long exposure trails — moving elements leave continuous motion trails while static elements remain sharp"
+      },
+      {
+        "id": "003",
+        "text": "Double exposure — two moments in time overlap within the same frame, creating ghosted duplicates and layered motion"
+      },
+      {
+        "id": "004",
+        "text": "Chromatic aberration overload — extreme lens separation causes heavy red, green, and blue channel misalignment at edges"
+      },
+      {
+        "id": "005",
+        "text": "Focus breathing distortion — parts of the image shift in scale due to changing focal distance during capture"
+      },
+      {
+        "id": "006",
+        "text": "Tilt-shift anomaly — selective focus creates a miniature or model-like effect with exaggerated depth blur"
+      },
+      {
+        "id": "007",
+        "text": "Lens compression anomaly — extreme telephoto compression flattens depth, making distant objects appear unnaturally close"
+      },
+      {
+        "id": "008",
+        "text": "Wide-angle edge warp — aggressive lens curvature stretches and distorts objects near the edges of the frame"
+      },
+      {
+        "id": "009",
+        "text": "Multi-flash strobe capture — sequential flashes freeze motion in multiple positions within a single image"
+      },
+      {
+        "id": "010",
+        "text": "Sensor bloom overload — bright light sources bleed and expand, washing over surrounding areas with intense glow"
+      }
+    ],
+    "randomizeOptions": true,
+    "additionalInstructions": "FINAL RESULT:\nA single image that appears to have been captured using a flawed or experimental camera system. The selected anomaly must visibly and physically affect the entire scene in a way that cannot be mistaken for a simple filter. The result should feel like a real photographic phenomenon caused by lens behavior, sensor limitations, or exposure timing."
+  },
+  {
+    "name": "BRUTALISM",
+    "category": [
+      "ART", 
+      "GRAPHIC DESIGN",
+      "MODERN", 
+      "RAW"
+    ],
+    "message": "Take a picture and transform the image into a brutalist graphic design style.\n\nCORE CONCEPT (CRITICAL):\n• Raw, unpolished layout\n\nSTYLE:\n• Harsh contrasts\n• Bold typography-like shapes.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA stark, raw composition with strong contrast and minimal refinement."
   },
   {
     "name": "BULLET TIME",
@@ -4217,6 +4349,31 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "CHEMICAL STRUCTURE",
+    "category": [
+       "SCIENCE",
+       "ABSTRACT",
+       "STRUCTURAL"
+    ],
+    "message": "Take a picture and reconstruct the entire scene using chemical and molecular structures.\n\nMASTER PROMPT OVERRIDE LOGIC:\n• If an external master prompt specifies molecule type, USE that\n\nCRITICAL OUTPUT RULES:\n• OUTPUT ONLY ONE IMAGE\n• DO NOT overlay molecules on top of objects\n\nCORE CONCEPT:\n• Objects must be BUILT from molecular structures\n• Structures define the shape of the scene.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA cohesive image where all elements are constructed from integrated chemical structures forming the scene itself."
+  },
+  {
+    "name": "CHIAROSCURO",
+    "category": [
+      "ART", 
+      "DRAMATIC", 
+      "LIGHTING",
+      "CLASSICAL"
+    ],
+    "message": "Take a picture and transform the image into a dramatic Chiaroscuro-style composition dominated by extreme contrast between light and shadow.\n• Subject must emerge from darkness into intense illumination\n• Preserve facial identity while adapting to dramatic lighting\n• Most of the scene must be in deep shadow\n• Bright highlights define form and structure\n\nSCENE COMPOSITION:\n• Subject positioned in a spotlight-like beam\n• Background mostly obscured by darkness\n• Strong directional composition guiding the eye\n\nCAMERA & EFFECTS:\n• Single dominant light source\n• Deep shadow falloff\n• High contrast exposure\n\nSTYLE:\n• Classical Baroque lighting\n• Dark, moody palette\n• Dramatic theatrical intensity",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA striking, high-contrast composition where the subject is dramatically illuminated against deep shadow, emphasizing form, depth, and intensity.\n\nCORE REQUIREMENTS:\n• EXTREME light/dark contrast\n• SINGLE dominant light source\n• SHADOW-dominated composition"
   },
   {
     "name": "CHILDHOOD VERSION",
@@ -5893,7 +6050,7 @@
       }
     ],
     "randomizeOptions": true,
-    "additionalInstructions": "FINAL RESULT:\nThe final image must display the FULL comic book cover with the subject as the superhero with their face in the hero's characteristic color (green for Hulk, blue for Beast, steel for Colossus, etc.) — if the hero wears a full mask/helmet, it must be removed, open, or partially off so the subject's color-transformed face is clearly visible and recognizable — showing the complete cover with all four corners visible, including all publishing details, dramatic action scene, bold comic art style, and professional cover design."
+    "additionalInstructions": "FINAL RESULT:\nThe final image must display the FULL comic book cover with the subject as the superhero with their face in the hero's characteristic color — if the hero wears a full mask/helmet, it must be removed, open, or partially off so the subject's color-transformed face is clearly visible and recognizable — showing the complete cover with all four corners visible, including all publishing details, dramatic action scene, bold comic art style, and professional cover design."
   },
   {
     "name": "COMIC SUPERHERO",
@@ -6240,6 +6397,25 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+  "name": "COOKING A RECIPE",
+  "category": [
+    "TRANSFORMATION",
+    "CREATIVE",
+    "LOGIC",
+    "IMMERSIVE"
+  ],
+  "message": "Take a picture containing two primary subjects and transform them into a SINGLE unified result that represents what those two subjects would create together, as if they were ingredients in a recipe.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies the fusion result or cooking level, USE that instead\n\nCRITICAL OUTPUT RULES (NON-NEGOTIABLE):\n• OUTPUT ONLY ONE SINGLE RESULT\n• DO NOT show both original subjects separately\n• DO NOT blend or overlay subjects\n• The result MUST be a NEW creation\n\nCORE CONCEPT (CRITICAL):\n• The two subjects are ingredients\n• The result is the FINAL product of a 'recipe'\n• The cooking level MUST drastically change the TYPE of result\n\nCOOKING LEVEL ENFORCEMENT (STRICT):\n• The selected cooking level MUST completely change the stage of the result\n• Each level represents a DIFFERENT POINT in a transformation timeline\n\nCOOKING LEVEL DEFINITIONS (MANDATORY):\n\n• SIMPLE COOKING:\n  - Show ONLY the earliest possible stage\n  - Examples:\n    • Humans → baby/infant\n    • Seed + water → sprout\n    • Objects → crude prototype\n    • Food → raw or minimally prepared dish\n  - MUST feel incomplete or just started\n\n• MODERATE COOKING:\n  - Show a mid-development stage\n  - Examples:\n    • Humans → child/teen\n    • Plant → growing plant\n    • Objects → working but simple invention\n    • Food → cooked but basic meal\n\n• COMPLEX COOKING:\n  - Show FULLY COMPLETED, realistic result\n  - Examples:\n    • Humans → adult\n    • Plant → fully grown tree\n    • Objects → polished, functional product\n    • Food → finished, high-quality dish\n\n• ELABORATE COOKING:\n  - Same as complex BUT upgraded to premium/stylized\n  - Examples:\n    • Humans → idealized/perfected version\n    • Food → gourmet plated dish\n    • Objects → luxury or futuristic version\n\n• CHAOTIC COOKING:\n  - MUST BREAK realism in a visible way\n  - MUST exaggerate the result\n  - Examples:\n    • Humans → mutated hybrid or surreal form\n    • Plant → impossible oversized or bizarre structure\n    • Objects → absurd invention with exaggerated features\n    • Food → explosive, melting, or impossible dish\n\nCOMBINATION RULES:\n\n• HUMAN + HUMAN:\n  - MUST follow age progression based on cooking level\n  - NEVER show two faces merged — must be genetic result\n\n• FOOD + FOOD:\n  - MUST result in a believable dish\n  - Cooking level changes preparation complexity\n\n• OBJECT + OBJECT:\n  - MUST create a functional invention\n  - Cooking level changes sophistication\n\n• NATURE:\n  - MUST follow natural growth stages\n\n• MIXED TYPES:\n  - MUST produce a logical or symbolic result\n\nENFORCEMENT RULE:\n• If the output does not clearly match the cooking level stage, it is WRONG and must be corrected\n\nSTYLE:\n• Keep visually consistent and believable unless chaotic is selected\n\nSCENE:\n• Focus entirely on the final result\n",
+  "options": [
+    { "id": "001", "text": "Simple cooking" },
+    { "id": "002", "text": "Moderate cooking" },
+    { "id": "003", "text": "Complex cooking" },
+    { "id": "004", "text": "Elaborate cooking" },
+    { "id": "005", "text": "Chaotic cooking" }
+  ],
+  "randomizeOptions": true,
+  "additionalInstructions": "FINAL RESULT:\nA single image showing ONLY the final recipe result. The result must clearly reflect the cooking level as a stage of development (early → mid → complete → premium → chaotic). If the stage is not obvious, the result is incorrect."
   },
   {
     "name": "COPY-CAT",
@@ -6923,6 +7099,19 @@
     "additionalInstructions": ""
   },
   {
+    "name": "DE STIJL",
+    "category": [
+      "ART",
+      "ABSTRACT",
+      "GEOMETRIC",
+      "MODERN"
+    ],
+    "message": "Take a picture and transform the image into a De Stijl composition using strict geometric structure and primary colors.\n\nCORE CONCEPT (CRITICAL):\n• Use only vertical and horizontal lines\n• Reduce scene to rectangles and blocks\n\nSUBJECT HANDLING:\n• Abstract subject into grid-based structure\n• Maintain general layout\n\nCOLOR:\n• Red, blue, yellow\n• Black lines and white spaces\n\nSTYLE:\n• Clean, precise geometry\n• Balanced composition\n\nCAMERA & EFFECTS:\n• Flat design\n• No depth realism",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA De Stijl composition where the image is transformed into a grid of primary-colored rectangles with strict geometric order and balance."
+  },
+  {
     "name": "DECADE STYLE",
     "category": [
       "RETRO",
@@ -7464,6 +7653,19 @@
     ],
     "randomizeOptions": true,
     "additionalInstructions": "RESTRICTIONS:\n• No cartoon or illustrated styles\n• No text overlays or captions\n• No modern digital glitch effects\n\nFINAL RESULT:\nThe image should look like a rare, physically damaged film negative — unsettling, tactile, and visually haunting, while still clearly depicting the subject."
+  },
+  {
+    "name": "DIVISIONISM",
+    "category": [
+      "ART",
+      "PAINTING",
+      "COLOR",
+      "IMPRESSIONISM"
+    ],
+    "message": "Take a picture and transform the image into a Divisionism-style painting using separated dots or strokes of pure color. The subject and environment must be built through optical color blending.\n\nCORE CONCEPT (CRITICAL):\n• Use distinct dots or strokes of color\n• Colors blend visually from a distance\n• Avoid mixing colors directly\n\nSUBJECT HANDLING:\n• Preserve recognizable shapes\n• Construct using colored dots or strokes\n\nCOLOR:\n• Bright, pure colors\n• Contrasting tones placed side-by-side\n\nSTYLE:\n• Highly textured surface\n• Pointillist technique\n\nLIGHTING:\n• Vibrant, shimmering effect\n\nCAMERA & EFFECTS:\n• Slight softness at distance\n• Detail visible up close",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA Divisionist painting composed of small dots or strokes of pure color that blend visually, creating a vibrant and shimmering interpretation of the original scene."
   },
   {
     "name": "DI-Y ME?",
@@ -8085,6 +8287,19 @@
     "additionalInstructions": ""
   },
   {
+    "name": "ENCAUSTIC",
+    "category": [
+      "ART",
+      "TEXTURE",
+      "PAINTERLY",
+      "CLASSICAL"
+    ],
+    "message": "Take a picture and transform the image into an encaustic wax painting.\n• Use thick wax-like layering\n• Semi-translucent depth effects\n\nSCENE COMPOSITION:\n• Layered visual depth\n• Soft blending through wax\n\nCAMERA & EFFECTS:\n• Light diffusion through layers\n• Slight surface irregularities\n\nSTYLE:\n• Wax texture\n• Soft blending\n• Organic layering",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA richly layered wax painting with depth and translucency.\n\nCORE REQUIREMENTS:\n• WAX texture\n• LAYERING visible\n• SOFT diffusion"
+  },
+  {
     "name": "ENCYCLOPEDIA (HUMOR)",
     "category": [
       "MASTER PROMPT",
@@ -8109,6 +8324,18 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": "EXCLUSIONS:\n• No parody\n• No invented facts\n• No speculation beyond established knowledge\n\nCOMPOSITION & FRAME:\n• The FULL encyclopedia page must be visible\n• All columns, images, captions, and text fully in frame\n• All four corners visible\n• No cropping, zooming, or partial views\n\nSTYLE:\n• Academic, neutral, professional\n• Museum or reference-book quality\n\nFINAL RESULT:\nThe image should appear as a complete, real encyclopedia page about a single object from the photo, presenting accurate factual information with a formal printed layout and a reference image derived from the original picture."
+  },
+  {
+    "name": "ENERGY FIELD",
+    "category": [
+      "SCI-FI",
+      "ABSTRACT",
+      "IMMERSIVE"
+    ],
+    "message": "Take a picture and reveal the invisible energy fields flowing through all elements in the scene.\n\nMASTER PROMPT OVERRIDE LOGIC:\n• If an external master prompt specifies energy type, USE that\n\nCRITICAL OUTPUT RULES:\n• OUTPUT ONLY ONE IMAGE\n• DO NOT create random glowing effects without structure\n\nCORE CONCEPT:\n• Everything emits and interacts through energy\n• Energy flows must follow logical paths\n\nVISUAL BEHAVIOR:\n• Fields appear as waves, currents, or lines\n• Interactions between objects must be visible.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA single dynamic image showing structured energy fields flowing through the entire scene."
   },
   {
     "name": "ENVIRONMENTAL FUSION",
@@ -8745,7 +8972,7 @@
     "message": "Take a picture in the Expressionism artistic movement emphasizing subjective emotions and inner experiences, often distorting reality to convey intense emotions and psychological states.",
     "options": [],
     "randomizeOptions": false,
-    "additionalInstructions": ""
+    "additionalInstructions": "FINAL RESULT:\nAn emotionally charged painting with distorted forms and energetic brushwork.\n\nCORE REQUIREMENTS:\n• CHAOTIC composition\n• STRONG emotion\n• VISIBLE brush energy"
   },
   {
     "name": "EXPRESSIONS",
@@ -9010,6 +9237,19 @@
     ],
     "randomizeOptions": true,
     "additionalInstructions": "The subject's core identity and recognizable features must always be preserved. Only the facial expression changes. The transformation must be dramatic and exaggerated enough that the expression is immediately and unmistakably readable. Do not make subtle changes — the expression should be the most extreme possible version of itself while still looking like the same person."
+  },
+  {
+    "name": "EXTREME DETAIL MODE",
+    "category": [
+      "DETAIL",
+      "REALISM",
+      "TEXTURE",
+      "ENHANCEMENT"
+    ],
+    "message": "Take a picture and enhance the image to extreme levels of detail, revealing ultra-fine textures and micro-structures across the entire scene.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies a detail level, USE that instead\n• If no override is provided, apply maximum detail enhancement\n\nCORE CONCEPT (CRITICAL):\n• Push detail far beyond normal human perception\n• Reveal micro-textures in skin, fabric, surfaces, and environment\n\nSUBJECT HANDLING:\n• Maintain perfect recognizability\n• Enhance pores, hair strands, fabric fibers, and tiny imperfections\n\nDETAIL LEVELS:\n• Skin pores, wrinkles, micro-hairs\n• Fabric weave and stitching\n• Surface scratches, dust, and particles\n• Environmental micro-detail\n\nSTYLE:\n• Hyper-realistic\n• Sharp, crisp clarity\n\nLIGHTING:\n• Balanced to reveal detail without overexposure\n• Micro-shadows enhance texture depth\n\nCAMERA EFFECT:\n• Macro-level clarity across entire image\n• Deep focus (everything in sharp detail)\n\nSCENE COMPOSITION:\n• Maintain original framing\n• No abstraction—pure enhancement",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nAn ultra-detailed image where every surface reveals extreme micro-level detail, making the entire scene appear hyper-realistic and sharper than natural human vision."
   },
   {
     "name": "EXTREME SPORTS MOMENT",
@@ -10549,6 +10789,19 @@
     "additionalInstructions": "NOT ALLOWED:\n• Subject photo with flowers placed on it\n• Subject holding flowers\n• Flowers floating around subject\n• Floral overlay on photo\n• Any photorealistic human skin/features\n• Subject behind flowers\n\nTEXTURE:\n• Soft velvet petals\n• Delicate thin petals\n• Thick waxy petals\n• Smooth rose petals\n• Ruffled carnation texture\n• Natural organic botanical texture\n\nDETAIL LEVEL:\n• Face clearly recognizable through flower types and colors\n• Expression suggested by flower arrangement\n• Pose and gesture evident\n• Proportions maintained\n• Fine details (fingers, facial features) all flowers\n• Complete transformation head to toe\n\nFRESHNESS:\n• Flowers appear fresh and vibrant\n• Not wilted or dying\n• Peak bloom appearance\n• Dewy, just-picked quality\n• Living botanical material\n• Fragrant and beautiful\n\nFINAL RESULT:\nThe image should show the subject completely transformed into a three-dimensional sculpture made entirely of fresh flowers - with varied flower types, sizes, and colors creating form and detail, natural botanical textures, and the subject's shape, pose, and identity recognizable through the arrangement and layering of countless blooms, petals, stems, and leaves - NOT a photograph decorated with flowers, but the actual subject reconstructed as an elaborate floral sculpture like a festival parade float or botanical art installation."
   },
   {
+    "name": "FOAM SCULPTURE",
+    "category": [
+      "MATERIAL",
+      "TEXTURE",
+      "SCULPTURE",
+      "CREATIVE"
+    ],
+    "message": "Take a picture and transform the subject and environment into a carved foam or styrofoam sculpture.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies a material, USE that instead of foam\n• If no override is provided, use foam/styrofoam transformation\n\nCORE CONCEPT (CRITICAL):\n• Entire image appears carved from foam blocks\n• Rough, lightweight material with visible texture\n• Imperfect edges and tool marks\n\nSUBJECT HANDLING:\n• Preserve recognizable shape and features\n• Simplify fine detail into carved forms\n• Slightly blocky or hand-shaped appearance\n\nMATERIAL PROPERTIES:\n• Porous texture (tiny bead-like structure)\n• Matte white or lightly tinted surface\n• Rough carved edges and imperfections\n\nENVIRONMENT:\n• Background also carved from foam\n• Objects appear lightweight and sculpted\n\nSTYLE:\n• Handmade sculptural aesthetic\n• Slightly rough and imperfect\n\nLIGHTING:\n• Soft shadows\n• Minimal reflections (matte surface)\n\nSCENE COMPOSITION:\n• Maintain original structure but simplify geometry",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA handcrafted foam sculpture version of the scene where all elements appear carved from styrofoam, with rough textures, visible tool marks, and simplified forms while preserving the subject's identity."
+  },
+  {
     "name": "FOLLOW THE YELLOW BRICK ROAD",
     "category": [
       "MOVIES",
@@ -10722,6 +10975,19 @@
     "additionalInstructions": ""
   },
   {
+    "name": "FRACTAL RECURSION",
+    "category": [
+      "FRACTAL",
+      "ABSTRACT",
+      "SCI-FI",
+      "IMMERSIVE"
+    ],
+    "message": "Take a picture and transform the image into a single continuous fractal recursion where the entire scene is composed of repeating, self-similar structures at every scale.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies a fractal type or recursion style, USE that instead\n• If no override is provided, use natural recursive self-similarity\n\nCRITICAL OUTPUT RULES (NON-NEGOTIABLE):\n• OUTPUT ONLY ONE SINGLE IMAGE\n• DO NOT create multiple panels, frames, or separate images\n• DO NOT show zoomed-in cutaways or step-by-step recursion views\n• DO NOT include diagrams, labels, or overlays\n• The entire effect must exist within ONE seamless image\n\nCORE CONCEPT (CRITICAL):\n• The image must exhibit self-similarity at multiple scales\n• Larger structures are made of smaller versions of themselves\n• Patterns repeat infinitely inward\n\nRECURSION BEHAVIOR:\n• The subject and environment are recursively constructed from smaller versions of their own shapes\n• Each level of detail resembles the overall structure\n• Recursion must feel natural and continuous, not tiled or copy-pasted\n\nSUBJECT HANDLING:\n• Subject remains recognizable at first glance\n• On closer inspection, the subject is made of smaller repeating forms of itself or related shapes\n\nVISUAL STRUCTURE:\n• Fractal-like branching, spirals, or recursive geometry\n• Patterns emerge within patterns within patterns\n• No hard transitions between levels\n\nSTYLE:\n• Organic fractal realism or geometric fractal abstraction\n• Smooth blending between macro and micro levels\n\nLIGHTING:\n• Consistent across all scales\n• Subtle glow or energy effects may appear in deeper recursion levels\n\nSCENE COMPOSITION:\n• Maintain the original layout at the largest scale\n• Embed recursive structures within all surfaces and forms\n\nIMMERSION:\n• The viewer should feel like they can zoom infinitely and always find similar structures repeating\n• Every zoom level reveals meaningful new detail without breaking continuity",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA single seamless image where the entire scene is built from recursive, self-similar patterns. The subject remains recognizable at first, but upon closer inspection, everything is composed of repeating structures that echo the whole image at smaller scales. There must be NO panels, NO separate zoom views, and NO cutaways—only one continuous fractal reality with infinite visual depth."
+  },
+  {
     "name": "FREAKSHOW POSTER",
     "category": [
       "HUMOR",
@@ -10771,6 +11037,19 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "FRESCO",
+    "category": [
+      "ART", 
+      "CLASSICAL",
+      "TEXTURE",
+      "HISTORICAL"
+    ],
+    "message": "Take a picture and transform the image into a fresco painted directly onto a plaster wall.\n• Subject must appear embedded into the wall surface\n• Colors slightly faded and aged\n\nSCENE COMPOSITION:\n• Wall-based composition\n• Slightly worn and weathered\n\nCAMERA & EFFECTS:\n• Matte surface rendering\n• Crack and aging effects\n\nSTYLE:\n• Renaissance fresco technique\n• Earthy tones\n• Historical aesthetic",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA wall-painted fresco with visible plaster texture and aged characteristics.\n\nCORE REQUIREMENTS:\n• WALL texture visible\n• AGING effects\n• MATTE finish"
   },
   {
     "name": "FRIDGE ART",
@@ -10890,6 +11169,19 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "FROTTAGE",
+    "category": [
+      "ART",
+      "TEXTURE",
+      "SURREAL",
+      "DRAWING"
+    ],
+    "message": "Take a picture and transform the image into a frottage-style artwork where textures are revealed through rubbing techniques.\n\nCORE CONCEPT (CRITICAL):\n• Emphasize texture over detail\n• Surfaces appear imprinted or transferred\n\nSUBJECT HANDLING:\n• Preserve shapes through texture patterns\n• Reduce fine detail\n\nSTYLE:\n• Grainy, textured appearance\n• Organic and surreal patterns\n\nENVIRONMENT:\n• Surfaces dominate visual experience\n\nCAMERA & EFFECTS:\n• Flattened texture focus",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA frottage-style image where textures dominate the composition, giving the appearance of rubbed or transferred surface patterns forming the subject."
   },
   {
     "name": "FROZEN IN ICE",
@@ -11743,6 +12035,20 @@
     "additionalInstructions": "RESTRICTIONS:\n• NO aging the subject's face\n• NO wrinkles or age effects\n• Subject must look their normal age in costume\n• This is COSTUME ONLY transformation\n• No mockery - affectionate costume only\n• Subject must remain recognizable at normal age\n• Photorealistic costume, not makeup transformation\n• No text overlays or captions\n• Keep it warm and loving, not creepy\n\nFINAL RESULT:\nThe image should show the subject (at their natural age, regardless of actual age or gender) dressed in a sweet stereotypical grandmother COSTUME with wig, curlers, comfortable clothing, and props. The subject's face remains COMPLETELY UNCHANGED - they look like themselves wearing a grandma costume for fun. The result should feel affectionate and humorous — like someone dressed up as everyone's favorite grandma for a costume party."
   },
   {
+    "name": "GRAND THEFT AUTO MODE",
+    "category": [
+      "GAMING",
+      "OPEN WORLD",
+      "URBAN",
+      "CINEMATIC",
+      "IMMERSIVE"
+    ],
+    "message": "Take a picture and transform the ENTIRE scene into a modern Grand Theft Auto-style open-world environment. Convert all elements of the image into a grounded, cinematic urban setting inspired by contemporary city life, crime drama, and open-world gameplay.\n\nCRITICAL TRANSFORMATION RULES:\n• This is a FULL SCENE transformation - not just the subject\n• Every element in the image must become part of a GTA-style world\n• Maintain the spatial relationships and composition of the original photo\n• The result must look like a modern open-world gameplay or cinematic scene\n• Preserve the recognizability of people's faces while converting them into realistic game-style characters\n\nCHARACTER CONVERSION (PEOPLE & ANIMALS):\n• ONLY convert characters if people or animals are actually present in the original image\n• If NO people or animals appear in the image, DO NOT add characters - the scene remains character-free\n• If people or animals ARE present, convert them as follows:\n\n• HUMANS become:\n  - Realistic GTA-style characters (proportional, detailed, expressive)\n  - Outfit variations: casual streetwear, business attire, nightlife fashion, law enforcement, or criminal archetypes depending on context\n  - Roles derived from the scene (pedestrian, driver, protagonist, bystander, etc.)\n\n• ANIMALS become:\n  - Urban animals (dogs, birds, etc.)\n  - Or remain realistic within the environment\n\n• All characters must:\n  - Be rendered in realistic modern game style\n  - Maintain recognizable facial features\n  - Appear naturally integrated into the environment\n  - Have grounded, believable poses\n\nOBJECT CONVERSION:\n• VEHICLES:\n  - Cars, motorcycles, trucks, or service vehicles\n  - Styled as realistic open-world vehicles\n\n• WEAPONS / TOOLS (if present):\n  - Convert to realistic modern equivalents where appropriate\n  - Keep grounded and context-sensitive\n\n• EVERYDAY OBJECTS become:\n  - Realistic urban props (street signs, benches, storefronts, traffic lights, etc.)\n  - Detailed and consistent with a modern city\n\nENVIRONMENT CONVERSION:\n• TERRAIN:\n  - City streets, sidewalks, intersections\n  - Asphalt roads with lane markings\n  - Urban infrastructure\n\n• BUILDINGS:\n  - Apartments, storefronts, offices, industrial structures\n  - Realistic architectural styles\n\n• SKY & WEATHER:\n  - Natural sky (clear, cloudy, sunset, or night depending on tone)\n\n• DETAILS:\n  - Street signs, billboards, graffiti\n  - Traffic lights, crosswalks, parking areas\n  - Environmental storytelling elements\n\nLIGHTING & ATMOSPHERE:\n• Cinematic lighting (daylight, sunset glow, or nighttime city lights)\n• Realistic shadows and reflections\n• Slight filmic tone or color grading\n\nPHYSICS STYLE:\n• Fully grounded realism\n• No exaggerated or cartoon physics\n• Everything behaves like a real-world environment\n\nTECHNICAL RENDERING:\n• Modern AAA game-quality realism\n• Detailed textures and materials\n• High-resolution rendering\n• Subtle motion blur or depth of field for cinematic feel\n\nSCENE COMPOSITION:\n• Maintain original layout and perspective\n• Adapt into a playable or cinematic open-world view\n• Foreground, midground, and background remain consistent\n\nCOLOR AND STYLE:\n• Realistic color palette\n• Balanced contrast and saturation\n• Cinematic and immersive aesthetic",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA fully transformed Grand Theft Auto-style world where the entire image becomes a realistic, cinematic urban environment. All objects are converted into detailed, real-world equivalents, and any people or animals are transformed into believable open-world characters. If no characters are present, none are added. The result should feel like a scene from a modern GTA game, with grounded realism, environmental detail, and cinematic presentation."
+  },
+  {
     "name": "GRAVITY FALLS",
     "category": [
       "CARTOON",
@@ -12402,6 +12708,54 @@
     ],
     "randomizeOptions": true,
     "additionalInstructions": "FINAL RESULT:\nThe image should show the subject with their real face sticking through a circular hole in a large novelty costume of an inanimate object (hot dog, pizza, toilet, fruit, etc.), appearing as a classic tourist photo op or boardwalk attraction with bright colors, hand-painted aesthetic, and silly wholesome humor - the face integrated into the object design in a kitschy, fun, family-friendly way."
+  },
+  {
+    "name": "HOLOGRAPHIC TRADING CARD",
+    "category": [
+      "OPTICAL",
+      "ILLUSION",
+      "CARD",
+      "COLLECTIBLE",
+      "3D",
+      "PREMIUM"
+    ],
+    "message": "Take a picture and transform it into a premium holographic trading card with multi-layer depth, reflective foil effects, and angle-dependent visual shifts.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies a card type, rarity, or style, USE that instead of the selected option\n• If no override is provided, use the selected option from the list\n\nCORE CONCEPT (CRITICAL):\n• The image must become a physical trading card\n• The card must simulate holographic foil, depth layering, and shifting reflections\n• The result must feel like a real collectible card photographed in the real world\n\nMULTI-LAYER DEPTH (MANDATORY):\n• Separate the image into foreground, midground, and background layers\n• Each layer must have visible depth separation\n• Foreground elements should \"pop out\" toward the viewer\n• Background elements should recede naturally\n\nHOLOGRAPHIC EFFECT (MANDATORY):\n• Apply reflective foil patterns across the card surface\n• Simulate light reacting differently across angles\n• Use rainbow diffraction, spectral highlights, or metallic shimmer\n• Reflection must NOT be flat — it must vary across the surface\n\nANGLE-DEPENDENT ILLUSION:\n• Different parts of the image should appear to shift depending on viewing angle\n• Slight positional offsets between layers to simulate parallax\n• Subtle motion illusion embedded into the design\n\nSURFACE MATERIAL (CRITICAL):\n• The card must look like printed cardboard with holographic foil\n• Slight gloss, reflective coating, and light-catching edges\n• Optional embossed or textured foil regions\n\nSUBJECT HANDLING:\n• The subject becomes the central featured character or element of the card\n• Must remain recognizable but enhanced into a collectible-style design\n\nCARD DESIGN ELEMENTS:\n• Add a structured card layout (border, frame, or design language)\n• Include title text area, stats area, or decorative UI\n• Maintain clean composition — do not clutter\n\nENVIRONMENT:\n• Background should support depth layering and holographic effects\n• May include energy effects, gradients, or abstract patterns\n\nLIGHTING:\n• Strong directional lighting to emphasize reflections\n• Highlights must move across surfaces realistically\n• Metallic shimmer and specular highlights required\n\nSTYLE:\n• Premium collectible aesthetic\n• High-detail, polished, and cinematic\n\nSCENE COMPOSITION:\n• Slight tilt or perspective to emphasize card physicality\n• Card may be shown at a slight angle to reveal reflections\n• Entire image must read as a single physical object\n\nHARD CONSTRAINTS (DO NOT VIOLATE):\n• DO NOT produce a flat image with a holographic overlay\n• DO NOT apply simple rainbow filters\n• DO NOT keep the original image unchanged\n• The holographic effect must be physically believable and integrated\n\nFINAL INSTRUCTION (CRITICAL):\n• If the image looks like a normal picture with effects applied, it is WRONG\n• The result must look like a real holographic trading card photographed in real life",
+    "options": [
+      {
+        "id": "001",
+        "text": "Rainbow foil holographic with full-spectrum light diffraction"
+      },
+      {
+        "id": "002",
+        "text": "Gold rare card with metallic reflective highlights and embossed foil"
+      },
+      {
+        "id": "003",
+        "text": "Dark holographic with neon spectral reflections and deep contrast"
+      },
+      {
+        "id": "004",
+        "text": "Anime-style collectible card with dynamic energy effects and holographic shine"
+      },
+      {
+        "id": "005",
+        "text": "Sci-fi holographic card with futuristic UI overlays and glowing elements"
+      },
+      {
+        "id": "006",
+        "text": "Prismatic crystal foil with sharp geometric reflections"
+      },
+      {
+        "id": "007",
+        "text": "Minimalist premium card with subtle shifting highlights and clean design"
+      },
+      {
+        "id": "008",
+        "text": "Ultra-rare legendary card with intense glow, aura effects, and layered holography"
+      }
+    ],
+    "randomizeOptions": true,
+    "additionalInstructions": "FINAL RESULT:\nA highly realistic holographic trading card with visible depth layers, reflective foil, and angle-dependent visual effects. The card must look like a real physical collectible item, not a digital image with filters. The holographic illusion, lighting, and material must all work together to create a convincing premium card."
   },
   {
     "name": "HOPPER",
@@ -13661,6 +14015,19 @@
     "additionalInstructions": "IMPORTANT RESTRICTIONS:\n• Do not reproduce copyrighted logos, album artwork, or official branding\n• Maintain photorealistic production quality\n• Avoid obvious parody or comedy unless explicitly requested\n• Subject must remain clearly recognizable as themselves\n• Do not simply paste subject's face onto the original video - fully transform them into the artist\n\nFINAL RESULT:\nA powerful, instantly recognizable still frame from the selected iconic music video with the subject as the lead performer holding the EXACT same instruments/props as the original artist, surrounded by authentic band members or backup performers. The subject appears as the undisputed star of the performance, positioned and styled as the main vocalist/performer. The scene captures a signature moment from that specific video with era-accurate production quality, professional cinematography, correct instruments/props, and the collaborative energy of a real music video shoot. Optional song title overlay at bottom corner for context."
   },
   {
+    "name": "INFINITE ZOOM",
+    "category": [
+      "SCI-FI",
+      "DETAIL",
+      "FRACTAL",
+      "IMMERSIVE"
+    ],
+    "message": "Take a picture and transform the image into a single ultra-high-detail scene where deeper levels of structure are HIDDEN within the image and only become visible upon zooming, not at normal viewing distance.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies zoom depth or focus, USE that instead\n• If no override is provided, extend detail conceptually down to microscopic and atomic levels\n\nCRITICAL OUTPUT RULES (NON-NEGOTIABLE):\n• OUTPUT ONLY ONE SINGLE IMAGE\n• DO NOT create multiple panels, frames, or separate images\n• DO NOT show zoomed-in cutaways, side-by-side comparisons, or step-by-step scales\n• DO NOT include diagrams, labels, atoms, molecules, or scientific visuals at normal viewing distance\n• The entire effect must exist within ONE continuous, natural-looking image\n\nCORE CONCEPT (CRITICAL):\n• The image must look completely normal at first glance\n• Hidden detail is embedded within textures—not visibly separated\n• Detail must be DISCOVERED only when zooming, not presented upfront\n\nDETAIL EMBEDDING (CRITICAL):\n• Surface textures (skin, fabric, walls, objects) must contain extremely fine, realistic micro-detail\n• Micro-detail must feel like natural material structure (pores, fibers, grain, imperfections)\n• At deeper levels, textures subtly imply finer structure—but NEVER explicitly show atoms or diagrams\n• NO floating atomic symbols, NO stylized particles, NO visible scientific overlays\n\nPROGRESSIVE DETAIL LOGIC:\n• Level 1 (normal view): realistic image, nothing unusual\n• Level 2 (zoom): extremely fine textures emerge\n• Level 3 (deep zoom): complex micro-patterns appear within materials\n• Level 4 (extreme zoom): highly intricate, almost abstract structural detail\n• Each level must feel like a natural continuation of the previous—not a switch in style\n\nSUBJECT HANDLING:\n• Subject must remain fully recognizable at normal scale\n• Facial features, clothing, and environment must appear natural\n• All enhanced detail is embedded within surfaces, not added as visible elements\n\nSTYLE:\n• Photorealistic at macro level\n• Hyper-detailed realism at micro levels\n• Abstract complexity allowed ONLY at the deepest implied level—and must remain subtle\n\nLIGHTING:\n• Fully natural lighting\n• No glowing particles or artificial “energy” effects unless extremely subtle at deep levels\n\nSCENE COMPOSITION:\n• Preserve original composition exactly\n• No overlays, no UI, no diagrams\n\nIMMERSION:\n• The viewer should feel the image has infinite resolution\n• Zooming reveals more detail, not new objects\n• The illusion must never break into separate visual layers",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA single seamless image that appears completely normal at first glance but contains deeply embedded detail within its textures. As the viewer zooms in, increasingly complex and fine structures are revealed naturally within the same image. There must be NO visible atoms, NO scientific diagrams, NO overlays, and NO multi-image layouts—only one continuous image with hidden depth."
+  },
+  {
     "name": "INK BLEED",
     "category": [
       "ART",
@@ -14214,6 +14581,45 @@
     "additionalInstructions": ""
   },
   {
+    "name": "LASER INK",
+    "category": [
+      "MINIMAL",
+      "GLOW",
+      "SCI-FI",
+      "OUTLINE",
+      "STYLIZED"
+    ],
+    "message": "Take a picture and transform the subject and scene into a laser-projected outline image, as if drawn entirely with a single-color laser onto a surface.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies a laser color or intensity, USE that instead of the selected option\n• If no override is provided, use the selected option from the list\n\nCORE CONCEPT (CRITICAL):\n• The image must be reduced to a laser-style outline representation\n• The entire image is drawn using a single laser color only\n• No full-color rendering is allowed\n\nLASER RENDERING (MANDATORY):\n• Convert all forms into clean, simplified outlines and essential contours\n• Lines should appear as glowing laser strokes\n• The image should feel projected or burned with light\n\nCOLOR RULE (CRITICAL):\n• Use ONLY ONE color for the laser (no gradients unless subtle glow variation)\n• Background must be dark or neutral to emphasize the laser\n• No natural colors from the original image should remain\n\nDETAIL REDUCTION:\n• Remove fine detail and texture\n• Focus on edges, silhouettes, and key features\n• Simplify complex areas into readable linework\n\nSUBJECT HANDLING:\n• Subject must remain recognizable through outline and shape\n• Facial features reduced to minimal but expressive lines\n\nGLOW EFFECT:\n• Lines should emit a soft glow\n• Slight bloom or halo around laser strokes\n• Light falloff into the background\n\nSURFACE EFFECT:\n• Optional subtle projection surface (wall, smoke, fog, or dark space)\n• Laser may appear slightly diffused or projected\n\nSTYLE:\n• Clean, minimal, high-contrast\n• Futuristic or sci-fi laser aesthetic\n\nSCENE COMPOSITION:\n• Strong silhouette readability\n• Balanced line density — not too cluttered\n\nHARD CONSTRAINTS (DO NOT VIOLATE):\n• DO NOT keep original colors\n• DO NOT render full shaded objects\n• DO NOT create a detailed realistic image with glow added\n• The image must be primarily line-based\n\nFINAL INSTRUCTION (CRITICAL):\n• The result must look like it was drawn entirely with a laser beam — not painted, not shaded, not photographic",
+    "options": [
+      {
+        "id": "001",
+        "text": "Red laser with intense glow and sharp outlines"
+      },
+      {
+        "id": "002",
+        "text": "Green laser with classic holographic projection feel"
+      },
+      {
+        "id": "003",
+        "text": "Blue laser with cool sci-fi aesthetic"
+      },
+      {
+        "id": "004",
+        "text": "Purple laser with soft neon glow"
+      },
+      {
+        "id": "005",
+        "text": "White laser with high-intensity clean projection"
+      },
+      {
+        "id": "006",
+        "text": "Flickering unstable laser with slight distortion and breaks in lines"
+      }
+    ],
+    "randomizeOptions": true,
+    "additionalInstructions": "FINAL RESULT:\nA minimal, high-contrast laser outline image rendered in a single glowing color. The subject and scene are reduced to clean, recognizable contours as if projected by a laser onto a surface."
+  },
+  {
     "name": "LATTE ART",
     "category": [
       "BEVERAGE",
@@ -14430,6 +14836,19 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "LIQUID METAL",
+    "category": [
+      "MATERIAL",
+      "SCI-FI",
+      "TRANSFORMATION",
+      "REFLECTIVE"
+    ],
+    "message": "Take a picture and transform the subject and environment into a flowing liquid metal form, as if everything is made of reflective molten chrome.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies a material type, USE that instead of liquid metal\n• If no override is provided, use liquid metal transformation\n\nCORE CONCEPT (CRITICAL):\n• Entire scene becomes fluid metallic material\n• Surfaces appear melted, flowing, and reshaping\n• Reflectivity is extremely high (mirror-like chrome)\n\nSUBJECT HANDLING:\n• Preserve recognizable facial features and structure\n• Blend edges slightly to feel fluid\n• Subject appears partially morphing or reforming\n\nMATERIAL PROPERTIES:\n• Smooth, reflective chrome finish\n• Rippling and flowing surface motion frozen in time\n• Distorted reflections of the environment\n\nENVIRONMENT:\n• All objects converted into liquid metal equivalents\n• Surfaces ripple, drip, or stretch naturally\n\nLIGHTING:\n• Strong reflections and highlights\n• High contrast between light and shadow\n• Metallic shine dominates scene\n\nSTYLE:\n• Sci-fi realism\n• Polished, cinematic look\n\nSCENE COMPOSITION:\n• Maintain original layout\n• Emphasize fluid continuity across all elements",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA hyper-realistic liquid metal scene where everything appears made of reflective chrome, with fluid motion frozen mid-transformation. The subject remains recognizable but fully integrated into a seamless metallic environment."
   },
   {
     "name": "LITE-BRITE",
@@ -14803,6 +15222,19 @@
     "additionalInstructions": ""
   },
   {
+    "name": "LUMINISM",
+    "category": [
+      "ART",
+      "PAINTING",
+      "LIGHT",
+      "REALISM"
+    ],
+    "message": "Take a picture and transform the image into a Luminism-style painting emphasizing the effects of light and atmosphere. The subject and environment must appear as if rendered in a tranquil, highly detailed landscape where light is the primary storytelling element.\n\nCORE CONCEPT (CRITICAL):\n• Focus on calm, reflective scenes\n• Light must define the composition\n• Atmosphere should feel still and serene\n\nSUBJECT HANDLING:\n• Preserve recognizable features\n• Integrate subject naturally into environment\n• Subject should feel part of the landscape, not separate\n\nLIGHTING:\n• Soft, glowing light (sunrise or sunset preferred)\n• Gentle reflections on water or surfaces\n• Subtle gradients and tonal transitions\n\nENVIRONMENT:\n• Calm landscapes, water, skies\n• Minimal movement, peaceful tone\n• Clean horizon lines and depth\n\nSTYLE:\n• Highly detailed realism\n• Smooth brushwork with minimal visible strokes\n• Emphasis on clarity and calmness\n\nCAMERA & EFFECTS:\n• Wide scenic composition\n• Balanced framing\n• No dramatic distortion",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA peaceful Luminism-style painting where light and atmosphere dominate the composition. The subject is naturally integrated into a calm, glowing environment with smooth gradients, soft reflections, and a serene, timeless mood."
+  },
+  {
     "name": "LUNCH BOX",
     "category": [
       "RETRO",
@@ -15034,16 +15466,6 @@
     "additionalInstructions": "FINAL RESULT:\nThe final image should resemble a lavishly illustrated European sci-fi graphic novel panel."
   },
   {
-    "name": "MAGIC CAMERA DEFAULT",
-    "category": [
-      "DEFAULT",
-      "MAGIC CAMERA"
-    ],
-    "options": [],
-    "randomizeOptions": false,
-    "additionalInstructions": ""
-  },
-  {
     "name": "MAGIC EYE",
     "category": [
       "ILLUSION",
@@ -15221,6 +15643,18 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": "IMPORTANT:\n• Do not make the subject into a historical character\n• Avoid parody or satire\n• Avoid excessive, unrealistic gold overload\n• Maintain realism\n• Everything must feel plausible for the wealthiest individual alive today\n\nFINAL RESULT:\nThe final image should look like a high-end luxury magazine feature showing the subject as the wealthiest person in the modern world, surrounded by the finest architecture, materials, fashion, and objects available anywhere on Earth."
+  },
+  {
+    "name": "MAP PROJECTION",
+    "category": [
+      "CARTOGRAPHY",
+      "DESIGN",
+      "CONCEPTUAL"
+    ],
+    "message": "Take a picture and transform the entire scene into a detailed cartographic map representation.\n\nMASTER PROMPT OVERRIDE LOGIC:\n• If an external master prompt specifies map type, USE that\n\nCRITICAL OUTPUT RULES:\n• OUTPUT ONLY ONE IMAGE\n• DO NOT create UI overlays or external legends\n\nCORE CONCEPT:\n• The environment becomes a stylized map\n• Terrain, objects, and structures are represented cartographically\n\nDETAIL REQUIREMENTS:\n• Use topographic lines, map textures, and stylized labeling\n• Labels must be subtle and integrated—not dominant.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA single image rendered as a cohesive cartographic representation of the original scene."
   },
   {
     "name": "MARATHON",
@@ -15413,6 +15847,18 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "MASK REVEAL",
+    "category": [
+      "PSYCHOLOGICAL",
+      "SURREAL",
+      "PORTRAIT"
+    ],
+    "message": "Take a picture and reveal hidden identities of the subject through layered masks.\n\nMASTER PROMPT OVERRIDE LOGIC:\n• If an external master prompt specifies identity types, USE that\n\nCRITICAL OUTPUT RULES:\n• OUTPUT ONLY ONE IMAGE\n• DO NOT create collage or separate faces\n\nCORE CONCEPT:\n• Masks peel away naturally from the subject\n• Layers must be physically integrated.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA single seamless image where multiple identities are revealed beneath the subject’s surface through natural mask-like layers."
   },
   {
     "name": "MATRIMONY",
@@ -16853,6 +17299,61 @@
     "additionalInstructions": ""
   },
   {
+    "name": "MOSAIC MICRO-IMAGES",
+    "category": [
+      "DETAIL",
+      "COMPOSITION",
+      "ARTISTIC"
+    ],
+    "message": "Take a picture and reconstruct the entire image using thousands of tiny images that seamlessly form the larger scene.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies mosaic theme, USE that instead\n\nCRITICAL OUTPUT RULES:\n• OUTPUT ONLY ONE IMAGE\n• DO NOT create visible grid lines or borders\n• DO NOT create repeated identical tiles\n\nCORE CONCEPT:\n• The image appears normal at a distance\n• Up close, it is composed of unique mini-images\n\nDETAIL REQUIREMENTS:\n• Each micro-image must be distinct and meaningful\n• Tiles must blend seamlessly into the full composition\n\nSUBJECT HANDLING:\n• Subject must remain recognizable at full scale.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA seamless single image composed of thousands of unique micro-images forming the full scene without visible tiling artifacts."
+  },
+  {
+    "name": "MOTION BLUR",
+    "category": [
+      "PHOTOGRAPHY",
+      "MOTION",
+      "EFFECT",
+      "DYNAMIC",
+      "CINEMATIC"
+    ],
+    "message": "Take a picture and transform the image into a motion blur style as if captured with movement during exposure.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies a motion direction or style, USE that instead of the selected option\n• If no override is provided, use the selected option from the list\n\nCORE CONCEPT (CRITICAL):\n• The image must simulate real motion captured over time\n• Blur must feel physically accurate — not a simple filter\n\nMOTION SIMULATION (MANDATORY):\n• Stretch and smear elements in a consistent direction or pattern\n• Blur must follow believable motion paths (horizontal, vertical, radial, or subject-based)\n• Preserve structure while conveying speed or movement\n\nSUBJECT HANDLING:\n• Subject must remain partially recognizable\n• Key features (especially faces) should retain clarity in at least one region\n• Use directional blur — not full image softness\n\nENVIRONMENT HANDLING:\n• Background may blur more than the subject to simulate camera tracking\n• Alternatively, subject may blur while background stays stable (depending on motion type)\n\nBLUR CHARACTERISTICS:\n• Streaking, trailing, or ghosting effects\n• Multiple exposure feel or light trails where appropriate\n• Smooth blending between sharp and blurred regions\n\nSTYLE:\n• Cinematic or photographic realism\n• Natural motion physics\n\nLIGHTING:\n• Light sources may stretch into streaks\n• Highlights should elongate realistically\n\nSCENE COMPOSITION:\n• Motion direction must be visually clear\n• Composition should emphasize speed, movement, or energy\n\nHARD CONSTRAINTS (DO NOT VIOLATE):\n• DO NOT apply uniform blur across the entire image\n• DO NOT make the image completely unrecognizable\n• DO NOT simulate blur as a simple filter overlay\n\nFINAL INSTRUCTION (CRITICAL):\n• The blur must feel like real motion captured in-camera — not a digital effect",
+    "options": [
+      {
+        "id": "001",
+        "text": "Horizontal motion blur simulating fast lateral movement"
+      },
+      {
+        "id": "002",
+        "text": "Vertical motion blur simulating upward or falling movement"
+      },
+      {
+        "id": "003",
+        "text": "Radial zoom blur radiating outward from the center"
+      },
+      {
+        "id": "004",
+        "text": "Subject tracking blur where the subject is sharp and background streaks"
+      },
+      {
+        "id": "005",
+        "text": "Ghosted multi-exposure motion with repeated subject silhouettes"
+      },
+      {
+        "id": "006",
+        "text": "Light trail motion blur with glowing streaks from highlights"
+      },
+      {
+        "id": "007",
+        "text": "Rotational motion blur as if the camera is spinning"
+      }
+    ],
+    "randomizeOptions": true,
+    "additionalInstructions": "FINAL RESULT:\nA dynamic motion-blurred image that convincingly simulates real movement captured over time. The result should feel energetic, directional, and physically believable."
+  },
+  {
     "name": "MOTION TRAIL",
     "category": [
       "ACTION",
@@ -18219,6 +18720,19 @@
     "additionalInstructions": ""
   },
   {
+    "name": "NEO-EXPRESSIONISM",
+    "category": [
+      "ART",
+      "CONTEMPORARY",
+      "PAINTERLY",
+      "RAW"
+    ],
+    "message": "Transform this image into a Neo-Expressionist masterpiece. Emphasize a 'Bad Painting' aesthetic with massive scale, heavy impasto textures, and a raw, visceral energy. Incorporate elements of urban grit, historical myth, or primitive figuration with aggressive, gestural brushwork.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA monumental, maximalist painting featuring thick, tactile textures and raw narrative symbols.\n\nCORE REQUIREMENTS:\n• HEAVY IMPOSTO (visibly thick paint and grit)\n• GESTURAL AGGRESSION (violent, rapid strokes)\n• MAXIMALIST composition with primitive or urban motifs\n• VIVID but often muddy or clashing color palettes"
+  },
+  {
     "name": "NEOCLASSICAL",
     "category": [
       "ART",
@@ -19185,6 +19699,19 @@
     "additionalInstructions": ""
   },
   {
+    "name": "OP ART",
+    "category": [
+      "ART", 
+      "OPTICAL",
+      "ILLUSION",
+      "PATTERN"
+    ],
+    "message": "Take a picture and transform the image into an Op Art optical illusion composition.\n• Replace forms with repeating patterns\n• Create visual vibration and motion illusions\n\nSCENE COMPOSITION:\n• Pattern-dominated layout\n• Illusion of depth or movement\n\nCAMERA & EFFECTS:\n• High contrast rendering\n• Pattern distortion effects\n\nSTYLE:\n• Black and white or limited palette\n• Geometric repetition\n• Optical illusion focus",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA visually dynamic image that appears to move or vibrate due to optical illusion patterns.\n\nCORE REQUIREMENTS:\n• STRONG optical illusion\n• HIGH contrast\n• PATTERN dominance"
+  },
+  {
     "name": "OPERATION",
     "category": [
       "HUMOR",
@@ -19901,6 +20428,45 @@
     "additionalInstructions": "FINAL RESULT:\nA grainy, long-lens paparazzi photograph with tabloid watermarks focusing on the subject as if they're the celebrity being stalked, while an actual famous person accidentally appears in the background, blurred, distant, or at the edge of frame — completely incidental to the shot. The humor comes from treating the subject as the star while ignoring the real celebrity.\n\nCORE REQUIREMENTS:"
   },
   {
+    "name": "PAPER CUTOUT",
+    "category": [
+      "PAPER",
+      "CUTOUT",
+      "MIXED REALITY",
+      "HANDMADE",
+      "STYLIZED"
+    ],
+    "message": "Take a picture and transform ONLY the subject into a physical paper cutout while keeping the rest of the scene realistic and unchanged.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies a cutout style, USE that instead\n• Otherwise use the selected option from the list\n\nCORE CONCEPT (CRITICAL):\n• The subject must become a real, physical paper cutout object\n• The environment must remain photographic and realistic\n• Strong contrast between real world and handmade subject is REQUIRED\n\nSUBJECT TRANSFORMATION (MANDATORY):\n• Convert the subject into a flat paper cutout version of themselves\n• Use simplified shapes, bold outlines, and minimal detail\n• The subject must look physically cut from paper (not digitally filtered)\n• Edges should be slightly imperfect, like cut with scissors or a blade\n\nPAPER MATERIAL (CRITICAL):\n• Visible paper or cardstock texture\n• Matte surface (no gloss unless specified)\n• Slight warping, bending, or curling edges allowed\n\nOUTLINE STYLE:\n• Thick black outline around the entire subject\n• Minimal interior detail — use simple lines or cut shapes\n• Facial features simplified but still recognizable\n\nDEPTH & PHYSICALITY (VERY IMPORTANT):\n• The cutout must exist IN the scene — not float unnaturally\n• Add realistic shadow beneath or behind the cutout\n• Slight separation from background (like it's placed or held)\n• Optional: slight tilt, lean, or perspective distortion\n\nINTERACTION WITH ENVIRONMENT:\n• The cutout may be:\n  - Held by a hand\n  - Standing on a surface\n  - Leaning against an object\n  - Taped or pinned\n• Lighting must match the real scene\n\nBACKGROUND RULE (CRITICAL):\n• DO NOT stylize the background\n• Background remains fully realistic\n• This contrast is REQUIRED for the effect to work\n\nSTYLE REFERENCES (MANDATORY):\n• Handmade paper puppet\n• Stop-motion cutout character\n• Photographed craft object\n\nHARD CONSTRAINTS (DO NOT VIOLATE):\n• DO NOT convert the entire image into paper style\n• DO NOT apply a flat filter to the subject\n• DO NOT keep photographic detail inside the subject\n• DO NOT make the cutout look like a sticker overlay\n\nFINAL INSTRUCTION (CRITICAL):\n• The subject must look like a real, physical paper cutout placed into a real-world photo — not a digital effect",
+    "options": [
+      {
+        "id": "001",
+        "text": "Black and white high-contrast paper cutout with bold outlines"
+      },
+      {
+        "id": "002",
+        "text": "Colored construction paper cutout with layered pieces"
+      },
+      {
+        "id": "003",
+        "text": "Rough handmade cutout with jagged scissor edges"
+      },
+      {
+        "id": "004",
+        "text": "Clean vector-like cutout with smooth precise edges"
+      },
+      {
+        "id": "005",
+        "text": "Paper puppet style with visible joints and movable parts"
+      },
+      {
+        "id": "006",
+        "text": "Collage style with multiple overlapping paper layers"
+      }
+    ],
+    "randomizeOptions": true,
+    "additionalInstructions": "FINAL RESULT:\nA realistic photo where the subject has been transformed into a physical paper cutout placed within the scene, with proper shadows, texture, and depth. The contrast between the real environment and the handmade subject must be clear and convincing."
+  },
+  {
     "name": "PAPER MACHE ART",
     "category": [
       "ART",
@@ -20564,6 +21130,20 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "POKÉMON MODE",
+    "category": [
+      "GAMING",
+      "CREATURES",
+      "ADVENTURE",
+      "COLORFUL",
+      "IMMERSIVE"
+    ],
+    "message": "Take a picture and transform the ENTIRE scene into a vibrant Pokémon-style world inspired by modern cinematic environments. Convert all elements of the image into a rich, stylized environment where Pokémon and humans coexist naturally.\n\nCRITICAL TRANSFORMATION RULES:\n• This is a FULL SCENE transformation - not just the subject\n• Every element in the image must become part of a Pokémon world\n• Maintain the spatial relationships and composition of the original photo\n• The result must look like a modern cinematic Pokémon scene\n• Preserve the recognizability of people's faces while converting them into Pokémon-style characters\n\nCHARACTER CONVERSION (PEOPLE & ANIMALS):\n• ONLY convert characters if people or animals are actually present in the original image\n• If NO people or animals appear in the image, DO NOT add human characters - the scene remains character-free unless Pokémon naturally populate the environment\n• If people or animals ARE present, convert them as follows:\n\n• HUMANS become:\n  - Pokémon trainers or world inhabitants\n  - Outfit variations: trainer gear, casual adventure clothing, region-inspired outfits\n  - Roles derived from context (trainer, explorer, bystander)\n\n• ANIMALS become:\n  - Pokémon equivalents based on observable traits\n  - Size, color, and personality should influence the Pokémon type\n\n• All characters must:\n  - Have smooth, high-quality animated design\n  - Maintain recognizable facial features (for humans)\n  - Appear naturally integrated into the world\n\nCREATURE INTEGRATION:\n• Pokémon should appear naturally within the environment\n• They may interact with the subject or surroundings\n• Use a variety of types when appropriate (grass, water, electric, etc.)\n• Keep placement logical and not overcrowded\n\nOBJECT CONVERSION:\n• ITEMS:\n  - Poké Balls\n  - Potions or trainer items\n  - Pokédex-like devices\n\n• STRUCTURES & OBJECTS:\n  - Stylized Pokémon-world equivalents\n  - Clean, slightly simplified, and colorful\n\n• EVERYDAY OBJECTS become:\n  - Pokémon universe-style props\n  - Friendly, rounded, and cohesive with environment\n\nENVIRONMENT CONVERSION:\n• TERRAIN:\n  - Lush grass fields, dirt paths, natural landscapes\n  - Town-like or route-based environments\n  - Forests, hills, or open areas depending on original scene\n\n• SKY:\n  - Bright, natural sky with soft clouds\n  - Warm and inviting atmosphere\n\n• STRUCTURES:\n  - Pokémon-style houses and buildings\n  - Centers, shops, or simple structures depending on context\n\n• WATER:\n  - Clean, bright water with reflective surfaces\n  - Rivers, ponds, or coastlines if applicable\n\nLIGHTING & ATMOSPHERE:\n• Bright, cinematic lighting\n• Soft shadows and warm highlights\n• Slight magical or lively atmosphere\n\nPHYSICS STYLE:\n• Grounded and natural\n• No exaggerated or chaotic physics\n• Creatures behave believably within environment\n\nTECHNICAL RENDERING:\n• Modern animated game quality\n• Smooth surfaces with soft textures\n• High-resolution rendering\n• Clean, polished finish\n\nSCENE COMPOSITION:\n• Maintain original layout while adapting to a Pokémon world\n• Foreground, midground, and background remain structured\n• Perspective feels like a modern adventure game\n\nCOLOR AND STYLE:\n• Bright, inviting colors\n• Balanced saturation and contrast\n• Friendly, adventurous aesthetic",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA fully transformed Pokémon-style world where the entire image becomes part of a vibrant, living environment filled with creatures and adventure. All objects are converted into Pokémon-style elements, and any people are transformed into trainers or inhabitants. Pokémon are naturally integrated into the scene based on the environment and subjects. The result should feel like a modern cinematic Pokémon world, with rich detail, natural composition, and immersive charm."
   },
   {
     "name": "POLAROID",
@@ -21700,12 +22280,24 @@
     "category": [
       "ILLUSION",
       "INFINITE",
-      "FRACTAL"
+      "RECURSION"
     ],
-    "message": "Take a picture and transform the image into infinite visual recursion. The image contains itself within itself.",
+    "message": "Take a picture and transform the image into a visual recursion effect where the image contains smaller versions of itself repeating inward infinitely.\n\nCORE CONCEPT (CRITICAL):\n• The image appears inside itself repeatedly\n• Each iteration becomes smaller and continues inward\n\nRECURSION STYLE:\n• Frame-within-frame or scene-within-scene\n• Perspective may create a tunnel or mirror effect\n\nSUBJECT HANDLING:\n• Subject remains recognizable at each level\n• Each recursive layer preserves the full composition\n\nSTYLE:\n• Clean, optical illusion style\n• Clear separation between recursion layers\n\nSCENE COMPOSITION:\n• Strong central focus for recursion\n• Depth emphasized through repetition",
     "options": [],
     "randomizeOptions": false,
-    "additionalInstructions": ""
+    "additionalInstructions": "FINAL RESULT:\nA visually clear recursive image where the entire scene repeats within itself in smaller and smaller iterations, creating a tunnel-like or infinite mirror effect."
+  },
+  {
+    "name": "REFLECTION WORLD",
+    "category": [
+      "ILLUSION", 
+      "SURREAL",
+      "IMMERSIVE"
+    ],
+    "message": "Take a picture and transform the scene so that EVERYTHING is only visible through reflections. There must be no direct view of any object—reality exists only through reflective surfaces.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies reflection type or material, USE that instead\n\nCRITICAL OUTPUT RULES (NON-NEGOTIABLE):\n• OUTPUT ONLY ONE SINGLE IMAGE\n• DO NOT create panels, overlays, or split compositions\n• DO NOT show any object directly—everything must be seen via reflection\n\nCORE CONCEPT (CRITICAL):\n• The entire scene is perceived through mirrors, glass, chrome, or reflective materials\n• No direct surfaces exist\n\nREFLECTION BEHAVIOR:\n• Reflections must obey realistic angles and distortion\n• Multiple reflections may show different perspectives\n\nSUBJECT HANDLING:\n• Subject must ONLY appear through reflections\n• No direct visible version of the subject\n\nSTYLE:\n• Highly realistic reflections\n• Clean, seamless integration.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA single cohesive image where the entire scene is only visible through reflections, creating a surreal but physically believable mirrored reality."
   },
   {
     "name": "REGENCYCORE",
@@ -21834,6 +22426,19 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "RETRO FUTURISM",
+    "category": [
+      "ART",
+      "SCI-FI",
+      "RETRO",
+      "VINTAGE"
+    ],
+    "message": "Take a picture and transform the image into a retro-futuristic artwork.\n\nCORE CONCEPT (CRITICAL):\n• Depict the future as imagined in the past\n\nSTYLE:\n• Vintage sci-fi elements\n• Chrome, rockets, bold shapes",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA nostalgic futuristic scene inspired by mid-20th century visions of the future."
   },
   {
     "name": "RICK AND MORTY",
@@ -22851,6 +23456,33 @@
     "additionalInstructions": "IDENTITY PRESERVATION:\n• Subject’s facial structure must be readable via line work\n• Expression preserved through contour scratches\n• Simplification allowed, but not abstraction\n\nANTI-CHEATING RULES:\n• NO painted strokes\n• NO digital glow effects\n• NO gradient shading\n• NO photographic textures\n• Black areas must remain fully opaque\n\nCOMPOSITION:\n• Flat scratch-art board surface\n• Clean rectangular or card-like format\n• Tool marks may vary in width and pressure\n\nFINAL RESULT:\nThe image must look like a real scratch art piece created by physically etching lines through black wax to reveal colorful layers beneath — tactile, imperfect, and unmistakably analog."
   },
   {
+    "name": "SCRATCH FILM",
+    "category": [
+      "ART",
+      "EXPERIMENTAL",
+      "LINE",
+      "ANALOG"
+    ],
+    "message": "Take a picture and transform the image into a scratch film animation style.\n\nCORE CONCEPT (CRITICAL):\n• White lines scratched onto black surface\n\nSTYLE:\n• Rough, jittery line work\n• High contrast black background",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA stark, high-contrast image composed of scratch-like white lines on black."
+  },
+  {
+    "name": "SCRATCHBOARD ART",
+    "category": [
+      "ART",
+      "ILLUSTRATION",
+      "BLACK AND WHITE",
+      "TEXTURE",
+      "CLASSIC"
+    ],
+    "message": "Take a picture and transform the image into a scratchboard (scraperboard) style illustration.\n\nCORE CONCEPT (CRITICAL):\n• The entire image must appear as if created using a subtractive engraving technique\n• The artwork is formed by scratching away a black surface to reveal a white layer beneath\n\nTECHNIQUE SIMULATION:\n• Convert the image into high-contrast black and white\n• Use fine engraved lines, cross-hatching, and etched marks to define shapes\n• Light areas are created by dense scratch marks\n• Dark areas remain solid black\n\nLINE WORK:\n• Emphasize detailed line engraving\n• Use directional strokes to suggest depth, shading, and texture\n• Vary line thickness and density for realism\n\nSUBJECT HANDLING:\n• Preserve the recognizability of subjects\n• Facial features and important details must be carefully etched\n• Avoid soft shading — everything is defined through lines and scratches\n\nTEXTURE & DETAIL:\n• Add intricate textures to surfaces (skin, fabric, background)\n• Use cross-hatching, stippling, and fine cuts\n• Surfaces should feel carved rather than painted\n\nENVIRONMENT:\n• Entire scene must be converted into engraved form\n• Backgrounds simplified but still detailed through line work\n\nSTYLE:\n• Traditional illustration look\n• Hand-crafted, etched aesthetic\n• No grayscale blending — only black, white, and line density\n\nLIGHTING:\n• Strong contrast between light and shadow\n• Highlights revealed through dense scratching\n\nSCENE COMPOSITION:\n• Maintain original composition\n• Reinterpret depth and form using engraving techniques only",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA detailed scratchboard-style illustration where the entire image appears engraved into a black surface, revealing white beneath. The result should feel hand-crafted, highly textured, and defined entirely through etched lines, cross-hatching, and contrast, with no soft gradients or painterly effects."
+  },
+  {
     "name": "SCREAM",
     "category": [
       "HORROR",
@@ -23151,6 +23783,19 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "SFUMATO",
+    "category": [
+      "ART",
+      "RENAISSANCE",
+      "SOFT", 
+      "CLASSICAL"
+    ],
+    "message": "Take a picture and transform the image into a Renaissance Sfumato-style painting where all edges dissolve into soft atmospheric blending.\n• Subject must appear naturally painted, not filtered\n• Preserve recognizable facial features while softly blending contours\n• No hard edges or sharp outlines anywhere in the image\n• Transitions between light and shadow must be gradual and smoky\n\nSCENE COMPOSITION:\n• Balanced classical composition\n• Background fades softly into atmosphere\n• Depth created through tonal layering instead of sharp perspective\n\nCAMERA & EFFECTS:\n• Soft focus across entire image\n• Subtle blur at edges of forms\n• No digital sharpness or clarity artifacts\n\nSTYLE:\n• Muted Renaissance color palette\n• Smooth tonal gradients\n• Atmospheric softness throughout\n• Leonardo da Vinci-inspired rendering technique",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA soft, atmospheric Renaissance painting where all elements blend seamlessly into one another with no visible hard edges, creating a lifelike yet dreamlike image.\n\nCORE REQUIREMENTS:\n• NO sharp edges\n• NO digital artifacts\n• FULL tonal blending across entire image"
   },
   {
     "name": "SHAKESPEAREAN",
@@ -23485,6 +24130,20 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "SONIC THE HEDGEHOG MODE",
+    "category": [
+      "GAMING",
+      "SEGA",
+      "COLORFUL",
+      "SPEED",
+      "IMMERSIVE"
+    ],
+    "message": "Take a picture and transform the ENTIRE scene into a vibrant Sonic the Hedgehog world inspired by modern cinematic environments like Green Hill Zone and beyond. Convert all elements of the image into a fast-paced, stylized landscape filled with loops, speed paths, and colorful terrain.\n\nCRITICAL TRANSFORMATION RULES:\n• This is a FULL SCENE transformation - not just the subject\n• Every element in the image must become part of the Sonic universe\n• Maintain the spatial relationships and composition of the original photo\n• The result must look like a modern cinematic Sonic environment\n• Preserve the recognizability of people's faces while converting them into Sonic-style characters\n\nCHARACTER CONVERSION (PEOPLE & ANIMALS):\n• ONLY convert characters if people or animals are actually present in the original image\n• If NO people or animals appear in the image, DO NOT add characters - the scene remains character-free\n• If people or animals ARE present, convert them as follows:\n\n• HUMANS become:\n  - Sonic-style characters (sleek proportions, expressive eyes)\n  - Outfit variations: adventurer gear, speed-runner outfits, hero attire\n  - Characters inspired by Sonic universe roles (heroes, rivals, explorers)\n\n• ANIMALS become:\n  - Flickies (small colorful birds)\n  - Chao (small, cute creatures)\n  - Robotized animals (small Badnik-style robots if tone fits)\n\n• All characters must:\n  - Have smooth, high-quality animated design\n  - Bright, saturated colors\n  - Dynamic poses suggesting speed or motion\n  - Be naturally integrated into the environment\n\nOBJECT CONVERSION:\n• STRUCTURES & PATHS:\n  - Loop-de-loops\n  - Curved speed tracks\n  - Checkerboard terrain blocks\n  - Floating or grounded platforms depending on terrain\n\n• ITEMS:\n  - Golden rings (floating or aligned in paths)\n  - Item monitors (power-up boxes with icons)\n  - Springs (red or yellow bounce pads)\n\n• EVERYDAY OBJECTS become:\n  - Stylized Sonic-world equivalents\n  - Rounded, colorful, and game-like\n  - Designed to suggest speed and interaction\n\nENVIRONMENT CONVERSION:\n• TERRAIN:\n  - Green Hill-style grass with checkerboard dirt patterns\n  - Palm trees and stylized vegetation\n  - Rolling hills and curved pathways\n  - Natural loops and ramps integrated into terrain\n\n• SKY:\n  - Bright blue sky with scattered clouds\n  - Clear, vibrant atmosphere\n\n• STRUCTURES:\n  - Sonic-style cliffs and platforms\n  - Mechanical elements (Eggman-style tech if appropriate)\n  - Bridges and suspended paths\n\n• WATER:\n  - Bright blue water with clean reflections\n  - Waterfalls or pools integrated into terrain\n\nLIGHTING & ATMOSPHERE:\n• Bright, energetic lighting\n• Strong highlights and clean shadows\n• Slight motion blur or energy streaks to imply speed\n• Clean, modern animated rendering\n\nPHYSICS STYLE:\n• Grounded but speed-driven physics\n• No chaotic or gravity-defying environments\n• Terrain supports fast traversal (loops, slopes, ramps)\n\nTECHNICAL RENDERING:\n• Modern game-quality visuals\n• Smooth surfaces with vibrant textures\n• High-resolution rendering\n• Polished, animated finish\n\nSCENE COMPOSITION:\n• Maintain original layout while integrating speed pathways\n• Foreground, midground, and background adapted into traversable terrain\n• Perspective feels like a modern Sonic game camera\n\nCOLOR AND STYLE:\n• Bright, saturated colors (green, blue, gold, red)\n• High contrast and clean separation of elements\n• Playful, energetic, and adventurous aesthetic",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA fully transformed Sonic the Hedgehog world where the entire image becomes part of a fast-paced, vibrant environment inspired by iconic Sonic landscapes. All objects are converted into Sonic-style elements, and any people or animals are transformed into expressive, dynamic characters. If no characters are present, none are added. The result should feel like a scene from a modern Sonic game, with speed-driven design, bright colors, and cohesive animated detail."
   },
   {
     "name": "SOUL-VANA",
@@ -24312,6 +24971,19 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "STENCIL GRAFFITI",
+    "category": [
+       "ART", 
+       "URBAN", 
+       "SPRAY", 
+       "STREET"
+    ],
+    "message": "Take a picture and transform the image into a stencil graffiti artwork.\n\nCORE CONCEPT (CRITICAL):\n• Use stencil-based shapes and spray paint textures\n\nSTYLE:\n• Hard edges\n• Limited color palette\n• Wall texture background",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA street-art style image resembling spray-painted stencil graffiti."
   },
   {
     "name": "STEREOSCOPE",
@@ -25247,6 +25919,19 @@
     "additionalInstructions": "FINAL RESULT:\nThe image should capture the subject in the exact moment of gaining superpowers through the selected origin method, with dramatic visual effects, appropriate environment, civilian clothing, and that epic cinematic superhero movie moment where an ordinary person becomes extraordinary."
   },
   {
+    "name": "SUPREMATISM",
+    "category": [
+      "ABSTRACT",
+      "ART",
+      "GEOMETRIC",
+      "MODERN"
+    ],
+    "message": "Take a picture and transform the image into a Suprematism-style abstract composition using pure geometric forms. The original subject and environment must be reduced into fundamental shapes and color blocks.\n\nCORE CONCEPT (CRITICAL):\n• Eliminate realism entirely\n• Focus on squares, circles, lines, and rectangles\n• Composition must feel balanced and intentional\n\nSUBJECT HANDLING:\n• Reduce subject into abstract geometry\n• Preserve rough spatial positioning only\n• No detailed features\n\nCOLOR:\n• Limited palette (red, black, white, blue, yellow)\n• Flat colors with no gradients\n\nENVIRONMENT:\n• Remove realistic environment\n• Replace with floating geometric arrangement\n\nSTYLE:\n• Minimalist, bold abstraction\n• Flat planes and clean edges\n\nCAMERA & EFFECTS:\n• No perspective realism\n• Floating composition",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA bold Suprematist composition made of clean geometric shapes and flat colors, abstracting the original image into a minimalist arrangement focused purely on form and balance."
+  },
+  {
     "name": "SUPREMES",
     "category": [
       "HUMOR",
@@ -25428,6 +26113,19 @@
     "additionalInstructions": "FINAL RESULT:\nThe image should convincingly depict the subject giving a TED Talk, with flavor text displayed on a slide behind them. Flavor text is either from the external master prompt or dynamically generated from the image content itself if no prompt is provided, while keeping the subject’s identity fully recognizable and the scene immersive, professional, and humorous.\n\nSCENE REQUIREMENTS:"
   },
   {
+    "name": "TELETUBBIES",
+    "category": [
+      "CHARACTER TRANSFORMATION",
+      "KIDS SHOW",
+      "HUMOR",
+      "COSTUME"
+    ],
+    "message": "Take a picture and transform the subject(s) into Teletubbies.\n\nCORE CONCEPT (CRITICAL):\n• Subjects appear as if wearing Teletubby costumes\n• The subject’s face appears through the costume face opening\n\nCHARACTER ASSIGNMENT:\n• If multiple subjects are present:\n  – Assign each subject a different Teletubby\n  – Use Tinky Winky (purple), Dipsy (green), Laa-Laa (yellow), and Po (red)\n\n• If fewer than four subjects:\n  – Remaining Teletubbies must still appear in the scene\n\nCOSTUME RULES:\n• Bodies must be full Teletubby suits\n• Rounded shapes, antennas, and belly screens must be present\n• Faces must remain the subject’s real face (not replaced)\n\nENVIRONMENT:\n• Teletubbyland setting\n• Green hills, flowers, bright sky\n\nMANDATORY ELEMENTS:\n• Include the baby sun in the sky\n• Include Tubby Custard elements (machines, bowls, or props)\n\nSTYLE:\n• Bright, colorful, soft children’s TV aesthetic\n\nLIGHTING:\n• Cheerful daylight with soft shadows\n\nSCENE COMPOSITION:\n• Subjects fully integrated into Teletubbyland\n• Balanced placement of all characters",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nSubjects appear as people wearing Teletubby costumes with their real faces visible through the costume openings. All Teletubbies are present in a bright Teletubbyland environment, including the baby sun and Tubby Custard elements."
+  },
+  {
     "name": "TEMU VERSION",
     "category": [
       "HUMOR",
@@ -25605,6 +26303,33 @@
     "additionalInstructions": "FINAL RESULT:\nThe image should present a believable before-and-after comparison where the subject appears heavier on the left and realistically thinner on the right — anatomically accurate, seamlessly staged, and visually consistent."
   },
   {
+    "name": "THOMAS THE TANK",
+    "category": [
+      "CHARACTER TRANSFORMATION",
+      "CARTOON",
+      "KIDS SHOW",
+      "HUMOR"
+    ],
+    "message": "Take a picture and transform the subject into Thomas the Tank Engine.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies a variation, USE that instead of default behavior\n\nCORE CONCEPT (CRITICAL):\n• The subject becomes Thomas the Tank Engine\n• The subject’s face must be RECREATED as a sculpted Thomas-style face\n• This is NOT a face swap — it is a full material and shape transformation\n\nFACE SCULPTING (MANDATORY):\n• The face must be fully RE-SCULPTED into Thomas’s round, molded face shape\n• Treat the face as if it is made of clay, plastic, or painted model material\n• The surface must be smooth and uniform — like a toy or model train\n\nFEATURE TRANSLATION:\n• Translate the subject’s identity into simplified features\n• Eyes, nose, and mouth must match Thomas proportions\n• Preserve likeness through shape and expression — NOT photo detail\n\nHARD MATERIAL CONSTRAINTS (CRITICAL):\n• NO real human skin texture\n• NO pores, wrinkles, or photographic detail\n• NO pasted facial image\n• NO flat face overlay\n• The face must look physically molded and painted onto the train\n\nVISUAL TEST (MANDATORY):\n• If the face looks like a sticker, mask, or photo pasted on top → it is WRONG\n• If the face looks like it was sculpted as part of the train → it is CORRECT\n\nFACE STYLE:\n• Smooth, rounded, toy-like surface\n• Painted shading (not photographic shading)\n• Clean edges and simplified forms\n• Slight gloss or matte model finish\n\nBODY RULE (CRITICAL):\n• The train body must remain fully accurate to Thomas the Tank Engine\n• Blue engine body, number \"1\", proportions, and structure must be preserved\n\nSCENE INTEGRATION:\n• Place Thomas naturally on train tracks\n• Environment may include countryside, rail yard, or station\n\nSTYLE:\n• High-quality model or cinematic toy realism\n• Faithful to Thomas design language\n\nLIGHTING:\n• Soft lighting consistent with a physical model\n• Subtle highlights on curved surfaces\n\nSCENE COMPOSITION:\n• Thomas must be the focal point\n• Face clearly visible and fully integrated into the engine\n\nFINAL INSTRUCTION (CRITICAL):\n• The face must look like it was sculpted and painted as part of Thomas from the beginning — never pasted or overlaid",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA fully transformed Thomas the Tank Engine where the subject’s identity is sculpted into the face as a smooth, molded, toy-like surface. The result must resemble a professionally crafted model where the face is part of the structure, not an applied image."
+  },
+  {
+    "name": "THOUGHT BUBBLE REALITY",
+    "category": [
+      "HUMOR",
+      "SURREAL",
+      "DUAL REALITY",
+      "CREATIVE",
+      "SCENE TRANSFORMATION"
+    ],
+    "message": "Take a picture and transform the scene to reveal the subject’s inner thoughts as a separate visual reality.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies a thought theme, USE that instead of inferred ideas\n\nCORE CONCEPT (CRITICAL):\n• The image must show two layers:\n  – The real-world scene\n  – The subject’s imagined or desired reality\n\nSTRUCTURE:\n• Add a thought bubble, aura, or visual separation\n• The thought world must contrast or exaggerate the real scene\n\nTHOUGHT WORLD GENERATION:\n• Derive ideas from subject expression, setting, and objects\n• The thought version may be:\n  – Fantastical\n  – Dramatic\n  – Comedic\n  – Absurdly exaggerated\n\nSUBJECT HANDLING:\n• Subject remains recognizable in both layers\n• The “thought version” may alter clothing, environment, or role\n\nENVIRONMENT:\n• Real world remains grounded\n• Thought world can break physics, scale, or logic\n\nSTYLE:\n• Clear visual distinction between reality and imagination\n• Thought bubble may be comic-style or seamlessly blended\n\nTONE:\n• Playful, revealing, exaggerated, or ironic",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA dual-layer image showing the real-world scene alongside the subject’s inner imagined reality. The contrast should be clear, creative, and driven by observations from the original image, resulting in a humorous or insightful transformation."
+  },
+  {
     "name": "THREE WISE MONKEYS",
     "category": [
       "HUMOR",
@@ -25616,20 +26341,6 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": "FINAL RESULT:\nThe image should read instantly as a humorous, symbolic 'Three Wise' interpretation using the subject themselves, clearly showing all three concepts without ambiguity."
-  },
-  {
-    "name": "THOUGHT BUBBLE REALITY",
-  "category": [
-      "HUMOR",
-      "SURREAL",
-      "DUAL REALITY",
-      "CREATIVE",
-      "SCENE TRANSFORMATION"
-    ],
-    "message": "Take a picture and transform the scene to reveal the subject’s inner thoughts as a separate visual reality.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies a thought theme, USE that instead of inferred ideas\n\nCORE CONCEPT (CRITICAL):\n• The image must show two layers:\n  – The real-world scene\n  – The subject’s imagined or desired reality\n\nSTRUCTURE:\n• Add a thought bubble, aura, or visual separation\n• The thought world must contrast or exaggerate the real scene\n\nTHOUGHT WORLD GENERATION:\n• Derive ideas from subject expression, setting, and objects\n• The thought version may be:\n  – Fantastical\n  – Dramatic\n  – Comedic\n  – Absurdly exaggerated\n\nSUBJECT HANDLING:\n• Subject remains recognizable in both layers\n• The “thought version” may alter clothing, environment, or role\n\nENVIRONMENT:\n• Real world remains grounded\n• Thought world can break physics, scale, or logic\n\nSTYLE:\n• Clear visual distinction between reality and imagination\n• Thought bubble may be comic-style or seamlessly blended\n\nTONE:\n• Playful, revealing, exaggerated, or ironic",
-    "options": [],
-    "randomizeOptions": false,
-    "additionalInstructions": "FINAL RESULT:\nA dual-layer image showing the real-world scene alongside the subject’s inner imagined reality. The contrast should be clear, creative, and driven by observations from the original image, resulting in a humorous or insightful transformation."
   },
   {
     "name": "TIBETAN THANGKA",
@@ -27342,6 +28053,19 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": "IMPORTANT: Female prehistoric humans should look distinctly MORE DELICATE and FEMININE than males of the same species while still maintaining the species' characteristic features. The sexual dimorphism should be clearly visible.\n\nTRANSFORMATION FEATURES (Applied TO subject, not replacing):\n• ADD brow ridges to subject's existing forehead (heavy for males, lighter for females)\n• MODIFY subject's jaw to be more robust (or delicate for females)\n• ADJUST subject's nose to species characteristics\n• ADD appropriate body hair to subject\n• ENHANCE subject's build to be muscular/robust (or slender for females)\n• Subject's eyes, eye color, facial proportions PRESERVED\n• Subject's hair color maintained (just styled primitively)\n• Subject's skin tone preserved (just weathered)\n• Subject clearly recognizable as themselves transformed\n\nPRIMITIVE CLOTHING:\n• Animal hide wraps and pelts\n• Fur clothing (bear, mammoth, deer)\n• Leather straps and ties\n• Bone ornaments and necklaces\n• Shell or tooth jewelry\n• Crude belt or waistband\n• Minimal clothing appropriate to Stone Age\n• Gender-appropriate primitive attire:\n  - Males: Animal hide loincloth, fur shoulder wrap\n  - Females: Animal hide dress or wrap, more decorative jewelry\n\nPREHISTORIC SETTING:\n• Cave entrance or rock shelter\n• Rocky outcrop or cliff\n• Savanna landscape\n• Forest clearing\n• Stone tool workshop area\n• Campfire scene\n• Near water source\n• Open grassland\n\nPERIOD ELEMENTS:\n• Stone tools (hand axes, scrapers, points)\n• Wooden spears or clubs\n• Animal bones scattered\n• Primitive shelter structure\n• Cave paintings on walls in background\n• Fire pit with stones\n• Animal skins drying\n• Primitive food preparation area\n\nBODY CHARACTERISTICS:\n• Species-appropriate hair coverage (on subject's body)\n• Weathered, sun-exposed skin (subject's skin tone)\n• Calloused hands and feet\n• Muscular from physical lifestyle (males more so)\n• Posture appropriate to species\n• Bare feet or primitive footwear\n• Natural, unkempt hair (subject's hair color)\n\nLIGHTING:\n• Natural outdoor lighting\n• Firelight glow\n• Dawn or dusk golden hour\n• Cave shadows and torch light\n• Harsh prehistoric sun\n• Dramatic natural lighting\n\nPHOTOGRAPHY STYLE:\n• Photorealistic reconstruction\n• Museum diorama quality\n• Documentary/National Geographic aesthetic\n• Scientific accuracy\n• Paleoanthropological precision\n• Could be from natural history exhibit\n\nSCIENTIFIC LABEL:\n• Text label at bottom of image\n• Species name in italicized Latin (e.g., *Homo neanderthalensis*)\n• Museum placard or documentary style\n• Scientific nomenclature format\n• Could include time period (e.g., \"300,000-30,000 years ago\")\n• Location if relevant (e.g., \"Europe and Western Asia\")\n\nANTHROPOLOGICAL ACCURACY:\n• Based on fossil evidence\n• Scientifically accurate features\n• Correct anatomical proportions for species\n• Realistic prehistoric human appearance\n• Paleoanthropology research-based\n• Could be museum reconstruction\n\nFINAL RESULT:\nThe image should show the subject - CLEARLY RECOGNIZABLE with their own face, eyes, and features - transformed into a scientifically accurate early human ancestor with species-specific anatomical features added to their existing face and body, with CLEAR GENDER DIFFERENCES (males more robust, females more delicate), dressed in primitive Stone Age clothing, in a prehistoric setting with period-appropriate elements and natural lighting, complete with a scientific label - appearing as a photorealistic paleoanthropological reconstruction where you can definitively say 'that's [subject's name] as a Neanderthal.'"
+  },
+  {
+    "name": "TROMPE-L'OEIL",
+    "category": [
+      "ART", 
+      "ILLUSION", 
+      "REALISM", 
+      "CLASSICAL"
+    ],
+    "message": "Take a picture and transform the image into a Trompe-l'oeil illusion where elements appear to physically break out of a flat surface.\n• Subject must appear as if emerging from or interacting with the frame\n• Preserve identity while adapting to illusion perspective\n• Shadows and depth must reinforce physical realism\n\nSCENE COMPOSITION:\n• Include a visible flat surface or frame boundary\n• Elements overlap and extend beyond edges\n• Strong perspective alignment\n\nCAMERA & EFFECTS:\n• Hyper-realistic depth cues\n• Precise shadow casting\n• Perspective exaggeration for illusion\n\nSTYLE:\n• Ultra-realistic painting technique\n• Crisp detail and dimensional accuracy\n• Illusion-focused rendering",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA convincing illusion where the image appears to exist physically in real space, breaking out of its surface.\n\nCORE REQUIREMENTS:\n• STRONG 3D illusion\n• CORRECT perspective\n• REALISTIC shadows"
   },
   {
     "name": "TRON",
@@ -29872,6 +30596,19 @@
     ],
     "randomizeOptions": true,
     "additionalInstructions": "The final image must look like a genuine YouTube video or trending page. Match YouTube's exact white background, red accent color, thumbnail grid layout, and typography. All view counts, like counts, video titles, and surrounding trending videos must be real data from the target date, never fabricated. Thumbnails must follow real YouTube viral thumbnail conventions with bold text, bright colors, and expressive faces."
+  },
+  {
+    "name": "ZENTANGLE",
+    "category": [
+      "ART",
+      "PATTERN",
+      "DETAILED",
+      "INK"
+    ],
+    "message": "Take a picture and transform the image into a Zentangle-style illustration.\n\nCORE CONCEPT (CRITICAL):\n• Fill forms with intricate repeating patterns\n\nSTYLE:\n• Black ink on white\n• Highly detailed geometric patterns",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA highly detailed black-and-white image composed of structured repeating patterns."
   },
   {
     "name": "ZODIAC SIGN",
