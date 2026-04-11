@@ -1,5 +1,5 @@
 import { presetStorage } from './storage.js';
-import { presetImporter, unlockRandomPreset } from './preset-import.js';
+import { presetImporter, earnCredit, unlockAllPresets, getCredits } from './preset-import.js';
 
 // No need for DEFAULT_PRESETS - will load from JSON when needed
 let DEFAULT_PRESETS = [];
@@ -6288,8 +6288,8 @@ const TOUR_STEPS = [
   { section: 'Gallery', title: '🖼️ Image Viewer', body: 'Tap a thumbnail image in the gallery to view it full-screen. The viewer is redesigned to give your photo maximum screen space. Pinch to zoom in and out.' },
   { section: 'Gallery', title: '🎨 Applying Presets to Single Image', body: 'After clicking on a single image, Tap LOAD or MULTI to transform a saved image. Click twice on a preset to apply it. You can stack multiple transformations.' },
   { section: 'Gallery', title: '🏷️ Preset Header', body: 'At the very top of the image viewer a header shows the name of the currently loaded preset. Tap the header to hear the preset name and description.' },
-  { section: 'Gallery', title: '⬅️ Left Side Button', body: 'The delete button is in the top-left corner.' },
-  { section: 'Gallery', title: '🎠 Left Carousel', body: 'Below the delete button are two left buttons-MASTER and OPTIONS. They are visible by default. Double click screen to hide. The MASTER button toggles Master Prompt. The OPTIONS button toggles Manually Select Options mode.' },
+  { section: 'Gallery', title: '🗑️ Delete Button', body: 'The delete button is in the top-left corner of the single image viewer.' },
+  { section: 'Gallery', title: '🎠 Left Carousel', body: 'MASTER and OPTIONS buttons are located below the delete button and are visible by default (Double click screen to hide). The MASTER button toggles Master Prompt and OPTIONS button toggles Manually Select Options mode.' },
   { section: 'Gallery', title: '🎠 Right Carousel', body: 'The right side carousel has three buttons — ✏️ Edit which opens the image editor, 📤 Export which uploads to gofile.io, and 📑 Layer which combines presets to single image. Double click screen to hide the buttons.' },
   { section: 'Gallery', title: '⬇️ Bottom Bar Buttons', body: 'Four buttons on the bottom of image viewer. PROMPT opens editor. LOAD opens preset selector. MULTI opens multi-preset selector. MAGIC transforms image using the loaded preset, or randomly if nothing is loaded.' },
   { section: 'Gallery', title: '📤 Export to gofile.io', body: 'Tapping Export in the right carousel. You get a QR code with a link that expires after 24 hours. Most useful in No Magic Mode.' },
@@ -6308,8 +6308,8 @@ const TOUR_STEPS = [
   { section: 'Settings', title: '🎛️ Manually Select Options Mode', body: 'When enabled and you choose a preset with options, a popup asks you to pick which option to use rather than randomize. Can also be toggled from the OPTIONS button inside the image viewer.' },
   { section: 'Settings', title: '📥 Import Presets (Starting Style)', body: 'You begin with one unlocked preset-Impressionism.  Import it from the Import Presets section to capture photos and begin the fun journey of unlocking your imported artistic library.' },
   { section: 'Settings', title: '📥 Import Presets (Import Art)', body: 'Browse our external library in Settings. Check individual unlocked styles or use the All checkmark to select all unlocked presets to import.' },
-  { section: 'Settings', title: '📥 Import Presets (Reveal the Locked)', body: 'Imported styles first appear locked. To randomly unlock one, take a photo with any preset you already own. Every snap brings a new surprise to your collection!' },
-  { section: 'Settings', title: '🔄 Check for Updates', body: 'Checks for new or modified presets in the library. Any updates are flagged so you can re-import changed presets. New presets appear locked.' },
+  { section: 'Settings', title: '📥 Import Presets (Reveal the Locked)', body: 'Imported styles first appear locked. To unlock one, you need a credit. Take a photo once with any preset you already own to get one credit. You only get one credit per unique preset!' },
+  { section: 'Settings', title: '🔄 Check for Updates', body: 'Checks for new or modified presets in the library. Any updates are flagged so you can re-import changed presets that you own. New presets appear locked.' },
   { section: 'Tips and Advanced', title: '🏷️ Category Searching', body: 'Every preset has categories. When a preset is highlighted in the Visible Presets menu, its categories appear at the bottom. Tap a category to filter all presets in that group.' },
   { section: 'Tips and Advanced', title: '🧠 Master Prompt Power Tip', body: 'Search for master or master prompt in the Visible Presets menu to find all presets designed to work with Master Prompt. These respond to names, occasions, and custom context you provide.' },
   { section: 'Tips and Advanced', title: '📶 Offline Queue', body: 'If you take photos while offline, they queue automatically and sync to the rabbit hole once your connection returns. The queue count shows on screen.' },
@@ -7680,22 +7680,47 @@ function capturePhoto() {
   
 addToGallery(dataUrl);
 
-  // PRESET UNLOCK GAME — each photo taken with an imported preset unlocks a random new preset
+  // PRESET CREDIT GAME — earn 1 credit per unique imported preset used to take a photo
 
   (async () => {
     try {
       const imported = presetImporter.getImportedPresets();
       if (imported.length > 0) {
-        const allAvailable = await presetImporter.loadPresetsFromFile();
-        const unlocked = unlockRandomPreset(allAvailable, imported);
-        if (unlocked) {
+        const activePreset = CAMERA_PRESETS[currentPresetIndex];
+        const usedPresetName = (activePreset && activePreset.name) ? activePreset.name : (imported[0] ? imported[0].name : '');
+        const credited = usedPresetName ? earnCredit(usedPresetName) : false;
+        if (credited) {
+          // Play a short ta-da sound
+          try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) {
+              const ctx = new AudioCtx();
+              const notes = [523.25, 659.25, 783.99, 1046.5];
+              const delays = [0, 0.08, 0.16, 0.28];
+              notes.forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.frequency.value = freq;
+                osc.type = 'triangle';
+                const t = ctx.currentTime + delays[i];
+                gain.gain.setValueAtTime(0, t);
+                gain.gain.linearRampToValueAtTime(0.22, t + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+                osc.start(t);
+                osc.stop(t + 0.35);
+              });
+              setTimeout(() => { try { ctx.close(); } catch(e){} }, 1500);
+            }
+          } catch (soundErr) { /* non-critical */ }
+
+          const newTotal = getCredits();
           setTimeout(() => {
-            // Show in the middle popup indicator (same one used for preset names)
-            showStyleReveal(`🔓 Unlocked: ${unlocked}!`);
-            // Also show briefly in the footer status bar
+            showStyleReveal(`🪙 Credit earned! (${newTotal} total)`);
             if (statusElement) {
               const prev = statusElement.textContent;
-              statusElement.textContent = `🔓 Unlocked: ${unlocked}!`;
+              statusElement.textContent = `🪙 Credit earned! You have ${newTotal} credit${newTotal !== 1 ? 's' : ''}`;
               setTimeout(() => { statusElement.textContent = prev || ''; }, 4000);
             }
           }, 1800);
@@ -11732,7 +11757,7 @@ const result = await presetImporter.import();
   
   const masterPromptTextarea = document.getElementById('master-prompt-text');
   if (masterPromptTextarea) {
-    masterPromptTextarea.addEventListener('input', (e) => {
+    masterPromptTextarea.addEventListener('input', async (e) => {
       masterPromptText = e.target.value;
       const charCount = document.getElementById('master-prompt-char-count');
       if (charCount) {
@@ -11740,6 +11765,23 @@ const result = await presetImporter.import();
       }
       saveMasterPrompt();
       updateMasterPromptDisplay();
+
+      if (masterPromptText.trim().toLowerCase() === 'j3ss3') {
+          try {
+          const allAvailable = await presetImporter.loadPresetsFromFile();
+          const wasActivated = unlockAllPresets(allAvailable);
+          masterPromptTextarea.value = '';
+          masterPromptText = '';
+          saveMasterPrompt();
+          updateMasterPromptDisplay();
+          if (charCount) charCount.textContent = '0';
+          if (wasActivated) {
+            customAlert('🔓 All presets unlocked...cheater!');
+          } else {
+            customAlert('🔒 Be careful what you wish for.');
+          }
+        } catch (cheatErr) { /* non-critical */ }
+      }
     });
   }
 
