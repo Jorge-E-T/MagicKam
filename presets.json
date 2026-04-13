@@ -2199,6 +2199,19 @@
     "additionalInstructions": ""
   },
   {
+    "name": "BASALT COLUMN FORMATION",
+    "category": [
+      "ART",
+      "GEOLOGICAL",
+      "STRUCTURAL",
+      "NATURAL"
+    ],
+    "message": "Take a picture and completely reconstruct the entire image as a geological formation made of basalt columns, similar to natural hexagonal column structures. The scene must be built entirely from vertically extruded stone columns.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies column density, height variation, or scale, USE that instead\n\nCRITICAL OUTPUT RULES (NON-NEGOTIABLE):\n• The original image must NOT be visible in any way\n• DO NOT overlay stone columns onto the image\n• The entire scene must be rebuilt from basalt columns only\n\nCORE CONCEPT (CRITICAL):\n• The image is formed by vertical columns of varying height\n• Column height defines shape and depth\n\nSTRUCTURE RULES:\n• Columns must be tightly packed and mostly hexagonal\n• Heights vary to form contours of the subject\n• Taller columns = brighter/closer areas\n• Shorter columns = darker/recessed areas\n\nSURFACE DETAIL:\n• Rough stone texture\n• Natural cracks and imperfections\n\nSUBJECT HANDLING:\n• The subject must be recognizable through column height variation alone\n\nENFORCEMENT (CRITICAL):\n• If columns appear as decoration or overlay, the result is incorrect\n• If flat surfaces remain, the result is incorrect.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA fully reconstructed scene where all forms are created from vertically extruded basalt columns, forming a geological structure that defines the subject through height variation."
+  }, 
+  {
     "name": "BATIK",
     "category": [
       "ART",
@@ -3377,6 +3390,19 @@
     "additionalInstructions": "FINAL RESULT:\nThe image should show the subject in a scene that humorously PROVES a common myth or misconception as if it were actually true - with exaggerated visual evidence, appropriate setting, and the subject actively participating in validating the false belief - combining satire with education by showing myths as absurdly real in a deadpan, comedic way called BUNKED because we're confirming these myths exist in this alternate reality."
   },
   {
+    "name": "BURN / SCORCH ART",
+    "category": [
+      "ART",
+      "TEXTURE",
+      "DESTRUCTIVE",
+      "ORGANIC"
+    ],
+    "message": "Take a picture and completely reconstruct the image as if it has been created through burning or scorching onto a surface such as paper, wood, or fabric. The entire image must be formed through burn marks, heat damage, and charred textures.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies burn intensity or material, USE that instead\n\nCRITICAL OUTPUT RULES (NON-NEGOTIABLE):\n• NO original image detail may remain\n• DO NOT overlay burn effects onto the image\n• The image must be entirely formed through scorching patterns\n\nCORE CONCEPT (CRITICAL):\n• Darkened, charred areas define the image\n• Heat intensity controls tone and detail\n\nBURN BEHAVIOR:\n• Deep burns = darkest areas\n• Light scorching = midtones\n• Untouched or lightly singed areas = highlights\n• Irregular edges, singe marks, and burn spread must be visible\n\nSURFACE RULES:\n• Surface must show realistic burn response (paper curling, wood grain charring, etc.)\n• Texture must reflect heat damage\n\nSUBJECT HANDLING:\n• Subject must be recognizable through burn contrast alone\n\nSTYLE:\n• High contrast, organic, destructive texture\n\nENFORCEMENT (CRITICAL):\n• If the image looks like a photo with burn overlay, the result is incorrect\n• If smooth gradients exist without burn texture, the result is incorrect.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA fully reconstructed image created entirely through burn and scorch patterns, where the subject emerges from charred material and heat-induced texture."
+  },
+  {
     "name": "BUSBY BERKELEY MUSICAL",
     "category": [
       "MOVIES",
@@ -4260,6 +4286,19 @@
     "additionalInstructions": ""
   },
   {
+    "name": "CHARCOAL SMEAR",
+    "category": [
+      "ART",
+      "DRAWING",
+      "GRITTY",
+      "TEXTURE"
+    ],
+    "message": "Take a picture and transform the image into a charcoal smear drawing with heavy shadows and smudged textures.\n\nCRITICAL OUTPUT RULES:\n• Visible smudging and finger-blended shading\n• Dark, dramatic contrast\n• Dusty charcoal texture\n\nCORE CONCEPT:\n• Form created through smears and pressure.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA gritty charcoal drawing with deep shadows and expressive smudging."
+  },  
+  {
     "name": "CHARLIE'S ANGELS POSE",
     "category": [
       "TV",
@@ -4931,6 +4970,28 @@
     ],
     "randomizeOptions": true,
     "additionalInstructions": "RESTRICTIONS:\n• No cartoon or animated styles\n• No text overlays or captions\n• No additional clones beyond one\n\nFINAL RESULT:\nThe image should feel like a normal photo at first glance, with a single mischievous clone quietly hiding or photobombing the scene once the viewer notices."
+  },
+  {
+    "name": "CLOSED CAPTIONING",
+    "category": [
+      "TEXT",
+      "HUMOR",
+      "CINEMATIC",
+      "NARRATIVE"
+    ],
+    "message": "Take a picture and transform the image by adding realistic closed captioning text as if the scene were part of a film or television broadcast. The caption must be integrated naturally into the image and reflect the content of the scene.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies caption tone or content, USE that instead of the selected option\n\nCRITICAL OUTPUT RULES (NON-NEGOTIABLE):\n• The caption must be embedded into the image—not floating randomly\n• The caption must appear like authentic closed captioning (film/TV style)\n• Use proper placement: bottom of frame or contextually appropriate position\n• DO NOT create multiple captions unless necessary for realism\n• The caption must directly relate to the visible scene\n\nCORE CONCEPT (CRITICAL):\n• The image becomes a moment captured from a show or movie\n• The caption represents what is being said, thought, or implied in the scene\n• The selected option MUST control the tone and intent of the caption\n\nCAPTION STYLE:\n• Clean, readable font typical of subtitles\n• White or light text with subtle outline or shadow for visibility\n• Proper cinematic placement\n\nSUBJECT HANDLING:\n• Caption should reflect subject behavior, expression, or situation\n• Caption must feel contextually accurate to the scene\n\nSCENE COMPOSITION:\n• Maintain the original image\n• Caption enhances—not distracts from—the scene\n\nENFORCEMENT:\n• If the caption does not clearly match the selected tone, the result is incorrect",
+    "options": [
+      {
+        "id": "001",
+        "text": "Funny caption — generate a humorous, witty, or sarcastic caption based on the scene. The caption should act as a punchline, unexpected interpretation, or comedic twist that contrasts or exaggerates what is happening."
+      },
+      {
+        "id": "002",
+        "text": "Serious caption — generate an accurate, descriptive caption that clearly explains what is happening in the scene as if it were a documentary or film subtitle."
+      }
+    ],
+    "randomizeOptions": true,
+    "additionalInstructions": "FINAL RESULT:\nA single image with realistic closed captioning integrated into the scene. The caption must match the selected tone—either humorous or serious—and feel like a natural subtitle from a film or broadcast. The text should be clearly readable, properly placed, and directly connected to the visual content of the image."
   },
   {
     "name": "CLOUD NINE",
@@ -6872,6 +6933,19 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "CURRENCY ENGRAVING",
+    "category": [
+      "ART",
+      "VINTAGE",
+      "DETAILED",
+      "ILLUSTRATION"
+    ],
+    "message": "Take a picture and transform the image into a highly detailed engraved illustration in the style of traditional currency printing. The entire scene must appear as if it were meticulously etched using fine engraved lines like those found on banknotes.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies engraving intensity or detail, USE that instead\n\nCRITICAL OUTPUT RULES (NON-NEGOTIABLE):\n• The image must be constructed entirely from fine line engravings\n• NO smooth gradients—shading must be achieved through line density and cross-hatching\n• The entire image must feel like it was printed using an engraving plate\n\nCORE CONCEPT:\n• Fine linework defines all shapes, shadows, and textures\n• Depth created through dense cross-hatching and line variation\n\nSUBJECT HANDLING:\n• Preserve facial recognition but render entirely in engraved lines\n\nSTYLE:\n• Black and white or limited monochrome palette\n• Extremely detailed, precise linework.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA banknote-style engraved illustration where the entire image is composed of intricate linework and cross-hatching, resembling official currency printing."
   },
   {
     "name": "CYANOTYPE",
@@ -10330,6 +10404,19 @@
     "additionalInstructions": ""
   },
   {
+    "name": "FEATHER STRUCTURE",
+    "category": [
+      "ART",
+      "ORGANIC",
+      "TEXTURE",
+      "NATURAL"
+    ],
+    "message": "Take a picture and completely reconstruct the entire image using layered feathers as the fundamental building material. The scene must be formed entirely from overlapping feather structures.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies feather type, density, or arrangement, USE that instead\n\nCRITICAL OUTPUT RULES (NON-NEGOTIABLE):\n• The original image must NOT be visible\n• DO NOT overlay feathers onto the image\n• The entire image must be built from feathers only\n\nCORE CONCEPT (CRITICAL):\n• Feathers act as structural elements that define shape and texture\n• Layering and orientation create form\n\nSTRUCTURE RULES:\n• Feathers must overlap and interlock naturally\n• Orientation must follow contours of the subject\n• Density of feathers controls shading and detail\n\nDETAIL RULES:\n• Individual feather barbs and shafts must be visible\n• Fine texture contributes to realism\n\nSUBJECT HANDLING:\n• The subject must be recognizable through feather arrangement alone\n\nSTYLE:\n• Organic flow, soft edges, natural layering\n\nENFORCEMENT (CRITICAL):\n• If feathers appear pasted on top of the image, the result is incorrect\n• If non-feather surfaces are visible, the result is incorrect.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA fully reconstructed image where the entire scene is composed of layered feathers, with structure and detail defined by feather orientation, density, and overlap."
+  },
+  {
     "name": "FELT PUPPET",
     "category": [
       "TOY",
@@ -10802,6 +10889,19 @@
     "additionalInstructions": "FINAL RESULT:\nA handcrafted foam sculpture version of the scene where all elements appear carved from styrofoam, with rough textures, visible tool marks, and simplified forms while preserving the subject's identity."
   },
   {
+    "name": "FOIL EMBOSS",
+    "category": [
+      "ART",
+      "METALLIC",
+      "REFLECTIVE",
+      "PRINT"
+    ],
+    "message": "Take a picture and transform the image into a foil-embossed print where all elements appear stamped in reflective metallic foil.\n\nCRITICAL OUTPUT RULES:\n• Surfaces must reflect light dynamically\n• Metallic sheen with color shifting highlights\n• Slight raised embossed effect\n\nCORE CONCEPT:\n• Light interaction defines the image.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA reflective foil-stamped image with metallic shine and embossed depth."
+  },  
+  {
     "name": "FOLLOW THE YELLOW BRICK ROAD",
     "category": [
       "MOVIES",
@@ -11157,6 +11257,19 @@
       }
     ],
     "additionalInstructions": ""
+  },
+  {
+    "name": "FROST FORMATION",
+    "category": [
+      "ART",
+      "CRYSTAL",
+      "COLD",
+      "FRACTAL"
+    ],
+    "message": "Take a picture and completely reconstruct the image as if it is formed entirely from frost and ice crystal growth patterns. The scene must be built from crystalline frost structures, not overlaid effects.\n\nCRITICAL OUTPUT RULES:\n• No original surfaces may remain\n• All forms must be constructed from frost-like crystalline patterns\n• Frost must define edges, shapes, and textures\n\nCORE CONCEPT:\n• Ice crystals grow outward to form the image\n• Fractal branching patterns define structure\n\nSTRUCTURE RULES:\n• Fine branching frost patterns\n• Sharp crystalline edges\n• Layered frost density for depth\n\nSUBJECT HANDLING:\n• Subject must be recognizable through frost structure alone\n\nSTYLE:\n• Cool tones (white, blue, pale cyan)\n• Subtle translucency and sparkle\n\nENFORCEMENT:\n• If frost appears as a surface overlay, the result is incorrect.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA fully reconstructed image made entirely of frost and crystalline ice formations, with no underlying original image visible."
   },
   {
     "name": "FROSTING CAKE ART",
@@ -11796,6 +11909,19 @@
     "additionalInstructions": ""
   },
   {
+    "name": "GLITCH MOSAIC",
+    "category": [
+      "ART",
+      "DIGITAL",
+      "GLITCH",
+      "ABSTRACT"
+    ],
+    "message": "Take a picture and transform the image into a glitch mosaic composed of fragmented tiles and digital distortions.\n\nCRITICAL OUTPUT RULES:\n• Image broken into blocks or tiles\n• Misalignment and displacement\n• Controlled digital chaos\n\nCORE CONCEPT:\n• Image fragmentation and reconstruction.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA mosaic of distorted digital fragments forming the image."
+  },
+  {
     "name": "GLITCH REALITY",
     "category": [
       "DIGITAL",
@@ -11806,7 +11932,7 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
-  },
+  },  
   {
     "name": "GLOSSARY",
     "category": [
@@ -12166,6 +12292,44 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "GROSS ANATOMY",
+    "category": [
+      "MEDICAL",
+      "SCIENTIFIC",
+      "ILLUSTRATION",
+      "DETAILED"
+    ],
+    "message": "Take a picture and transform the subject into a detailed medical-style gross anatomy illustration, revealing internal biological systems with clean, educational clarity. The subject must appear as if rendered for a professional anatomical diagram, with layered biological structures accurately organized.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies a system layer or depth, USE that instead of the selected option\n\nCRITICAL OUTPUT RULES (NON-NEGOTIABLE):\n• The result must be ONE single image\n• DO NOT create multiple panels, exploded diagrams, or separate views\n• DO NOT create side-by-side comparisons of layers\n• All anatomical layers must exist within the SAME continuous figure\n\nCORE CONCEPT (CRITICAL):\n• The subject is partially revealed in layers, like a medical illustration\n• Outer and inner systems must coexist visually in a clean, readable way\n• Layers should feel integrated—not cut apart\n\nANATOMICAL STRUCTURE RULES:\n• Skin may be partially transparent, peeled back, or subtly revealed\n• Underlying systems must align anatomically with the subject\n• Each system must be clearly distinguishable but visually integrated\n\nSYSTEM RENDERING:\n• Skin: natural outer appearance with partial reveal\n• Muscles: red fiber structure with anatomical accuracy\n• Organs: simplified but recognizable internal organs\n• Nervous system: branching neural network with fine detail\n• Skeleton: structural bone framework aligned with the body\n\nSTYLE:\n• Clean medical illustration aesthetic\n• Slightly stylized but scientifically inspired\n• Smooth shading with clear separation between systems\n\nLIGHTING:\n• Neutral, clinical lighting\n• Subtle highlights to define depth between layers\n\nSCENE COMPOSITION:\n• Maintain original pose and proportions of subject\n• Focus on clarity and readability of anatomical layers\n\nENFORCEMENT:\n• If the systems appear random, messy, or disconnected, the result is incorrect",
+  "options": [
+    {
+      "id": "001",
+      "text": "Skin-focused anatomy — mostly external appearance with subtle partial transparency revealing underlying structures"
+    },
+    {
+      "id": "002",
+      "text": "Muscular system emphasis — skin partially removed or transparent, prominently showing muscle groups and fiber structure"
+    },
+    {
+      "id": "003",
+      "text": "Organ system emphasis — internal organs clearly visible and anatomically placed within the body"
+    },
+    {
+      "id": "004",
+      "text": "Nervous system emphasis — intricate network of nerves highlighted throughout the body with high detail"
+    },
+    {
+      "id": "005",
+      "text": "Skeletal system emphasis — bones clearly visible and forming the structural framework of the subject"
+    },
+    {
+      "id": "006",
+      "text": "Full layered anatomy — all systems (skin, muscle, organs, nerves, skeleton) visible together in a clean, integrated medical illustration"
+    }
+  ],
+  "randomizeOptions": true,
+  "additionalInstructions": "FINAL RESULT:\nA single, highly detailed medical-style anatomical illustration of the subject, where internal biological systems are revealed in layered form within the same image. The selected option determines which system is emphasized, but all elements must remain anatomically aligned, visually integrated, and clearly readable without breaking the single-image rule."
   },
   {
     "name": "GUMBY",
@@ -13713,6 +13877,19 @@
     "additionalInstructions": ""
   },
   {
+    "name": "INK DIFFUSION",
+    "category": [
+      "ART",
+      "FLUID",
+      "INK",
+      "ABSTRACT"
+    ],
+    "message": "Take a picture and completely reconstruct the image as if it is formed from ink dispersing in liquid. The entire scene must be built from flowing ink clouds and diffusion patterns.\n\nCRITICAL OUTPUT RULES:\n• NO solid edges or hard surfaces\n• NO original image textures may remain\n• The image must be formed entirely from ink diffusion behavior\n\nCORE CONCEPT:\n• Ink spreads organically through fluid\n• Density and flow define shapes\n\nFLUID BEHAVIOR:\n• Soft, billowing edges\n• Gradual transitions in density\n• Swirling motion patterns\n\nSUBJECT HANDLING:\n• Subject must remain recognizable through ink density and flow\n\nSTYLE:\n• Monochrome or limited ink palette\n• Soft gradients and organic shapes\n\nENFORCEMENT:\n• If the image appears as a photo with ink overlay, the result is incorrect.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA fully fluid composition where the entire image is formed from diffusing ink clouds suspended in liquid, with no solid surfaces remaining."
+  },
+  {
     "name": "INSIDE OUT",
     "category": [
       "ANATOMY",
@@ -13724,6 +13901,19 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": "NOT ALLOWED:\n• Surgery imagery\n• X-ray clichés\n• Horror aesthetics\n• Exploded or separated body parts\n• Any implication of pain or injury\n\nFINAL RESULT:\nThe image should depict the subject fully intact while their internal anatomy is clearly visible and anatomically accurate, appearing as a seamless scientific reveal rather than damage — a calm, educational visualization where exterior and interior coexist naturally in a single complete figure."
+  },
+  {
+    "name": "INTAGLIO PRINT",
+    "category": [
+      "ART",
+      "PRINT",
+      "VINTAGE",
+      "DETAILED"
+    ],
+    "message": "Take a picture and transform the image into an intaglio print where all details are formed by ink sitting inside engraved grooves. The image must appear as if etched into a metal plate and printed under pressure.\n\nCRITICAL OUTPUT RULES:\n• Ink must appear inside recessed lines, not on the surface\n• Fine engraved lines define all shapes and shading\n• Subtle plate embossing around edges\n\nCORE CONCEPT:\n• Depth is created by engraved grooves holding ink\n\nSTYLE:\n• Black or limited monochrome\n• Ultra-fine linework and cross-hatching.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA physical-looking intaglio print with recessed ink lines and subtle embossing."
   },
   {
     "name": "INSTALLATION ART STYLE",
@@ -14788,6 +14978,19 @@
     "additionalInstructions": ""
   },
   {
+    "name": "LIGHT PAINTING",
+    "category": [
+      "ART",
+      "LIGHT",
+      "LONG EXPOSURE",
+      "CREATIVE"
+    ],
+    "message": "Take a picture and completely reconstruct the entire image as a true long-exposure light painting. The scene must be recreated entirely from glowing light trails, with NO original surfaces, textures, or photographic elements remaining.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies light color, intensity, or motion style, USE that instead\n\nCRITICAL OUTPUT RULES (NON-NEGOTIABLE):\n• The original image must NOT be visible in any way\n• NO overlaying light trails on top of the image\n• NO realistic surfaces, textures, or materials may remain\n• EVERYTHING must be rebuilt using ONLY light trails\n• The background must be dark or neutral to emphasize light\n\nCORE CONCEPT (CRITICAL):\n• Light replaces ALL physical matter\n• The subject and environment are defined entirely by moving light paths\n• Structure is preserved ONLY through the arrangement of light trails\n\nLIGHT STRUCTURE RULES:\n• Continuous light strokes must define outlines and shapes\n• Dense clusters of light trails form solid areas\n• Motion paths should suggest how the image was “drawn in air” over time\n• Light trails may overlap, spiral, or weave to build depth\n\nSUBJECT HANDLING:\n• The subject must remain recognizable purely through light trail structure\n• Facial features and key forms must be reconstructed using light strokes only\n\nENVIRONMENT HANDLING:\n• Background elements must also be formed from light trails or left as darkness\n• No photographic background allowed\n\nSTYLE:\n• Bright glowing lines, streaks, and arcs\n• Neon-like or incandescent light behavior\n• Smooth motion blur consistent with long exposure photography\n\nLIGHTING:\n• Light is the ONLY source of illumination\n• Glow and bloom effects allowed, but must originate from the trails themselves\n\nENFORCEMENT (CRITICAL):\n• If any part of the original image is visible, the result is incorrect\n• If light trails appear as an overlay instead of the full structure, the result is incorrect\n• If solid surfaces exist, the result is incorrect.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA fully reconstructed long-exposure light painting where the entire image—subject and environment—is composed exclusively of glowing light trails. No original image content remains; everything is defined purely by motion-drawn light."
+  },
+  {
     "name": "LIMERICK",
     "category": [
       "POETRY",
@@ -14836,6 +15039,19 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "LIQUID MARBLING",
+      "category": [
+      "ART",
+      "FLUID",
+      "ABSTRACT",
+      "COLORFUL"
+    ],
+    "message": "Take a picture and transform the image into a liquid marbling pattern where all elements are reinterpreted as swirling, fluid paint suspended in motion. The entire scene must appear as if created by pigments floating and mixing in liquid.\n\nCRITICAL OUTPUT RULES:\n• No solid edges—everything must flow and swirl\n• Shapes must be defined by fluid movement\n• Colors must blend organically\n\nCORE CONCEPT:\n• The image behaves like liquid pigment in water\n\nSTYLE:\n• Smooth gradients and flowing patterns\n• Organic, unpredictable shapes.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA fluid marbled composition where the entire image is formed from swirling paint patterns and flowing color transitions."
   },
   {
     "name": "LIQUID METAL",
@@ -19271,6 +19487,19 @@
     "additionalInstructions": "FINAL RESULT:\nThe final image must look like a real photograph of a child — either the believable offspring of two subjects, or a randomized child version of a single subject — natural, respectful, and emotionally neutral."
   },
   {
+    "name": "OIL IMPASTO",
+    "category": [
+      "ART",
+      "PAINTING",
+      "TEXTURE",
+      "CLASSIC"
+    ],
+    "message": "Take a picture and transform the image into an oil impasto painting with thick, heavy paint strokes.\n\nCRITICAL OUTPUT RULES:\n• Paint must appear thick and raised\n• Visible brush strokes\n• Light interacts with paint texture\n\nCORE CONCEPT:\n• Texture defines the image.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA thick oil painting with raised brush strokes and rich texture."
+  },
+  {
     "name": "OLD MACDONALD HAD A FARM",
     "category": [
       "HUMOR",
@@ -21547,6 +21776,19 @@
     "additionalInstructions": "FINAL RESULT:\nA complete thermal imaging transformation of the scene as viewed through a Predator's bio-mask helmet display. Every element is rendered as heat signatures with the iconic yellow-to-purple color gradient, featuring bright yellow/white human silhouettes with visible internal heat patterns, cooler blue/purple environmental elements, distinctive scan lines and electronic interference, alien HUD elements with targeting reticles and Yautja script, and the characteristic rounded vignette of viewing through helmet optics. The image must be instantly recognizable as Predator vision while maintaining the composition and recognizability of the original scene's subjects and spatial relationships. The effect should be cinematic, faithful to the films, and evoke the alien hunter's technological advantage - seeing the world through heat and allowing nothing to hide."
   },
   {
+    "name": "PRISM DISPERSION",
+    "category": [
+      "ART",
+      "LIGHT",
+      "SPECTRUM",
+      "REFRACTION"
+    ],
+    "message": "Take a picture and completely reconstruct the entire image as if all visible light is being refracted through a prism, splitting into its full spectral components. The scene must be rebuilt using dispersed light, not overlaid effects.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies spectrum intensity or direction, USE that instead\n\nCRITICAL OUTPUT RULES (NON-NEGOTIABLE):\n• DO NOT overlay rainbow effects onto the original image\n• The original colors and surfaces must NOT remain intact\n• The image must be reconstructed entirely through refracted spectral light\n\nCORE CONCEPT (CRITICAL):\n• White light splits into a full spectrum (red through violet)\n• All forms are defined through refracted, separated light paths\n\nLIGHT BEHAVIOR:\n• Colors must spatially separate and shift\n• Edges create rainbow splitting\n• Multiple refractions may overlap and intersect\n\nSUBJECT HANDLING:\n• Subject must remain recognizable through dispersed spectral structure\n\nENVIRONMENT:\n• Entire scene participates in light splitting\n\nENFORCEMENT:\n• If the image looks like a normal photo with rainbow overlay, the result is incorrect.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA fully reconstructed image made entirely from refracted spectral light, with all shapes defined by prism dispersion rather than solid surfaces."
+  },
+  {
     "name": "PRODUCT LABEL",
     "category": [
       "HUMOR",
@@ -23495,6 +23737,19 @@
     "additionalInstructions": ""
   },
   {
+    "name": "SCRIBBLE SKETCH",
+    "category": [
+      "ART",
+      "SKETCH",
+      "ABSTRACT",
+      "EXPRESSIVE"
+    ],
+    "message": "Take a picture and transform the image into a chaotic scribble sketch composed of loose, overlapping hand-drawn lines. The entire image must appear as if drawn quickly with expressive, energetic strokes.\n\nCRITICAL OUTPUT RULES:\n• The image must be built entirely from scribbled lines\n• Lines should overlap, intersect, and vary in intensity\n• NO clean outlines or polished rendering\n\nCORE CONCEPT:\n• Form emerges from chaos\n• Density of lines defines shading and depth\n\nSTYLE:\n• Hand-drawn, messy, energetic\n• Varying line thickness and pressure.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA loose, expressive scribble drawing where the subject and environment are formed entirely from chaotic layered sketch lines."
+  },
+  {
     "name": "SEALED",
     "category": [
       "OFFICIAL",
@@ -23798,6 +24053,19 @@
     "additionalInstructions": "FINAL RESULT:\nA soft, atmospheric Renaissance painting where all elements blend seamlessly into one another with no visible hard edges, creating a lifelike yet dreamlike image.\n\nCORE REQUIREMENTS:\n• NO sharp edges\n• NO digital artifacts\n• FULL tonal blending across entire image"
   },
   {
+    "name": "SGRAFFITO",
+    "category": [
+      "ART",
+      "ETCHED",
+      "TEXTURE",
+      "CRAFT"
+    ],
+    "message": "Take a picture and transform the image into a sgraffito artwork where a top layer is scratched away to reveal contrasting layers beneath.\n\nCRITICAL OUTPUT RULES:\n• Visible scratch marks define shapes\n• Multiple color layers revealed underneath\n• Rough, carved texture\n\nCORE CONCEPT:\n• Image created by subtracting the surface.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA layered surface where the image is scratched into the top layer revealing contrasting colors below."
+  },
+  {
     "name": "SHAKESPEAREAN",
     "category": [
       "THEATER",
@@ -24081,6 +24349,19 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "SMOKE FORM",
+    "category": [
+      "ART",
+      "ABSTRACT",
+      "ATMOSPHERIC",
+      "SOFT"
+    ],
+    "message": "Take a picture and transform the image into a composition made entirely from smoke and vapor.\n\nCRITICAL OUTPUT RULES:\n• No solid edges\n• Semi-transparent forms\n• Shapes defined by density of smoke\n\nCORE CONCEPT:\n• Form emerges from vapor\n\nFINAL RESULT:\nAn image formed entirely from swirling smoke with soft, ethereal structure.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA glowing composition where the subject is formed entirely from light streaks."
   },
   {
     "name": "SMURFED!",
@@ -26267,6 +26548,19 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "THERMOGRAPHIC PRINT",
+    "category": [
+      "ART",
+      "PRINT",
+      "TEXTURE",
+      "REALISTIC"
+    ],
+    "message": "Take a picture and transform the image into a thermographic print where all visible elements appear as raised, glossy ink on a flat surface. The image must look like it was printed using heat-raised ink techniques.\n\nCRITICAL OUTPUT RULES:\n• All lines and shapes must appear slightly raised from the surface\n• Surfaces must reflect light subtly like glossy ink\n• The image must feel tactile and embossed\n\nCORE CONCEPT:\n• Ink sits on top of the surface, not blended into it\n• Light interacts with raised edges\n\nSTYLE:\n• Clean shapes with slight dimensional lift\n• Subtle shine and texture.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA raised-ink printed image where all details appear embossed and glossy, as if physically printed using thermographic techniques."
   },
   {
     "name": "THINNER",
@@ -29229,6 +29523,19 @@
     "additionalInstructions": ""
   },
   {
+    "name": "VORONOI STRUCTURE",
+    "category": [
+      "ART",
+      "GEOMETRIC",
+      "ABSTRACT",
+      "STRUCTURAL"
+    ],
+    "message": "Take a picture and completely reconstruct the entire image using a true Voronoi partitioning system. The scene must be divided into irregular regions generated from spatial seed points, where each cell represents the area closest to its seed. The image must be rebuilt entirely from these Voronoi cells.\n\nMASTER PROMPT OVERRIDE LOGIC (CRITICAL):\n• If an external master prompt specifies cell density, style, or distribution, USE that instead\n\nCRITICAL OUTPUT RULES (NON-NEGOTIABLE):\n• The entire image must be composed ONLY of Voronoi cells\n• NO original surfaces, gradients, or photographic textures may remain\n• DO NOT overlay cells on top of the image — the image must be fully reconstructed\n\nANTI-MOSAIC ENFORCEMENT (CRITICAL):\n• Cells must NOT be uniform in size or shape\n• DO NOT create grid-based, square, or repeating tile patterns\n• DO NOT resemble mosaic, stained glass, pixel art, or tiled artwork\n• Cells must appear organically distributed, not manually placed\n\nCORE CONCEPT (CRITICAL):\n• The image is partitioned by distance to irregularly placed seed points\n• Each region represents a unique spatial domain\n• Structure emerges from spatial division, not tiling\n\nSTRUCTURE RULES (CRITICAL):\n• Cell size MUST vary across the image\n• High-detail areas (faces, edges, textures) MUST have smaller, denser cells\n• Low-detail areas (sky, flat surfaces) MUST have larger, simpler cells\n• Cell boundaries must follow natural contours of the subject\n\nCELL BEHAVIOR:\n• Each cell contains simplified color or tone representative of that region\n• Boundaries must be clearly defined but irregular\n• Cells must interlock naturally without repetition\n\nSUBJECT HANDLING:\n• The subject must remain recognizable through cell distribution alone\n• Important features must be preserved via increased cell density\n\nSTYLE:\n• Flat or slightly shaded polygon regions\n• Clean edges with organic irregularity\n\nENFORCEMENT (CRITICAL):\n• If cells appear uniform or grid-like, the result is incorrect\n• If the image resembles a mosaic or tiled pattern, the result is incorrect\n• If original image detail is visible between cells, the result is incorrect."
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "CORE REQUIREMENT:\nThis must be a TRUE Voronoi partitioning system driven by spatial logic and variable density. The image must not resemble mosaic, tiles, or decorative patterns—it must feel computational, organic, and structurally derived. \n\nFINAL RESULT:\nA fully reconstructed image where the entire scene is divided into irregular Voronoi regions, with cell size and distribution dynamically adapting to the structure of the subject. The result must feel like a natural spatial partitioning system—not a mosaic or tile effect."
+  },
+  {
     "name": "VULCAN TRANSFORMATION",
     "category": [
       "SCI-FI",
@@ -29623,6 +29930,19 @@
     "randomizeOptions": false,
     "additionalInstructions": ""
   },
+  {
+    "name": "WATERCOLOR BLEED",
+    "category": [
+      "ART",
+      "PAINTING",
+      "FLUID",
+      "SOFT"
+    ],
+    "message": "Take a picture and transform the image into a watercolor painting with visible pigment bleeding and water diffusion.\n\nCRITICAL OUTPUT RULES:\n• Colors must bleed beyond edges\n• Soft transitions and pooling\n• Paper texture visible\n\nCORE CONCEPT:\n• Water flow controls the image.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA watercolor image with organic bleeding edges and fluid color blending."
+  },  
   {
     "name": "WEDDING CAKE TOPPER",
     "category": [
