@@ -7,7 +7,7 @@ const IMPORT_STORE_NAME = 'imported_presets';
 // ===== PRESET UNLOCK GAME =====
 
 const UNLOCK_GAME_KEY = 'r1_preset_unlock_game';
-const STARTER_PRESET = 'IMPRESSIONISM';
+const STARTER_PRESETS = ['CARICATURE', 'IMPRESSIONISM'];
 
 function loadUnlockState() {
   try {
@@ -16,10 +16,21 @@ function loadUnlockState() {
       const state = JSON.parse(raw);
       if (!state.credits) state.credits = 0;
       if (!state.creditEarnedPresets) state.creditEarnedPresets = [];
+      // MIGRATION: ensure all starter presets are unlocked for existing users
+      let migrated = false;
+      STARTER_PRESETS.forEach(name => {
+        if (!state.unlockedPresets.includes(name)) {
+          state.unlockedPresets.push(name);
+          migrated = true;
+        }
+      });
+      if (migrated) {
+        try { localStorage.setItem(UNLOCK_GAME_KEY, JSON.stringify(state)); } catch (e) {}
+      }
       return state;
     }
   } catch (e) {}
-  return { credits: 0, creditEarnedPresets: [], unlockedPresets: [STARTER_PRESET] };
+  return { credits: 0, creditEarnedPresets: [], unlockedPresets: [...STARTER_PRESETS] };
 }
 
 function saveUnlockState(state) {
@@ -56,7 +67,7 @@ export function unlockAllPresets(allAvailablePresets) {
   const state = loadUnlockState();
   if (state.cheatActivated) {
     // Second use — re-lock everything that was unlocked only by the cheat
-    state.unlockedPresets = state.preCheatUnlockedPresets || [STARTER_PRESET];
+    state.unlockedPresets = state.preCheatUnlockedPresets || [...STARTER_PRESETS];
     state.cheatActivated = false;
     state.preCheatUnlockedPresets = null;
     saveUnlockState(state);
@@ -248,10 +259,13 @@ export class PresetImporter {
       const bUnlocked = unlockedNames.has(b.name);
       if (aUnlocked && !bUnlocked) return -1;
       if (!aUnlocked && bUnlocked) return 1;
-      // For new users with no imports yet, put IMPRESSIONISM first among locked
+      // For new users with no imports yet, put starter presets first (in array order)
       if (this.importedPresets.length === 0) {
-        if (a.name === STARTER_PRESET) return -1;
-        if (b.name === STARTER_PRESET) return 1;
+        const aIdx = STARTER_PRESETS.indexOf(a.name);
+        const bIdx = STARTER_PRESETS.indexOf(b.name);
+        if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx; // both starters — use array order
+        if (aIdx !== -1) return -1; // only a is a starter
+        if (bIdx !== -1) return 1;  // only b is a starter
       }
       return a.name.localeCompare(b.name);
     });
@@ -375,42 +389,50 @@ export class PresetImporter {
       const renderPresetsList = () => {
         const filteredPresets = this.getFilteredPresets(availablePresets);
         const countElement = document.getElementById('import-preset-count');
-        if (countElement) {
-          countElement.textContent = filteredPresets.length;
-        }
+        if (countElement) countElement.textContent = filteredPresets.length;
 
-        presetsList.innerHTML = '';
-        
+        // --- Pre-build O(1) lookup maps once per render ---
+
+        const importedMap = new Map(this.importedPresets.map(p => [p.name, p]));
+        const availableSet = new Set(availablePresets.map(p => p.name));
+
+        // Fast credit count: count checked locked presets using Maps
+        const getLockedCheckedCount = () => {
+          let count = 0;
+          this.checkboxStates.forEach((checked, name) => {
+            if (!checked) return;
+            if (!availableSet.has(name)) return;
+            if (importedMap.has(name)) return; // already imported = not locked
+            if (unlockedNames.has(name)) return; // unlocked = not locked
+            count++;
+          });
+          return count;
+        };
+
+        // Build all items into a fragment — single DOM write at the end
+
+        const fragment = document.createDocumentFragment();
+
         filteredPresets.forEach((preset, index) => {
+          const isAlreadyImported = importedMap.has(preset.name);
+          const isLocked = !isAlreadyImported && !unlockedNames.has(preset.name);
+          const existingPreset = importedMap.get(preset.name);
+
+          const msg = preset.message || '';
+          const periodIndex = msg.indexOf('.');
+          const firstLine = periodIndex !== -1 ? msg.substring(0, periodIndex + 1).trim() : msg.substring(0, 160).trim();
+
           const item = document.createElement('button');
           item.className = 'menu-item';
           item.dataset.presetIndex = index;
           item.dataset.presetName = preset.name;
-          // Added margin-bottom: 2px for small space between presets
           item.style.cssText = 'display: flex; align-items: flex-start; padding: 6px 15px; width: 100%; justify-content: flex-start; margin-bottom: 2px;';
 
           const checkbox = document.createElement('input');
           checkbox.type = 'checkbox';
           checkbox.id = `import-preset-${index}`;
           checkbox.checked = this.checkboxStates.get(preset.name) || false;
-          checkbox.style.cssText = `
-            width: 18px;
-            height: 18px;
-            min-width: 18px;
-            min-height: 18px;
-            margin-right: 10px;
-            cursor: pointer;
-            accent-color: #4CAF50;
-            flex-shrink: 0;
-          `;
-          checkbox.onclick = (e) => {
-            e.stopPropagation();
-            this.checkboxStates.set(preset.name, checkbox.checked);
-          };
-
-          const msg = preset.message || '';
-          const periodIndex = msg.indexOf('.');
-          const firstLine = periodIndex !== -1 ? msg.substring(0, periodIndex + 1).trim() : msg.substring(0, 160).trim();
+          checkbox.style.cssText = 'width:18px;height:18px;min-width:18px;min-height:18px;margin-right:10px;cursor:pointer;accent-color:#4CAF50;flex-shrink:0;';
 
           const nameSpan = document.createElement('span');
           nameSpan.className = 'menu-item-name';
@@ -428,96 +450,72 @@ export class PresetImporter {
           nameSpan.appendChild(nameRow);
           nameSpan.appendChild(previewRow);
 
-          // Check if preset is NEW or UPDATED
-          const existingPreset = this.importedPresets.find(p => p.name === preset.name);
-          
+          // NEW / UPDATED tickets
+
           if (!existingPreset) {
-            // This is a NEW preset - show RED ticket
             const ticket = document.createElement('span');
             ticket.className = 'preset-ticket preset-ticket-new';
             ticket.textContent = 'NEW';
             nameRow.appendChild(ticket);
           } else if (existingPreset.message !== preset.message) {
-            // This preset has been UPDATED - show GREEN ticket with pulse
             const ticket = document.createElement('span');
             ticket.className = 'preset-ticket preset-ticket-updated';
             ticket.textContent = 'UPDATED';
             nameRow.appendChild(ticket);
           }
 
-          item.appendChild(checkbox);
-          item.appendChild(nameSpan);
-
-          // UNLOCK GAME: determine if this preset is locked
-          const isAlreadyImported = this.importedPresets.some(p => p.name === preset.name);
-          const isLocked = !isAlreadyImported && !unlockedNames.has(preset.name);
-
           if (isLocked) {
-            // Show lock icon but do NOT gray out or disable — user can check with credits
             const lockIcon = document.createElement('span');
             lockIcon.textContent = '🔒';
             lockIcon.style.cssText = 'margin-right: 4px; font-size: 11px; flex-shrink: 0;';
             nameRow.insertBefore(lockIcon, nameRow.firstChild);
           }
 
-          const checkLockAndCount = () => {
+          item.appendChild(checkbox);
+          item.appendChild(nameSpan);
+
+          // Shared credit validation — fast O(1) lookups
+
+          const validateCredit = (aboutToCheck) => {
+            if (!isLocked || !aboutToCheck) return true;
             const currentState = loadUnlockState();
             const availableCredits = currentState.credits || 0;
-            const lockedCheckedCount = Array.from(this.checkboxStates.entries()).filter(([name, checked]) => {
-              if (!checked) return false;
-              const p = availablePresets.find(ap => ap.name === name);
-              if (!p) return false;
-              const alreadyImported = this.importedPresets.some(ip => ip.name === name);
-              return !alreadyImported && !unlockedNames.has(name);
-            }).length;
-            return { availableCredits, lockedCheckedCount };
+            if (availableCredits === 0) {
+              showImportMessage(`🔒 "${preset.name}" is locked. Earn credits by taking pictures with newly imported presets.`);
+              return false;
+            }
+            if (getLockedCheckedCount() >= availableCredits) {
+              showImportMessage(`You only have ${availableCredits} credit${availableCredits !== 1 ? 's' : ''}.`);
+              return false;
+            }
+            return true;
           };
 
           checkbox.onclick = (e) => {
             e.stopPropagation();
-            if (isLocked && checkbox.checked) {
-              const { availableCredits, lockedCheckedCount } = checkLockAndCount();
-              if (availableCredits === 0) {
-                checkbox.checked = false;
-                this.checkboxStates.set(preset.name, false);
-                showImportMessage(`🔒 "${preset.name}" is locked. Earn credits by taking pictures with newly imported presets.`);
-                return;
-              }
-              if (lockedCheckedCount >= availableCredits) {
-                checkbox.checked = false;
-                this.checkboxStates.set(preset.name, false);
-                showImportMessage(`You only have ${availableCredits} credit${availableCredits !== 1 ? 's' : ''}.`);
-                return;
-              }
-              this.checkboxStates.set(preset.name, true);
-            } else {
-              this.checkboxStates.set(preset.name, checkbox.checked);
+            if (!validateCredit(checkbox.checked)) {
+              checkbox.checked = false;
+              this.checkboxStates.set(preset.name, false);
+              return;
             }
+            this.checkboxStates.set(preset.name, checkbox.checked);
           };
 
           item.onclick = (e) => {
             if (e.target === checkbox) return;
             const newChecked = !checkbox.checked;
-            if (isLocked && newChecked) {
-              const { availableCredits, lockedCheckedCount } = checkLockAndCount();
-              if (availableCredits === 0) {
-                showImportMessage(`🔒 "${preset.name}" is locked. Earn credits by taking pictures with newly imported presets.`);
-                return;
-              }
-              if (lockedCheckedCount >= availableCredits) {
-                showImportMessage(`You only have ${availableCredits} credit${availableCredits !== 1 ? 's' : ''}.`);
-                return;
-              }
-            }
+            if (!validateCredit(newChecked)) return;
             checkbox.checked = newChecked;
             this.checkboxStates.set(preset.name, newChecked);
-            if (newChecked) {
-              this.speakMessage(preset.message);
-            }
+            if (newChecked) this.speakMessage(preset.message);
           };
 
-          presetsList.appendChild(item);
+          fragment.appendChild(item);
         });
+
+        // Single DOM write — replaces innerHTML = '' + 800x appendChild
+        presetsList.innerHTML = '';
+        presetsList.appendChild(fragment);
 
         updateImportSelection();
       };
@@ -616,7 +614,21 @@ footerSection.innerHTML = `
         document.getElementById('import-mute-toggle').textContent = this.isMuted ? '🔇' : '🔊';
       };
 
+      // Visual feedback helper — flashes a button briefly when tapped
+      const flashBtn = (id, flashColor) => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        const original = btn.style.background;
+        btn.style.transition = 'background 0.1s';
+        btn.style.background = flashColor;
+        setTimeout(() => {
+          btn.style.background = original;
+          btn.style.transition = '';
+        }, 180);
+      };
+
       document.getElementById('select-all-presets').onclick = () => {
+        flashBtn('select-all-presets', '#aaa');
         const filteredPresets = this.getFilteredPresets(availablePresets);
         filteredPresets.forEach(preset => {
           // UNLOCK GAME: skip locked presets when selecting all
@@ -630,6 +642,7 @@ footerSection.innerHTML = `
       };
 
       document.getElementById('deselect-all-presets').onclick = () => {
+        flashBtn('deselect-all-presets', '#aaa');
         const filteredPresets = this.getFilteredPresets(availablePresets);
         filteredPresets.forEach(preset => {
           this.checkboxStates.set(preset.name, false);
@@ -649,11 +662,15 @@ footerSection.innerHTML = `
       };
 
       document.getElementById('cancel-import-presets').onclick = () => {
-        closeModal();
-        resolve(null);
+        flashBtn('cancel-import-presets', '#999');
+        setTimeout(() => {
+          closeModal();
+          resolve(null);
+        }, 200);
       };
 
       document.getElementById('confirm-import-presets').onclick = () => {
+        flashBtn('confirm-import-presets', '#80e880');
         const checkedPresets = availablePresets.filter(preset =>
           this.checkboxStates.get(preset.name) === true
         );
@@ -674,8 +691,10 @@ footerSection.innerHTML = `
         const creditsEl = document.getElementById('import-credits-display');
         if (creditsEl) creditsEl.textContent = `Credits: ${finalCredits}`;
 
-        closeModal();
-        resolve(checkedPresets);
+        setTimeout(() => {
+          closeModal();
+          resolve(checkedPresets);
+        }, 200);
       };
 
       document.getElementById('import-jump-to-top').onclick = () => {
