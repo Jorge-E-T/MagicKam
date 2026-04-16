@@ -874,10 +874,11 @@ button:disabled {
     font-weight: bold;
 }
 
-/* Wider buttons in preset builder header */
-#preset-builder-submenu .menu-jump-button {
+/* Wider buttons in preset builder header and Index button */
+#preset-builder-submenu .menu-jump-button,
+#back-to-glossary {
     width: auto;
-    min-width: 40px;
+    min-width: 60px;
     padding: 0 12px;
     white-space: nowrap;
 }
@@ -1610,22 +1611,22 @@ button:disabled {
 
 .left-cam-carousel-track #gallery-button {
     position: absolute;
-    bottom: 0;
+    bottom: 2vh;
     left: 50%;
     transform: translateX(-50%);
 }
 
-/* Master and Options centered vertically in middle space with clear gap */
+/* Master and Options centered in the space between menu bottom and gallery top */
 .left-cam-carousel-track #cam-master-prompt-btn {
     position: absolute;
-    top: calc(50% - 30px - 8vw);
+    top: calc(1vh + 12vw + (100% - 1vh - 12vw - 12vw - 12vw - 12vw) / 3);
     left: 50%;
     transform: translateX(-50%);
 }
 
 .left-cam-carousel-track #cam-options-btn {
     position: absolute;
-    top: calc(50% + 30px - 8vw);
+    top: calc(1vh + 12vw + (100% - 1vh - 12vw - 12vw - 12vw - 12vw) / 3 + 12vw + 8vw);
     left: 50%;
     transform: translateX(-50%);
 }
@@ -1638,18 +1639,20 @@ button:disabled {
     min-width: 44px;
     min-height: 44px;
     background: transparent;
-    color: #FE5F00;
+    color: #fff;
     border: 2px solid #FE5F00;
     border-radius: 2vw;
     font-size: 6vw;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     z-index: 102;
-    padding: 0;
+    padding: 1px 0;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     transition: all 0.2s ease;
+    gap: 0;
 }
 
 .left-cam-btn:active {
@@ -1675,7 +1678,7 @@ button:disabled {
     position: absolute;
     right: -2vw; 
     top: 22vh;
-    bottom: 8vh;
+    bottom: 10vh;
     width: 24vw; 
     display: flex;
     flex-direction: column;
@@ -1744,14 +1747,14 @@ button:disabled {
     margin: 0;
     border-radius: 2vw;
     background: transparent;
-    color: #FE5F00;
+    color: #fff;
     border: 2px solid #FE5F00;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 0;
-    padding: 0;
+    padding: 1px 0;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     transition: all 0.2s ease;
     cursor: pointer;
@@ -1759,17 +1762,42 @@ button:disabled {
 }
 
 .mode-icon {
-    font-size: 5vw;
+    font-size: 4vw;
     line-height: 1;
 }
 
 .mode-label {
-    display: none;
+    display: block;
+    font-size: 1.8vw;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    font-weight: bold;
+    letter-spacing: 0.02em;
+    margin-top: 1.5vw;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .button-icon {
-    font-size: 6vw;
+    font-size: 4vw;
     line-height: 1;
+}
+
+.button-label {
+    font-size: 1.8vw;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    font-weight: bold;
+    letter-spacing: 0.02em;
+    margin-top: 1.5vw;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .mode-button:active {
@@ -2017,7 +2045,7 @@ button:disabled {
 }
 
 .pagination-button {
-    padding: 2.5vw;
+    padding: 0 2.5vw;
     background-color: #FE5F00;
     color: #000;
     border: none;
@@ -2025,7 +2053,8 @@ button:disabled {
     font-size: 3.5vw;
     font-weight: bold;
     cursor: pointer;
-    min-height: 11vh;
+    height: 7vw;
+    min-height: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2256,16 +2285,17 @@ button:disabled {
 }
 
 .viewer-left-carousel-btn {
-    width: 18vw;
-    height: 11vw;
-    min-height: 0;
-    min-width: 0;
+    width: 12vw;
+    height: 12vw;
+    min-height: 44px;
+    min-width: 44px;
     flex-shrink: 0;
     border-radius: 2vw;
     background: rgba(30, 30, 30, 0.95);
     color: #fff;
     border: 2px solid #ff4444;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     font-size: 3vw;
@@ -2344,10 +2374,10 @@ button:disabled {
 }
 
 .viewer-carousel-button {
-    width: 17vw;
-    height: 16vw;
-    min-width: 0;
-    min-height: 0;
+    width: 12vw;
+    height: 12vw;
+    min-width: 44px;
+    min-height: 44px;
     flex-shrink: 0;
     border-radius: 2vw;
     background: rgba(30, 30, 30, 0.92);
@@ -2373,6 +2403,7 @@ button:disabled {
     font-size: 2.5vw;
     line-height: 1;
     color: #ffffff;
+    margin-top: 1.5vw;
 }
 
 /* Image fills space between header and bottom bar */
@@ -2746,7 +2777,7 @@ button:disabled {
     background-color: #000;
     border-bottom: 1px solid #FE5F00;
     gap: 2vw;
-    justify-content: flex-start;
+    justify-content: space-between;
     min-height: 32px;
 }
 
