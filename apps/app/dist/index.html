@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Magic Kamera</title>
-  <script type="module" crossorigin src="./assets/main-DgvdDkKP.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/main-B4HmRJLv.css">
+  <script type="module" crossorigin src="./assets/main-O9reaLac.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/main-CJOdOKME.css">
 </head>
 <body>
     <div id="app">
@@ -48,15 +48,19 @@
             <div class="left-cam-carousel-track">
                 <button id="menu-button" class="left-cam-btn" title="Menu">
                     <span class="button-icon">☰</span>
+                    <span class="button-label">MENU</span>
                 </button>
                 <button id="gallery-button" class="left-cam-btn" title="Gallery">
                     <span class="button-icon">🖼️</span>
+                    <span class="button-label">GALLERY</span>
                 </button>
                 <button id="cam-master-prompt-btn" class="left-cam-btn" title="Master Prompt">
                     <span class="button-icon">📝</span>
+                    <span class="button-label">MASTER</span>
                 </button>
                 <button id="cam-options-btn" class="left-cam-btn" title="Toggle Options">
                     <span class="button-icon">🎛️</span>
+                    <span class="button-label">OPTIONS</span>
                 </button>
             </div>
         </div>
@@ -65,31 +69,31 @@
     <div class="mode-carousel-track">
         <button id="random-toggle" class="mode-button" title="Toggle Random Mode" data-mode="random">
             <span class="mode-icon">🎲</span>
-            <span class="mode-label">Random</span>
+            <span class="mode-label">RANDOM</span>
         </button>
         <button id="motion-toggle" class="mode-button" title="Motion Detection: OFF" data-mode="motion">
             <span class="mode-icon">👁️</span>
-            <span class="mode-label">Motion</span>
+            <span class="mode-label">MOTION</span>
         </button>
         <button id="burst-toggle" class="mode-button" title="Toggle Burst Mode" data-mode="burst">
             <span class="mode-icon">📸⚡</span>
-            <span class="mode-label">Burst</span>
+            <span class="mode-label">BURST</span>
         </button>
         <button id="timer-toggle" class="mode-button" title="Toggle Timer Mode" data-mode="timer">
             <span class="mode-icon">⏱️</span>
-            <span class="mode-label">Timer</span>
+            <span class="mode-label">TIMER</span>
         </button>
         <button id="camera-multi-preset-toggle" class="mode-button" title="Multi Preset" data-mode="camera-multi">
             <span class="mode-icon">🎞️</span>
-            <span class="mode-label">Multi</span>
+            <span class="mode-label">MULTI</span>
         </button>
         <button id="camera-combine-toggle" class="mode-button" title="Combine Mode" data-mode="camera-combine">
             <span class="mode-icon">🖼️🖼️</span>
-            <span class="mode-label">Combine</span>
+            <span class="mode-label">COMBINE</span>
         </button>
         <button id="camera-layer-toggle" class="mode-button" title="Layer Presets" data-mode="camera-layer">
             <span class="mode-icon">📑</span>
-            <span class="mode-label">Layer</span>
+            <span class="mode-label">LAYER</span>
         </button>
     </div>
 </div>
@@ -109,11 +113,6 @@
             <span id="connection-text">Online</span>
         </div>
 
-        <!-- Master Prompt Indicator -->
-        <div id="master-prompt-indicator" class="master-prompt-indicator" style="display: none;">
-            <span>MASTER ON</span>
-        </div>
-        
         <!-- Updates Available Indicator -->
         <div id="updates-indicator" class="updates-indicator" style="display: none;">
             <span>🔴 Updates</span>
@@ -164,8 +163,12 @@
         <div id="settings-submenu" class="submenu" style="display: none;">
             <div class="submenu-content">
                 <div class="submenu-header">
-                    <button id="settings-back" class="back-button">‹ Back</button>
                     <h3>Settings</h3>
+                    <div class="menu-nav-buttons">
+                        <button id="settings-jump-up" class="menu-jump-button" title="Scroll up">↑</button>
+                        <button id="settings-jump-down" class="menu-jump-button" title="Scroll down">↓</button>
+                        <button id="settings-back" class="close-button">×</button>
+                    </div>
                 </div>
                 <div class="submenu-list">
                     <!-- Resolution Settings -->
@@ -314,8 +317,8 @@
         <div id="resolution-submenu" class="submenu" style="display: none;">
             <div class="submenu-content">
                 <div class="submenu-header">
-                    <button id="resolution-back" class="back-button">‹ Back</button>
                     <h3>Resolution</h3>
+                    <button id="resolution-back" class="close-button">×</button>
                 </div>
                 <div id="resolution-list" class="submenu-list">
                     <!-- Resolution options will be dynamically added here -->
@@ -327,8 +330,8 @@
 <div id="aspect-ratio-submenu" class="submenu" style="display: none;">
     <div class="submenu-content">
         <div class="submenu-header">
-            <button id="aspect-ratio-back" class="back-button">‹ Back</button>
             <h3>Aspect Ratio</h3>
+            <button id="aspect-ratio-back" class="close-button">×</button>
         </div>
         <div class="submenu-list">
             <label class="resolution-item" style="cursor: pointer; display: flex; align-items: center;">
@@ -347,8 +350,8 @@
         <div id="burst-submenu" class="submenu" style="display: none;">
             <div class="submenu-content">
                 <div class="submenu-header">
-                    <button id="burst-back" class="back-button">‹ Back</button>
                     <h3>Burst Settings</h3>
+                    <button id="burst-back" class="close-button">×</button>
                 </div>
                 <div class="submenu-list">
                     <div class="burst-setting-item">
@@ -385,8 +388,8 @@
 <div id="timer-settings-submenu" class="submenu" style="display: none;">
     <div class="submenu-content">
         <div class="submenu-header">
-            <button id="timer-settings-back" class="back-button">‹ Back</button>
             <h3>Timer Settings</h3>
+            <button id="timer-settings-back" class="close-button">×</button>
         </div>
         <div class="submenu-list">
             <div class="burst-setting-item">
@@ -426,8 +429,8 @@
 <div id="master-prompt-submenu" class="submenu" style="display: none;">
     <div class="submenu-content">
         <div class="submenu-header">
-            <button id="master-prompt-back" class="back-button">‹ Back</button>
             <h3>Master Prompt</h3>
+            <button id="master-prompt-back" class="close-button">×</button>
         </div>
         <div class="submenu-list">
             <div class="master-prompt-setting-item">
@@ -451,8 +454,8 @@
         <div id="motion-submenu" class="submenu" style="display: none;">
             <div class="submenu-content">
                 <div class="submenu-header">
-                    <button id="motion-back" class="back-button">‹ Back</button>
                     <h3>Motion Detection</h3>
+                    <button id="motion-back" class="close-button">×</button>
                 </div>
                 <div class="submenu-list">
                     <div class="burst-setting-item">
@@ -507,11 +510,11 @@
 <div id="visible-presets-submenu" class="submenu" style="display: none;">
     <div class="submenu-content">
         <div class="submenu-header">
-    <button id="visible-presets-back" class="back-button">‹ Back</button>
     <h3>Visible Presets (<span id="visible-presets-count">0</span>)</h3>
     <div class="menu-nav-buttons">
         <button id="visible-presets-jump-up" class="menu-jump-button" title="Scroll up">↑</button>
         <button id="visible-presets-jump-down" class="menu-jump-button" title="Scroll down">↓</button>
+        <button id="visible-presets-back" class="close-button">×</button>
     </div>
 </div>
         <div class="submenu-list">
@@ -537,12 +540,12 @@
         <div id="preset-builder-submenu" class="submenu" style="display: none;">
             <div class="submenu-content">
                 <div class="submenu-header">
-    <button id="preset-builder-back" class="back-button">‹ Back</button>
     <h3>Preset Builder</h3>
     <div class="menu-nav-buttons">
         <button id="preset-builder-delete" class="menu-jump-button" style="display: none; background: #d32f2f;">Delete</button>
         <button id="preset-builder-save" class="menu-jump-button">Save</button>
         <button id="preset-builder-clear" class="menu-jump-button">Clear</button>
+        <button id="preset-builder-back" class="close-button">×</button>
     </div>
 </div>
                 <div class="preset-builder-container">
@@ -800,8 +803,8 @@
         <div id="import-resolution-submenu" class="submenu" style="display: none;">
             <div class="submenu-content">
                 <div class="submenu-header">
-                    <button id="import-resolution-back" class="back-button">‹ Back</button>
                     <h3>Import Settings</h3>
+                    <button id="import-resolution-back" class="close-button">×</button>
                 </div>
                 <div class="submenu-list">
                     <!-- Import Resolution List -->
@@ -817,9 +820,11 @@
         <div id="tutorial-submenu" class="submenu" style="display: none;">
             <div class="submenu-content">
                 <div class="submenu-header">
-                    <button id="tutorial-back" class="back-button">‹ Back</button>
                     <h3>Tutorial</h3>
-                    <button id="back-to-glossary" class="back-to-glossary" style="display: none;">← Index</button>
+                    <div class="menu-nav-buttons">
+                        <button id="back-to-glossary" class="menu-jump-button" style="display: none; margin-right: auto;">Index</button>
+                        <button id="tutorial-back" class="close-button">×</button>
+                    </div>
                 </div>
                 <!-- Glossary Menu -->
                 <div id="tutorial-glossary" class="tutorial-glossary">
@@ -894,10 +899,10 @@
                             <strong>⏱️ Timer Mode:</strong> Set a countdown (3-10s) and optional repeat intervals<br>
                             <strong>📸⚡ Burst Mode:</strong> Capture 3-10 photos rapidly (slow/medium/fast)<br>
                             <strong>👁️ Motion Detection:</strong> Automatically captures when movement is detected. Interval settings for repeat capture. Repeat capture is default. You must uncheck repeat capture to do single capture. Select start delay from 3 seconds to 30 minutes. This mode triggers when you press the eye icon and activates/starts when you press the side button. Motion detection deactivates/stops when you press the eye icon again. The eye pulses if motion detection is triggered. Best if used with NO MAGIC MODE enabled.<br>
-                            <strong>🎞️ Multi Preset:</strong> Select up to 20 presets to apply to a single photo in sequence. Tap the 🎞️ button in the carousel to open the preset selector. Choose your presets and tap Apply Selected. The footer and screen will show MULTI PRESETS while active. When you take a photo, all selected presets are queued and sent one by one with a 3 second interval between each. Works with Timer Mode — multi preset stays active until the timer is turned off. Cannot be used with Burst, Motion Detection, Random Mode, or No Magic Mode. If Manually Select Options is enabled, you will be prompted to choose options for each selected preset before the photo is taken. Multi preset is a one-shot mode — it resets automatically after all presets are sent, unless Timer Mode is active.<br>
+                            <strong>🎞️ Multi Preset:</strong> Select up to 20 presets to apply to a single photo in sequence. Tap the 🎞️ MULTI button in the carousel to open the preset selector. Choose your presets and tap Apply Selected. The footer and screen will show MULTI PRESETS while active. When you take a photo, all selected presets are queued and sent one by one with a 3 second interval between each. Works with Timer Mode — multi preset stays active until the timer is turned off. Cannot be used with Burst, Motion Detection, Random Mode, or No Magic Mode. If Manually Select Options is enabled, you will be prompted to choose options for each selected preset before the photo is taken. Multi preset is a one-shot mode — it resets automatically after all presets are sent, unless Timer Mode is active.<br>
                             <strong>🖼️🖼️ Combine images:</strong> Works with either a selected preset or by speaking your preset. Take a picture of two images to combine them to feed to r1 thereby creating AI generated images from two images. Only works with random mode or multi-select presets mode in main camera screen.<br>
-                            <strong>📑 Layer presets:</strong> Select up to 5 presets to combine and apply to a photo. Tap the 📑 button in the carousel to open the preset selector. Choose your presets starting with the primary (or dominant) layer. Then select up to 4 more presets to add as layers to that primary preset. Once you finish selecting, tap Apply Selected. Cannot be used with Random Mode or No Magic Mode. If Manually Select Options is enabled, you will be prompted once to choose options for each selected preset before the photo is taken. Once  Layer is enabled, it will continue applying same chosen layers with selected options until it is disabled.<br>
-                            <strong>📝 MASTER and 🎛️ OPTIONS Buttons (Left Carousel):</strong> Below the Menu (☰) button on the left side within a carousel(which also includes the Menu (☰) and Gallery (🖼️) Buttons). The Master button (📝) accesses Master Prompt settings. Glows green when enabled. The OPTIONS (🎛️) button toggles Manually Select Options mode on or off. Glows green when enabled. All the camera buttons (except for the switch camera (📷) button) are in carousels and are visible by default. However, you can hide them (except for the switch camera (📷) button) by double clicking on the main camera screen to hide/reveal buttons.<br><br>
+                            <strong>📑 Layer presets:</strong> Select up to 5 presets to combine and apply to a photo. Tap the 📑 LAYER button in the carousel to open the preset selector. Choose your presets starting with the primary (or dominant) layer. Then select up to 4 more presets to add as layers to that primary preset. Once you finish selecting, tap Apply Selected. Cannot be used with Random Mode or No Magic Mode. If Manually Select Options is enabled, you will be prompted once to choose options for each selected preset before the photo is taken. Once  Layer is enabled, it will continue applying same chosen layers with selected options until it is disabled.<br>
+                            <strong>📝 MASTER and 🎛️ OPTIONS Buttons (Left Carousel):</strong> Below the Menu (☰) button on the left side within a carousel(which also includes the MENU (☰) and GALLERY (🖼️) Buttons). The MASTER button (📝) accesses Master Prompt settings. Glows green when enabled. The OPTIONS (🎛️) button toggles Manually Select Options mode on or off. Glows green when enabled. All the camera buttons (except for the switch camera (📷) button) are in carousels and are visible by default. However, you can hide them (except for the switch camera (📷) button) by double clicking on the main camera screen to hide/reveal buttons.<br><br>
                         </p>
                     </div>
 
@@ -921,9 +926,9 @@
 
                             <strong>Delete (🗑️) and Close (×):</strong> Delete button, located at the top-left, deletes the selected image, Close button, located at the top-right, closes the single image viewer. <br><br>
 
-                            <strong>MASTER and OPTIONS Buttons:</strong> Below the delete button on the left side within a carousel. The Master button accesses Master Prompt settings. Glows green when enabled.  The OPTIONS button toggles Manually Select Options mode on or off. Glows green when enabled. These buttons are visible by default. However, you can hide them by double clicking the screen. Double click again to reveal them.<br><br>
+                            <strong>Master and Options Buttons:</strong> Below the delete button on the left side within a carousel. The MASTER button accesses Master Prompt settings. Glows green when enabled.  The OPTIONS button toggles Manually Select Options mode on or off. Glows green when enabled. These buttons are visible by default. However, you can hide them by double clicking the screen. Double click again to reveal them.<br><br>
 
-                            <strong>Edit and Export Images:</strong> The image viewer screen right carousel contains three buttons — ✏️ Edit (opens the image editor), 📤 Export (uploads to gofile.io), and 📑 Layer (combine and apply multiple presets to a single image). Select primary preset and then add up to 4 more layers (5 in all). Double click on the image viewer screen to hide the carousels.<br><br>
+                            <strong>Edit and Export Images:</strong> The image viewer screen right carousel contains three buttons — ✏️ EDIT (opens the image editor), 📤 EXPORT (uploads to gofile.io), and 📑 LAYER (combine and apply multiple presets to a single image). Select primary preset and then add up to 4 more layers (5 in all). Double click on the image viewer screen to hide the carousels.<br><br>
 
                             <strong>Upload to gofile.io:</strong> Use the Export button in the carousel inside the image viewer. Link expires after 24 hours. Mainly useful in No Magic Mode (because in No Magic Mode, images are not sent to the rabbit hole).<br><br>
 
@@ -969,7 +974,7 @@
                     <div id="section-edit-image" class="tutorial-section">
                         <h4 class="tutorial-heading">✏️ Edit Image Features</h4>
                         <p class="tutorial-text">
-                            <strong>How to Access:</strong> While viewing any photo in full-screen, tap the ✏️ Edit button. Double click on the screen to hide.<br><br>
+                            <strong>How to Access:</strong> While viewing any photo in full-screen, tap the ✏️ EDIT button. Double click on the screen to hide.<br><br>
                             
                             <strong>Available Tools:</strong><br>
                             The image editor provides several professional editing tools located on the right side of the screen:<br><br>
@@ -1011,7 +1016,7 @@
                             <strong>Burst:</strong> Number of photos and capture speed<br>
                             <!-- <strong>White Balance:</strong> Adjust color temperature of image so white objects appear white and colors realistic<br> -->
                             <strong>Timer:</strong> Countdown time and repeat interval<br>
-                            <strong>Master Prompt:</strong> Append text to every AI transformation to customize. This can be accessed from the main camera screen and the gallery by pressing the MASTER button in the gallery or the 📝 button in the left side carousel in main camera screen.<br>
+                            <strong>Master Prompt:</strong> Append text to every AI transformation to customize. This can be accessed from the main camera screen and the gallery by pressing the MASTER button in the gallery or the 📝 MASTER button in the left side carousel in main camera screen.<br>
                             <strong>Motion Detection:</strong> Sensitivity, start delay, continuous capture<br>
                             <strong>Visible Presets:</strong> Select the imported presets you want to see in preset menus. Default all. Can select all, remove individually or remove all (the Ron setting). Each preset has categories indicated at the bottom of the visible preset menu.<br>
                             <strong>Preset Builder:</strong> Made to follow a sequence. Click return to go to next selection. Select prompt templates and chips to help you create new and exciting presets. Categories must be separated by commas. You can also create multiple option presets with single or multi-selection! This is a very useful tool that includes prompting tips. You can access the Preset Builder from Settings, or directly from the main menu by tapping the <strong>+</strong> button in the menu header.<br>
@@ -1043,8 +1048,14 @@
 
                     <!-- Advanced Features -->
                     <div id="section-advanced-features" class="tutorial-section">
-                        <h4 class="tutorial-heading">🔧 Advanced Features</h4>
+                        <h4 class="tutorial-heading">🔧 Advanced Features & Miscellaneous</h4>
                         <p class="tutorial-text">
+                            <strong>Tutorial Searching:</strong> The tutorial has a search engine. Type your search using individual words or sentences. The back and forward arrows cycle through the text to find typed words.<br>
+
+                            <strong>Navigating:</strong> Up and down arrows in the sections with lists move up/down per page when clicked or jump down/up to the bottom/top of the list if double-clicked.<br>
+
+                            <strong>Hiding/Reveal Buttons:</strong> There are left and right carousels in the main camera screen and the image viewer in the gallery.  Double click the screen to hide/reveal the carousels.<br>
+
                             <strong>Category Searching:</strong> All presets are categorized. You can see these categories at the bottom of the Visible Preset list menu when a particular preset is highlighted. Therefore, if you see a preset that you like, you can do a search for similar presets that share that category (*best to do this in the Visible Preset Menu). You can also click on the desired category on the bottom to filter all presets in that category as well.<br>
 
                             <strong>Master Prompt:</strong> Append text to every AI transformation to customize. Many presets benefit from this feature. For example, if you activate Master Prompt (this must be done first) and add two lines: The first line- name: Ron G and the second line- it is Easter. Then you select preset HAPPY HOLIDAYS...this will transform the subject of the picture into a picutre of the subject wearing an Easter bunny costume (preferably pink) and the resulting picture will be captioned with the name Ron G. Since all presets are categorized you can do a search for "master" or "master prompt" and all presets that benefit from master prompting appear (*best to do this in the Visible Preset Menu).
@@ -1224,16 +1235,16 @@ All of the presets are optimized to avoid "camera ran dry" or "content filter" i
         <!-- Left carousel: MASTER and OPTIONS — default visible, double click to hide -->
         <div id="viewer-left-carousel" class="viewer-left-carousel">
             <div class="viewer-left-carousel-track">
-                <button id="mp-viewer-button" class="viewer-left-carousel-btn">MASTER</button>
-                <button id="options-viewer-button" class="viewer-left-carousel-btn">OPTIONS</button>
+                <button id="mp-viewer-button" class="viewer-left-carousel-btn">📝<br><span style="font-size:2.5vw;line-height:1;color:#fff;margin-top:1.5vw;display:block;">MASTER</span></button>
+<button id="options-viewer-button" class="viewer-left-carousel-btn">🎛️<br><span style="font-size:2.5vw;line-height:1;color:#fff;margin-top:1.5vw;display:block;">OPTIONS</span></button>
             </div>
         </div>
         <!-- Right-side carousel: Edit and Export -->
         <div id="viewer-carousel" class="viewer-carousel">
             <div class="viewer-carousel-track">
-                <button id="edit-viewer-image" class="viewer-carousel-button">✏️<br><span class="viewer-carousel-label">Edit</span></button>
-                <button id="upload-viewer-image" class="viewer-carousel-button">📤<br><span class="viewer-carousel-label">Export</span></button>
-                <button id="layer-preset-viewer-button" class="viewer-carousel-button">📑<br><span class="viewer-carousel-label">Layer</span></button>
+                <button id="edit-viewer-image" class="viewer-carousel-button">✏️<br><span class="viewer-carousel-label">EDIT</span></button>
+                <button id="upload-viewer-image" class="viewer-carousel-button">📤<br><span class="viewer-carousel-label">EXPORT</span></button>
+                <button id="layer-preset-viewer-button" class="viewer-carousel-button">📑<br><span class="viewer-carousel-label">LAYER</span></button>
             </div>
         </div>
         <!-- Image fills remaining space -->
@@ -1312,7 +1323,7 @@ All of the presets are optimized to avoid "camera ran dry" or "content filter" i
         <button id="close-preset-selector" class="close-button">×</button>
     </div>
 </div>
-                <div class="filter-row">
+                <div class="filter-row" style="padding-right: calc(8vw + 2vw);">
                     <input type="text" id="preset-filter" class="style-filter" placeholder="Filter presets...">
                     <button class="filter-blur-btn" id="preset-filter-blur-btn" title="Dismiss keyboard">×</button>
                 </div>
