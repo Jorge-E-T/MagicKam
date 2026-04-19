@@ -1,6 +1,32 @@
 import { presetStorage } from './storage.js';
 import { presetImporter, earnCredit, unlockAllPresets, getCredits } from './preset-import.js';
 
+// Loading overlay helpers 
+
+function showLoadingOverlay(label) {
+  let overlay = document.getElementById('mk-loading-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'mk-loading-overlay';
+    overlay.className = 'mk-loading-overlay';
+    overlay.innerHTML = '<div class="mk-loading-spinner"></div><div class="mk-loading-label" id="mk-loading-label"></div>';
+    document.body.appendChild(overlay);
+  }
+  const labelEl = document.getElementById('mk-loading-label');
+  if (labelEl) labelEl.textContent = label || 'Loading...';
+  overlay.style.display = 'flex';
+}
+
+function hideLoadingOverlay() {
+  const overlay = document.getElementById('mk-loading-overlay');
+  if (overlay) overlay.style.display = 'none';
+}
+
+// Expose so preset-import.js can call hideLoadingOverlay when the import modal opens
+
+window._hideLoadingOverlay = hideLoadingOverlay;
+
+
 // No need for DEFAULT_PRESETS - will load from JSON when needed
 let DEFAULT_PRESETS = [];
 let totalFactoryPresetCount = 0;
@@ -3347,15 +3373,15 @@ async function loadStyles() {
     
     // Always fetch the real preset count so the tutorial display is always correct
     try {
-        const countResponse = await fetch('./presets.json');
-        if (countResponse.ok) {
-            const allFactoryPresets = await countResponse.json();
-            totalFactoryPresetCount = allFactoryPresets.length;
-            const tutorialCountEl = document.getElementById('tutorial-preset-count');
-            if (tutorialCountEl) tutorialCountEl.textContent = totalFactoryPresetCount;
-        }
+        showLoadingOverlay('Loading presets...');
+        const allFactoryPresets = await presetImporter.loadPresetsFromFile();
+        totalFactoryPresetCount = allFactoryPresets.length;
+        const tutorialCountEl = document.getElementById('tutorial-preset-count');
+        if (tutorialCountEl) tutorialCountEl.textContent = totalFactoryPresetCount;
     } catch (e) {
         console.log('Could not fetch preset count:', e);
+    } finally {
+        hideLoadingOverlay();
     }
 
     // Only load presets if user has imports or modifications
@@ -3471,10 +3497,7 @@ async function loadStyles() {
 
 async function checkForPresetsUpdates() {
   try {
-    const response = await fetch('./presets.json');
-    if (!response.ok) return;
-    
-    const jsonPresets = await response.json();
+    const jsonPresets = await presetImporter.loadPresetsFromFile();
     const importedPresets = presetImporter.getImportedPresets();
     
     if (importedPresets.length === 0) return;
@@ -3513,10 +3536,7 @@ async function checkForPresetsUpdates() {
 
 async function recheckForUpdates() {
   try {
-    const response = await fetch('./presets.json');
-    if (!response.ok) return;
-
-    const jsonPresets = await response.json();
+    const jsonPresets = await presetImporter.loadPresetsFromFile();
     const importedPresets = presetImporter.getImportedPresets();
 
     let stillHasUpdates = false;
@@ -3586,14 +3606,13 @@ async function mergePresetsWithStorage() {
   } else {
     // First time user - load factory presets only now
     if (factoryPresets.length === 0) {
-      const response = await fetch('./presets.json');
-      if (response.ok) {
-        DEFAULT_PRESETS = await response.json();
+      try {
+        DEFAULT_PRESETS = await presetImporter.loadPresetsFromFile();
         factoryPresets = [...DEFAULT_PRESETS];
         totalFactoryPresetCount = DEFAULT_PRESETS.length;
         const tutorialCountEl = document.getElementById('tutorial-preset-count');
         if (tutorialCountEl) tutorialCountEl.textContent = totalFactoryPresetCount;
-      } else {
+      } catch (e) {
         DEFAULT_PRESETS = [];
         factoryPresets = [];
       }
@@ -6404,40 +6423,40 @@ let tourCurrentStep = 0;
 let tourActive = false;
 
 const TOUR_STEPS = [
-  { section: 'Welcome', title: '👋 Welcome to the Audio Tour!', body: 'This tour walks you through every feature of Magic Kamera MDRE. Use Next and Back or scroll wheel to navigate. Pressing the side button advances the tour. Tap Skip Tour to exit.' },
-  { section: 'Basic Controls', title: '📸 Side Button — Take a Photo', body: 'Press the side button on your R1 to capture a photo. It is sent for AI transformation using the active preset. You may also speak your preset with a long press.' },
-  { section: 'Basic Controls', title: '🔄 Scroll Wheel — Change Presets', get body() { return `Rotate the scroll wheel up or down to cycle through all ${totalFactoryPresetCount || 800} AI presets. The current preset name is shown at the bottom of the screen.`; } },
+  { section: 'Welcome', title: '👋 Welcome to the Audio Tour!', body: 'This tour walks you through every feature of Magic Kamera. Use Next and Back or scroll wheel to navigate. Pressing the side button advances the tour. Tap Skip Tour to exit. Program saves your position.' },
+  { section: 'Basic Controls', title: '📸 Side Button — Take a Photo', body: 'Press the side button on your R1 to capture a photo. It is sent for AI transformation using the visible selected preset. You may also speak your preset with a long press.' },
+  { section: 'Basic Controls', title: '🔄 Scroll Wheel — Change Presets', get body() { return `Rotate the scroll wheel up or down to cycle through all ${totalFactoryPresetCount || 800} unlocked visible AI presets. The current preset name is shown at the bottom of the screen.`; } },
   { section: 'Basic Controls', title: '📷 Camera Switch Button', body: 'Tap the camera icon to toggle between front selfie and back camera at any time before taking a photo.' },
   { section: 'Basic Controls', title: '☰ Menu Button', body: 'Opens the main menu where you access all settings ⚙️, preset management, import preset tools, and this tutorial. The main menu has a plus (+) button in the header to create new presets.' },
   { section: 'Basic Controls', title: '🖼️ Gallery Button', body: 'Opens your saved photo gallery. View, re-prompt, batch process, organize your images into folders, or delete your images from here.' },
-  { section: 'Basic Controls', title: '🔁 New Photo Button', body: 'After a photo is captured and processed, tap New Photo or press the side button again to return to the live camera view.' },
+  { section: 'Basic Controls', title: '🔁 New Photo Button', body: 'After a photo is captured, the program shows you an image preview and sends the image to be processed, tap New Photo or press the side button again to return to the live camera view.' },
   { section: 'AI Presets', title: '✨ What Are AI Presets?', get body() { return `Presets are AI transformation instructions. Each one tells the AI how to reimagine your photo — as a comic book cover, oil painting, 3D print, ${totalFactoryPresetCount || 800} styles in all.`; } },
-  { section: 'AI Presets', title: '⭐ Favorites', body: 'In the main menu, tap the star next to any preset to mark it as a favorite. Favorites are used by Random Mode to chose the presets that will be randomized. If no favorites are chosen, random mode chooses between all visible presets.' },
-  { section: 'AI Presets', title: '🔍 Filter Presets', body: 'Use the search box in the main menu to quickly find presets by name or category. Tap a category tag at the bottom to filter by style. Tapping on the x next to the search box removes the keyboard. Double click to clear.' },
+  { section: 'AI Presets', title: '⭐ Favorites', body: 'In the main menu, the visible selected preset is highlighted. Tap the star next to any preset to mark it as a favorite. Favorites are used by Random Mode to choose the presets that will be randomized. If no favorites are chosen, random mode chooses between all visible presets.' },
+  { section: 'AI Presets', title: '🔍 Filter Presets', body: 'Use the search box in the main menu to quickly find presets by name or category. Tap a category tag at the bottom to filter by style. Tapping on the x next to the search box removes the keyboard. Double click to clear the text in the search bar.' },
   { section: 'AI Presets', title: '🔊 Hear Preset Info', body: 'When browsing presets in the Import screen, tap any preset name to hear its description read aloud. Use the mute button in the header to toggle audio on or off.' },
-  { section: 'Special Modes', title: '🎯 Special Modes — How to Access', body: 'Both carousels are default visible on the main camera screen. The Special Modes carousel is on the right.  Double click on the main camera screen to hide/reveal the carousel buttons.' },
+  { section: 'Special Modes', title: '🎯 Special Modes — How to Access', body: 'Both carousels are default visible on the main camera screen. The Special Modes carousel is on the right.  Single click (default) on the main camera screen to hide/reveal the carousel buttons. This may be adjusted in settings.' },
   { section: 'Special Modes', title: '🎲 Random Mode', body: 'Picks a random preset for every photo you take. If you have favorites selected it draws only from those, otherwise from all visible presets.' },
   { section: 'Special Modes', title: '⏱️ Timer Mode', body: 'Set a countdown of 3, 5, or 10 seconds before each shot. Enable repeat mode so it automatically keeps taking photos at a set interval.' },
   { section: 'Special Modes', title: '📸⚡ Burst Mode', body: 'Captures 3 to 10 photos rapidly in one press. Choose slow, medium, or fast burst speed in Settings. Great for action shots or getting multiple variations.' },
   { section: 'Special Modes', title: '👁️ Motion Detection', body: 'Automatically captures when movement is detected in frame. Set sensitivity, start delay, and cooldown interval. The eye icon pulses when motion detection is triggered.' },
   { section: 'Special Modes', title: '🎞️ Multi Preset', body: 'Select up to 20 presets to apply to a single photo. Tap the film strip button in the carousel, choose presets, and tap Apply Selected. When you take a photo, each preset is sent in order with a 3 second gap between them.' },
-  { section: 'Special Modes', title: '🖼️🖼️ Combine images:', body: 'Located near the bottom of the right carousel. Click to take two images and apply a combined image preset instruction with your selected preset or speak the preset with long press of side button.' },
+  { section: 'Special Modes', title: '🖼️🖼️ Combine images:', body: 'Located near the bottom of the right carousel. Click to take two images and apply a combined image preset instruction with your selected preset or speak the preset with long press of the side button.' },
   { section: 'Special Modes', title: '📑 Layer presets:', body: 'Located at the bottom of the right carousel. Click to combine and apply multiple presets to a single image. Select primary preset and then add up to 4 more layers (5 in all). Does not work with spoken presets.' },
   { section: 'Special Modes', title: '📝 Master and 🎛️ Options', body: 'Located below the Menu button on the left side within a carousel. The MASTER button accesses Master Prompt settings. The OPTIONS button toggles Manually Select Options mode. Both Glow green when enabled.' },
   { section: 'Gallery', title: '🖼️ Gallery Activities', body: 'Within the gallery there are thumbnails of captured images. You can either select multiple images to apply a preset, or select a single image to either edit, export or apply one or several presets.' },
   { section: 'Uploading Images', title: '📥 Importing External Images', body: 'In the gallery, you may also bring any image from the web into the gallery using a QR code. Upload the image to catbox.moe, copy the direct link, and generate a QR code at qr-code-generator.com.' },
   { section: 'Uploading Images', title: '📷 Scanning the QR Code', body: 'In the gallery, press Import then Scan QR Code. Point your R1 camera at the QR code and wait. The image will be automatically saved to your gallery.' },
   { section: 'Uploading Images', title: '⚠️ Verify Your Link First', body: 'Before making the QR code, paste the link into a browser. If it shows only the image with nothing around it, it will work. If it shows a webpage with the image embedded, it will not work.' },
-  { section: 'Gallery', title: '☑️ Batch Operations', body: 'Tap the Select button to enter batch mode. Select multiple images, then apply one preset to all of them or delete them in bulk. Always tap DONE when finished.' },
-  { section: 'Gallery', title: '📁+ New Folder', body: 'Create a new folder to organize your saved images. Name the folder and save. Long press edits name. Images moved by selecting image(s) then long pressing the last image.' },
+  { section: 'Gallery', title: '☑️ Batch Operations', body: 'Tap the Select button to enter batch mode. Select multiple images, then apply one preset to all of them or delete them in bulk. If only two are selected, you may also combine them. Always tap DONE when finished.' },
+  { section: 'Gallery', title: '📁+ New Folder', body: 'Create a new folder to organize your saved images. Name the folder and save. Long press edits name. Images may be moved by selecting image(s) then long pressing the last image.' },
   { section: 'Gallery', title: '🖼️🖼️ Combine Images', body: 'Tap the Select button to enter batch mode. Select two images, then click Combine to create one image. You can apply presets to create combined subjects into one final image using existing presets.' }, 
   { section: 'Gallery', title: '📅 Sort and Filter', body: 'Sort by newest or oldest. Filter by date range. When filtering, always select the day after your end date. For example, to see December 25 photos, filter from December 25 to December 26.' },
   { section: 'Gallery', title: '🖼️ Image Viewer', body: 'Tap a thumbnail image in the gallery to view it full-screen. The viewer is redesigned to give your photo maximum screen space. Pinch to zoom in and out.' },
-  { section: 'Gallery', title: '🎨 Applying Presets to Single Image', body: 'After clicking on a single image, Tap LOAD or MULTI to transform a saved image. Click twice on a preset to apply it. You can stack multiple transformations.' },
+  { section: 'Gallery', title: '🎨 Applying Presets to Single Image', body: 'After clicking on a single image, Tap LOAD or MULTI to transform a saved image. Click twice on a preset to apply to the image. You can stack multiple transformations. You may also layer up to five presets.' },
   { section: 'Gallery', title: '🏷️ Preset Header', body: 'At the very top of the image viewer a header shows the name of the currently loaded preset. Tap the header to hear the preset name and description.' },
   { section: 'Gallery', title: '🗑️ Delete Button', body: 'The delete button is on the top-left corner of the single image viewer.' },
-  { section: 'Gallery', title: '🎠 Left Carousel', body: 'MASTER and OPTIONS buttons are located below the delete button and are visible by default (Double click screen to hide). The MASTER button toggles Master Prompt and OPTIONS button toggles Manually Select Options mode.' },
-  { section: 'Gallery', title: '🎠 Right Carousel', body: 'The right side carousel has three buttons — ✏️ EDIT which opens the image editor, 📤 EXPORT which uploads to gofile.io, and 📑 LAYER which combines presets to single image. Double click screen to hide the buttons.' },
+  { section: 'Gallery', title: '🎠 Left Carousel', body: 'MASTER and OPTIONS buttons are located below the delete button and are visible by default (Single click (default) screen to hide-this may be adjusted in settings). The MASTER button toggles Master Prompt and OPTIONS button toggles Manually Select Options mode.' },
+  { section: 'Gallery', title: '🎠 Right Carousel', body: 'The right side carousel has three buttons — ✏️ EDIT which opens the image editor, 📤 EXPORT which uploads to gofile.io, and 📑 LAYER which combines presets to single image. Single click (default) screen to hide the buttons. This may be adjusted in settings' },
   { section: 'Gallery', title: '⬇️ Bottom Bar Buttons', body: 'Four buttons on the bottom of image viewer. PROMPT opens editor. LOAD opens preset selector. MULTI opens multi-preset selector. MAGIC transforms image using the loaded preset, or randomly if nothing is loaded.' },
   { section: 'Gallery', title: '📤 Export to gofile.io', body: 'Tapping EXPORT in the right carousel. You get a QR code with a link that expires after 24 hours. Most useful in No Magic Mode.' },
   { section: 'Image Editor', title: '✏️ Opening the Editor', body: 'While viewing any photo, the image viewer carousel contains the EDIT button. Tap it. The editor opens with crop, rotate, sharpen, auto-correct, and brightness and contrast controls.' },
@@ -6446,19 +6465,21 @@ const TOUR_STEPS = [
   { section: 'Image Editor', title: '🔍 Sharpen and Auto Correct', body: 'Sharpen makes edges crisper. Auto Correct automatically balances brightness, contrast, and color. Great as a first step before manual tweaks.' },
   { section: 'Image Editor', title: '☀️ Brightness and Contrast Sliders', body: 'At the top of the editor, drag the sliders to adjust brightness and contrast anywhere from negative 100 to positive 100 in real time.' },
   { section: 'Image Editor', title: '↶ Undo and Save', body: 'Undo steps back through your edit history one step at a time. Saving an edited image creates a new image in your gallery. Close exits without saving.' },
-  { section: 'Settings', title: '▣ Resolution', body: 'Choose from VGA 640 by 480 up to HD 3264 by 2448. Lower resolutions are recommended if you want images to appear in the magic gallery and you want to save space in your r1 device.' },
+  { section: 'Settings', title: '▣ Resolution', body: 'Choose from VGA 640 by 480 up to HD 3264 by 2448. Lower resolutions are recommended if you want images to appear in the magic gallery and you want to save space in your r1 device. Camera program slows if a high resolution is chosen.' },
   { section: 'Settings', title: '📐 Aspect Ratio', body: 'Choose 1 to 1 square or 16 to 9 letterbox. Leave both unchecked for neither. Default is neither. We highly recommend choosing an aspect ratio to display the full image, preventing accidental cropping.' },
-  { section: 'Settings', title: '📝 Master Prompt', body: 'Appends custom text to every AI transformation. Enable it first, then type your additions. Adding a name and occasion lets presets like Happy Holidays personalize automatically. Can also be toggled from the MASTER button inside the image viewer or on the main camera screen.' },
+  { section: 'Settings', title: '📝 Master Prompt', body: 'Appends custom text to every AI transformation. Enable it first, then type your additions. Adding a name and occasion lets presets like Happy Holidays and Love Actually personalize automatically. Can also be toggled from the MASTER button inside the image viewer or on the main camera screen.' },
   { section: 'Settings', title: '👁️ Visible Presets', body: 'Choose which imported presets appear in your menus. Select All, deselect individually, or remove all. Category tags show at the bottom when a preset is highlighted.' },
   { section: 'Settings', title: '🔨 Preset Builder', body: 'Build your own custom AI presets. Choose a template, add chips for quality and style, enable random options with single or multi-selection groups, add critical rules, then save. Also accessible directly from the main menu plus (+) button.' },
   { section: 'Settings', title: '🚫 No Magic Mode', body: 'Disables AI processing and works as a regular camera. Photos save only to the plugin gallery, not to the rabbit hole or magic gallery.' },
   { section: 'Settings', title: '🎛️ Manually Select Options Mode', body: 'When enabled and you choose a preset with options, a popup asks you to pick which option to use rather than a randomized option. Can also be toggled from the OPTIONS button inside the image viewer or on the main camera screen.' },
   { section: 'Settings', title: '📥 Import Presets (Starting Style)', body: 'You begin with two unlocked presets-Caricature and Impressionism.  Import them from the Import Presets section to capture photos and begin the fun journey of unlocking your imported artistic library.' },
-  { section: 'Settings', title: '📥 Import Presets (Import Art)', body: 'Browse our external library in Settings. Check individual unlocked styles or use the All checkmark to select all unlocked presets to import.' },
+  { section: 'Settings', title: '📥 Import Presets (Import Art)', body: 'Browse our external library in Settings. Check individual unlocked styles or use the All checkmark to select all  presets to import (assuming you have the credits).' },
   { section: 'Settings', title: '📥 Import Presets (Unlocking Presets)', body: 'Imported styles first appear locked. To unlock one, you need a credit. Take a photo or reprompt in the gallery once with any preset you already own to get one credit. You only get one credit per unique preset!' },
-  { section: 'Settings', title: '🔄 Check for Updates', body: 'Checks for new or modified presets in the library. Any updates are flagged so you can re-import changed/updated presets that you own. If you do not import updated presets, the updates will not apply. New presets appear locked.' },
+  { section: 'Settings', title: '🔄 Check for Updates', body: 'Checks for new or modified presets in the library. Any updates are flagged so you can re-import changed/updated presets that you own. If you do not import updated presets, the preset will not be updated. New presets appear locked.' },
+  { section: 'Settings', title: '⚙️ Button Settings', body: 'Includes the settings for the main camera screen carousel and the Gallery Image Viewer screen carousel buttons. You may select different colors for buttons and text in the main camera and gallery image viewer screens. You may also select opacity (default solid) and set how many taps to hide/reveal the buttons.' },
+  { section: 'Settings', title: '📖 Tutorial', body: 'Last section in the settings. This area includes this audio tour. It also includes an indexed tutorial with a search engine. Type to search or click on the search field and press the side button to speak the query.' },
   { section: 'Tips and Advanced', title: '🏷️ Category Searching', body: 'Every preset has categories. When a preset is highlighted in the Visible Presets menu, its categories appear at the bottom. Tap a category to filter all presets in that group.' },
-  { section: 'Tips and Advanced', title: '🧠 Master Prompt Power Tip', body: 'Search for master or master prompt in the Visible Presets menu to find all presets designed to work with Master Prompt. These respond to names, occasions, and custom context you provide. All presets may be affected by the Master Prompt.' },
+  { section: 'Tips and Advanced', title: '🧠 Master Prompt Power Tip', body: 'Search for master or master prompt in the Visible Presets menu to find presets designed to work with Master Prompt. These respond to names, occasions, and custom context you provide. All presets may be affected by the Master Prompt.' },
   { section: 'Tips and Advanced', title: '📶 Offline Queue', body: 'If you take photos and the program goes offline - no worries - photos queue automatically and may be synced to the rabbit hole once your connection returns. The queue count shows on the screen.' },
   { section: 'Tips and Advanced', title: '🔁 Reset Database', body: 'The nuclear option in Settings. Wipes all custom presets and settings. Only imported presets from the library remain. Use only if something is seriously broken.' },
   { section: 'Tips and Advanced', title: '💀 Content Filter Error', body: 'If you go into your rabbit hole and you receive a content filter image error, this happens because AI is quirky. The beauty of Magic Kamera is you can reprompt. Keep trying until successful.' },
@@ -9519,6 +9540,120 @@ async function hideMasterPromptSubmenu() {
   showSettingsSubmenu();
 }
 
+function updateCamTapHighlight(mode) {
+  const singleBtn = document.getElementById('cam-tap-single');
+  const doubleBtn = document.getElementById('cam-tap-double');
+  if (singleBtn) {
+    if (mode === 'single') {
+      singleBtn.style.background = '#ffffff';
+      singleBtn.style.color = '#000000';
+    } else {
+      singleBtn.style.background = '';
+      singleBtn.style.color = '';
+    }
+  }
+  if (doubleBtn) {
+    if (mode === 'double') {
+      doubleBtn.style.background = '#ffffff';
+      doubleBtn.style.color = '#000000';
+    } else {
+      doubleBtn.style.background = '';
+      doubleBtn.style.color = '';
+    }
+  }
+}
+
+function updateViewerTapHighlight(mode) {
+  const singleBtn = document.getElementById('viewer-tap-single');
+  const doubleBtn = document.getElementById('viewer-tap-double');
+  if (singleBtn) {
+    if (mode === 'single') {
+      singleBtn.style.background = '#ffffff';
+      singleBtn.style.color = '#000000';
+    } else {
+      singleBtn.style.background = '';
+      singleBtn.style.color = '';
+    }
+  }
+  if (doubleBtn) {
+    if (mode === 'double') {
+      doubleBtn.style.background = '#ffffff';
+      doubleBtn.style.color = '#000000';
+    } else {
+      doubleBtn.style.background = '';
+      doubleBtn.style.color = '';
+    }
+  }
+}
+
+function _syncBtnSettingsCamTab() {
+  const s = window._camBtnSettings || { bgColor: '#000000', opacity: 100, fontColor: '#ffffff', tapMode: 'double' };
+  const colorPicker = document.getElementById('cam-btn-color-picker');
+  const opacitySlider = document.getElementById('cam-btn-opacity-slider');
+  const opacityValue = document.getElementById('cam-btn-opacity-value');
+  const fontColorPicker = document.getElementById('cam-btn-font-color-picker');
+  const tapHint = document.getElementById('cam-tap-current-hint');
+  if (colorPicker) colorPicker.value = s.bgColor;
+  if (opacitySlider) opacitySlider.value = s.opacity;
+  if (opacityValue) opacityValue.textContent = s.opacity + '%';
+  if (fontColorPicker) fontColorPicker.value = s.fontColor;
+  if (tapHint) tapHint.textContent = 'Current: ' + (s.tapMode === 'single' ? 'Single Tap' : 'Double Tap');
+  updateCamTapHighlight(s.tapMode || 'double');
+}
+
+function _syncBtnSettingsGalleryTab() {
+  const s = window._viewerBtnSettings || { bgColor: '#000000', opacity: 100, fontColor: '#ffffff', tapMode: 'double' };
+  const colorPicker = document.getElementById('viewer-btn-color-picker');
+  const opacitySlider = document.getElementById('viewer-btn-opacity-slider');
+  const opacityValue = document.getElementById('viewer-btn-opacity-value');
+  const fontColorPicker = document.getElementById('viewer-btn-font-color-picker');
+  const tapHint = document.getElementById('viewer-tap-current-hint');
+  if (colorPicker) colorPicker.value = s.bgColor;
+  if (opacitySlider) opacitySlider.value = s.opacity;
+  if (opacityValue) opacityValue.textContent = s.opacity + '%';
+  if (fontColorPicker) fontColorPicker.value = s.fontColor;
+  if (tapHint) tapHint.textContent = 'Current: ' + (s.tapMode === 'single' ? 'Single Tap' : 'Double Tap');
+  updateViewerTapHighlight(s.tapMode || 'double');
+}
+
+function _switchBtnSettingsTab(tab) {
+  const camTab = document.getElementById('btn-tab-cam');
+  const galleryTab = document.getElementById('btn-tab-gallery');
+  const camPanel = document.getElementById('btn-panel-cam');
+  const galleryPanel = document.getElementById('btn-panel-gallery');
+  if (tab === 'cam') {
+    if (camTab) camTab.classList.add('active');
+    if (galleryTab) galleryTab.classList.remove('active');
+    if (camPanel) camPanel.classList.add('active');
+    if (galleryPanel) galleryPanel.classList.remove('active');
+  } else {
+    if (camTab) camTab.classList.remove('active');
+    if (galleryTab) galleryTab.classList.add('active');
+    if (camPanel) camPanel.classList.remove('active');
+    if (galleryPanel) galleryPanel.classList.add('active');
+  }
+}
+
+function showButtonSettingsSubmenu(tab) {
+  document.getElementById('settings-submenu').style.display = 'none';
+  _syncBtnSettingsCamTab();
+  _syncBtnSettingsGalleryTab();
+  _switchBtnSettingsTab(tab || 'cam');
+  document.getElementById('button-settings-submenu').style.display = 'flex';
+  isSettingsSubmenuOpen = false;
+}
+
+function hideButtonSettingsSubmenu() {
+  document.getElementById('button-settings-submenu').style.display = 'none';
+  showSettingsSubmenu();
+}
+
+// Aliases so any other code that calls the old names still works
+function showMainCamScreenSubmenu() { showButtonSettingsSubmenu('cam'); }
+function hideMainCamScreenSubmenu() { hideButtonSettingsSubmenu(); }
+function showGalleryViewerScreenSubmenu() { showButtonSettingsSubmenu('gallery'); }
+function hideGalleryViewerScreenSubmenu() { hideButtonSettingsSubmenu(); }
+
 function showAspectRatioSubmenu() {
   document.getElementById('settings-submenu').style.display = 'none';
   pauseCamera();
@@ -11054,6 +11189,228 @@ window.addEventListener('load', () => {
     masterPromptBackBtn.addEventListener('click', hideMasterPromptSubmenu);
   }
   
+  // Button Settings (combined Main Camera + Gallery tabs)
+
+  const buttonSettingsBtn = document.getElementById('button-settings-button');
+  if (buttonSettingsBtn) {
+    buttonSettingsBtn.addEventListener('click', () => showButtonSettingsSubmenu('cam'));
+  }
+
+  const buttonSettingsBackBtn = document.getElementById('button-settings-back');
+  if (buttonSettingsBackBtn) {
+    buttonSettingsBackBtn.addEventListener('click', hideButtonSettingsSubmenu);
+  }
+
+  const btnTabCam = document.getElementById('btn-tab-cam');
+  if (btnTabCam) {
+    btnTabCam.addEventListener('click', () => _switchBtnSettingsTab('cam'));
+  }
+
+  const btnTabGallery = document.getElementById('btn-tab-gallery');
+  if (btnTabGallery) {
+    btnTabGallery.addEventListener('click', () => _switchBtnSettingsTab('gallery'));
+  }
+
+  const camBtnColorPicker = document.getElementById('cam-btn-color-picker');
+  if (camBtnColorPicker) {
+    camBtnColorPicker.addEventListener('input', (e) => {
+      window._camBtnSettings.bgColor = e.target.value;
+      window._applyCamBtnStyles();
+      localStorage.setItem('r1_cam_btn_settings', JSON.stringify(window._camBtnSettings));
+    });
+  }
+
+  const camBtnOpacitySlider = document.getElementById('cam-btn-opacity-slider');
+  if (camBtnOpacitySlider) {
+    camBtnOpacitySlider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value);
+      window._camBtnSettings.opacity = val;
+      const opacityValueEl = document.getElementById('cam-btn-opacity-value');
+      if (opacityValueEl) opacityValueEl.textContent = val + '%';
+      window._applyCamBtnStyles();
+      localStorage.setItem('r1_cam_btn_settings', JSON.stringify(window._camBtnSettings));
+    });
+  }
+
+  const camBtnColorDefaultBtn = document.getElementById('cam-btn-color-default');
+  if (camBtnColorDefaultBtn) {
+    camBtnColorDefaultBtn.addEventListener('click', () => {
+      window._camBtnSettings.bgColor = '#000000';
+      window._camBtnSettings.opacity = 100;
+      const colorPickerEl = document.getElementById('cam-btn-color-picker');
+      const opacitySliderEl = document.getElementById('cam-btn-opacity-slider');
+      const opacityValueEl = document.getElementById('cam-btn-opacity-value');
+      if (colorPickerEl) colorPickerEl.value = '#000000';
+      if (opacitySliderEl) opacitySliderEl.value = 100;
+      if (opacityValueEl) opacityValueEl.textContent = '100%';
+      window._applyCamBtnStyles();
+      localStorage.setItem('r1_cam_btn_settings', JSON.stringify(window._camBtnSettings));
+    });
+  }
+
+  const camBtnFontColorPicker = document.getElementById('cam-btn-font-color-picker');
+  if (camBtnFontColorPicker) {
+    camBtnFontColorPicker.addEventListener('input', (e) => {
+      window._camBtnSettings.fontColor = e.target.value;
+      window._applyCamBtnStyles();
+      localStorage.setItem('r1_cam_btn_settings', JSON.stringify(window._camBtnSettings));
+    });
+  }
+
+  const camBtnFontColorDefaultBtn = document.getElementById('cam-btn-font-color-default');
+  if (camBtnFontColorDefaultBtn) {
+    camBtnFontColorDefaultBtn.addEventListener('click', () => {
+      window._camBtnSettings.fontColor = '#ffffff';
+      const fontColorPickerEl = document.getElementById('cam-btn-font-color-picker');
+      if (fontColorPickerEl) fontColorPickerEl.value = '#ffffff';
+      window._applyCamBtnStyles();
+      localStorage.setItem('r1_cam_btn_settings', JSON.stringify(window._camBtnSettings));
+    });
+  }
+
+  const camTapSingleBtn = document.getElementById('cam-tap-single');
+  if (camTapSingleBtn) {
+    camTapSingleBtn.addEventListener('click', () => {
+      window._camBtnSettings.tapMode = 'single';
+      const tapHintEl = document.getElementById('cam-tap-current-hint');
+      if (tapHintEl) tapHintEl.textContent = 'Current: Single Tap';
+      updateCamTapHighlight('single');
+      localStorage.setItem('r1_cam_btn_settings', JSON.stringify(window._camBtnSettings));
+    });
+  }
+
+  const camTapDoubleBtn = document.getElementById('cam-tap-double');
+  if (camTapDoubleBtn) {
+    camTapDoubleBtn.addEventListener('click', () => {
+      window._camBtnSettings.tapMode = 'double';
+      const tapHintEl = document.getElementById('cam-tap-current-hint');
+      if (tapHintEl) tapHintEl.textContent = 'Current: Double Tap';
+      updateCamTapHighlight('double');
+      localStorage.setItem('r1_cam_btn_settings', JSON.stringify(window._camBtnSettings));
+    });
+  }
+
+  const camScreenResetAllBtn = document.getElementById('cam-screen-reset-all');
+  if (camScreenResetAllBtn) {
+    camScreenResetAllBtn.addEventListener('click', () => {
+      window._camBtnSettings = { bgColor: '#000000', opacity: 100, fontColor: '#ffffff', tapMode: 'single' };
+      const colorPickerEl = document.getElementById('cam-btn-color-picker');
+      const opacitySliderEl = document.getElementById('cam-btn-opacity-slider');
+      const opacityValueEl = document.getElementById('cam-btn-opacity-value');
+      const fontColorPickerEl = document.getElementById('cam-btn-font-color-picker');
+      const tapHintEl = document.getElementById('cam-tap-current-hint');
+      if (colorPickerEl) colorPickerEl.value = '#000000';
+      if (opacitySliderEl) opacitySliderEl.value = 100;
+      if (opacityValueEl) opacityValueEl.textContent = '100%';
+      if (fontColorPickerEl) fontColorPickerEl.value = '#ffffff';
+      if (tapHintEl) tapHintEl.textContent = 'Current: Single Tap';
+      updateCamTapHighlight('single');
+      window._applyCamBtnStyles();
+      localStorage.setItem('r1_cam_btn_settings', JSON.stringify(window._camBtnSettings));
+    });
+  }
+  // ── End Main Camera Screen Settings ─────────────────────────────
+
+  const viewerBtnColorPicker = document.getElementById('viewer-btn-color-picker');
+  if (viewerBtnColorPicker) {
+    viewerBtnColorPicker.addEventListener('input', (e) => {
+      window._viewerBtnSettings.bgColor = e.target.value;
+      window._applyViewerBtnStyles();
+      localStorage.setItem('r1_viewer_btn_settings', JSON.stringify(window._viewerBtnSettings));
+    });
+  }
+
+  const viewerBtnOpacitySlider = document.getElementById('viewer-btn-opacity-slider');
+  if (viewerBtnOpacitySlider) {
+    viewerBtnOpacitySlider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value);
+      window._viewerBtnSettings.opacity = val;
+      const opacityValueEl = document.getElementById('viewer-btn-opacity-value');
+      if (opacityValueEl) opacityValueEl.textContent = val + '%';
+      window._applyViewerBtnStyles();
+      localStorage.setItem('r1_viewer_btn_settings', JSON.stringify(window._viewerBtnSettings));
+    });
+  }
+
+  const viewerBtnColorDefaultBtn = document.getElementById('viewer-btn-color-default');
+  if (viewerBtnColorDefaultBtn) {
+    viewerBtnColorDefaultBtn.addEventListener('click', () => {
+      window._viewerBtnSettings.bgColor = '#000000';
+      window._viewerBtnSettings.opacity = 100;
+      const colorPickerEl = document.getElementById('viewer-btn-color-picker');
+      const opacitySliderEl = document.getElementById('viewer-btn-opacity-slider');
+      const opacityValueEl = document.getElementById('viewer-btn-opacity-value');
+      if (colorPickerEl) colorPickerEl.value = '#000000';
+      if (opacitySliderEl) opacitySliderEl.value = 100;
+      if (opacityValueEl) opacityValueEl.textContent = '100%';
+      window._applyViewerBtnStyles();
+      localStorage.setItem('r1_viewer_btn_settings', JSON.stringify(window._viewerBtnSettings));
+    });
+  }
+
+  const viewerBtnFontColorPicker = document.getElementById('viewer-btn-font-color-picker');
+  if (viewerBtnFontColorPicker) {
+    viewerBtnFontColorPicker.addEventListener('input', (e) => {
+      window._viewerBtnSettings.fontColor = e.target.value;
+      window._applyViewerBtnStyles();
+      localStorage.setItem('r1_viewer_btn_settings', JSON.stringify(window._viewerBtnSettings));
+    });
+  }
+
+  const viewerBtnFontColorDefaultBtn = document.getElementById('viewer-btn-font-color-default');
+  if (viewerBtnFontColorDefaultBtn) {
+    viewerBtnFontColorDefaultBtn.addEventListener('click', () => {
+      window._viewerBtnSettings.fontColor = '#ffffff';
+      const fontColorPickerEl = document.getElementById('viewer-btn-font-color-picker');
+      if (fontColorPickerEl) fontColorPickerEl.value = '#ffffff';
+      window._applyViewerBtnStyles();
+      localStorage.setItem('r1_viewer_btn_settings', JSON.stringify(window._viewerBtnSettings));
+    });
+  }
+
+  const viewerTapSingleBtn = document.getElementById('viewer-tap-single');
+  if (viewerTapSingleBtn) {
+    viewerTapSingleBtn.addEventListener('click', () => {
+      window._viewerBtnSettings.tapMode = 'single';
+      const tapHintEl = document.getElementById('viewer-tap-current-hint');
+      if (tapHintEl) tapHintEl.textContent = 'Current: Single Tap';
+      updateViewerTapHighlight('single');
+      localStorage.setItem('r1_viewer_btn_settings', JSON.stringify(window._viewerBtnSettings));
+    });
+  }
+
+  const viewerTapDoubleBtn = document.getElementById('viewer-tap-double');
+  if (viewerTapDoubleBtn) {
+    viewerTapDoubleBtn.addEventListener('click', () => {
+      window._viewerBtnSettings.tapMode = 'double';
+      const tapHintEl = document.getElementById('viewer-tap-current-hint');
+      if (tapHintEl) tapHintEl.textContent = 'Current: Double Tap';
+      updateViewerTapHighlight('double');
+      localStorage.setItem('r1_viewer_btn_settings', JSON.stringify(window._viewerBtnSettings));
+    });
+  }
+
+  const viewerScreenResetAllBtn = document.getElementById('viewer-screen-reset-all');
+  if (viewerScreenResetAllBtn) {
+    viewerScreenResetAllBtn.addEventListener('click', () => {
+      window._viewerBtnSettings = { bgColor: '#000000', opacity: 100, fontColor: '#ffffff', tapMode: 'single' };
+      const colorPickerEl = document.getElementById('viewer-btn-color-picker');
+      const opacitySliderEl = document.getElementById('viewer-btn-opacity-slider');
+      const opacityValueEl = document.getElementById('viewer-btn-opacity-value');
+      const fontColorPickerEl = document.getElementById('viewer-btn-font-color-picker');
+      const tapHintEl = document.getElementById('viewer-tap-current-hint');
+      if (colorPickerEl) colorPickerEl.value = '#000000';
+      if (opacitySliderEl) opacitySliderEl.value = 100;
+      if (opacityValueEl) opacityValueEl.textContent = '100%';
+      if (fontColorPickerEl) fontColorPickerEl.value = '#ffffff';
+      if (tapHintEl) tapHintEl.textContent = 'Current: Single Tap';
+      updateViewerTapHighlight('single');
+      window._applyViewerBtnStyles();
+      localStorage.setItem('r1_viewer_btn_settings', JSON.stringify(window._viewerBtnSettings));
+    });
+  }
+  // ── End Gallery Image Viewer Screen Settings ─────────────────────────────
+
   const aspectRatioSettingsBtn = document.getElementById('aspect-ratio-settings-button');
   if (aspectRatioSettingsBtn) {
     aspectRatioSettingsBtn.addEventListener('click', showAspectRatioSubmenu);
@@ -12061,6 +12418,9 @@ document.addEventListener('touchend', () => {
   if (importPresetsBtn) {
     importPresetsBtn.addEventListener('click', async () => {
       try {
+        showLoadingOverlay('Loading presets...');
+        // Wait one frame so the browser actually paints the spinner before the heavy work starts
+        await new Promise(resolve => setTimeout(resolve, 30));
 const result = await presetImporter.import();
         
         if (result.success) {
@@ -12490,14 +12850,10 @@ const result = await presetImporter.import();
   if (checkUpdatesBtn) {
     checkUpdatesBtn.addEventListener('click', async () => {
       try {
-        // Load presets from JSON
-        const response = await fetch('./presets.json');
-        if (!response.ok) {
-          alert('Could not load presets.json');
-          return;
-        }
-        
-        const jsonPresets = await response.json();
+        showLoadingOverlay('Checking for updates...');
+        // Load presets from JSON (uses cached copy if already loaded this session)
+        const jsonPresets = await presetImporter.loadPresetsFromFile();
+        hideLoadingOverlay();
         const importedPresets = presetImporter.getImportedPresets();
         
         if (importedPresets.length === 0) {
@@ -12540,6 +12896,9 @@ const result = await presetImporter.import();
         );
         
         if (shouldUpdate) {
+          showLoadingOverlay('Loading presets...');
+          // Wait one frame so the browser actually paints the spinner before the heavy work starts
+          await new Promise(resolve => setTimeout(resolve, 30));
           // Trigger import with all presets selected
 const result = await presetImporter.import();
           
@@ -13562,7 +13921,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-// Gallery image viewer — double-tap to toggle both carousels
+// Gallery image viewer — tap to toggle both carousels (single or double based on settings)
 
 (function() {
   const viewerEl = document.getElementById('image-viewer');
@@ -13577,7 +13936,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let leftVisible = true;
   let rightVisible = true;
 
-  // Set right carousel visible by default on open
+  // Set carousels visible by default on open
   function initViewerCarousels() {
     const right = document.getElementById('viewer-carousel');
     const left = document.getElementById('viewer-left-carousel');
@@ -13587,9 +13946,38 @@ document.addEventListener('DOMContentLoaded', function() {
   // Expose so openImageViewer can call it
   window.initViewerCarousels = initViewerCarousels;
 
+  function toggleViewerCarousels() {
+    const right = document.getElementById('viewer-carousel');
+    const left = document.getElementById('viewer-left-carousel');
+
+    leftVisible = !leftVisible;
+    rightVisible = !rightVisible;
+
+    if (left) {
+      if (leftVisible) left.classList.remove('hidden');
+      else left.classList.add('hidden');
+    }
+    if (right) {
+      if (rightVisible) right.classList.remove('hidden');
+      else right.classList.add('hidden');
+    }
+
+    lastTapTime = 0;
+  }
+
   viewerEl.addEventListener('touchend', (e) => {
     if (e.changedTouches.length !== 1) return;
 
+    const s = window._viewerBtnSettings || { tapMode: 'single' };
+
+    if (s.tapMode === 'single') {
+      // Single-tap: skip if the user tapped a button or interactive element so those still work normally
+      if (e.target.closest('button, a, input, select, textarea, [role="button"]')) return;
+      toggleViewerCarousels();
+      return;
+    }
+
+    // Double-tap mode (default)
     const touch = e.changedTouches[0];
     const now = Date.now();
     const timeDiff = now - lastTapTime;
@@ -13597,28 +13985,59 @@ document.addEventListener('DOMContentLoaded', function() {
     const distY = Math.abs(touch.clientY - lastTapY);
 
     if (timeDiff < DOUBLE_TAP_DELAY && distX < DOUBLE_TAP_RADIUS && distY < DOUBLE_TAP_RADIUS) {
-      const right = document.getElementById('viewer-carousel');
-      const left = document.getElementById('viewer-left-carousel');
-
-      leftVisible = !leftVisible;
-      rightVisible = !rightVisible;
-
-      if (left) {
-        if (leftVisible) left.classList.remove('hidden');
-        else left.classList.add('hidden');
-      }
-      if (right) {
-        if (rightVisible) right.classList.remove('hidden');
-        else right.classList.add('hidden');
-      }
-
-      lastTapTime = 0;
+      toggleViewerCarousels();
     } else {
       lastTapTime = now;
       lastTapX = touch.clientX;
       lastTapY = touch.clientY;
     }
   }, { passive: true });
+})();
+
+// --- Gallery Image Viewer Screen: Button Styles ---
+
+(function() {
+  const DEFAULT_VIEWER_SETTINGS = { bgColor: '#000000', opacity: 100, fontColor: '#ffffff', tapMode: 'single' };
+  let viewerSettings = { ...DEFAULT_VIEWER_SETTINGS };
+  try {
+    const saved = localStorage.getItem('r1_viewer_btn_settings');
+    if (saved) viewerSettings = { ...DEFAULT_VIEWER_SETTINGS, ...JSON.parse(saved) };
+  } catch (e) {}
+
+  window._viewerBtnSettings = viewerSettings;
+
+  function hexToRgb(hex) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return { r, g, b };
+  }
+
+  function applyViewerBtnStyles() {
+    const s = window._viewerBtnSettings;
+    const { r, g, b } = hexToRgb(s.bgColor);
+    const a = s.opacity / 100;
+    const bg = `rgba(${r}, ${g}, ${b}, ${a})`;
+    const fc = s.fontColor;
+
+    let styleEl = document.getElementById('_viewer-btn-custom-style');
+    if (!styleEl) {
+      styleEl = document.createElement('style');
+      styleEl.id = '_viewer-btn-custom-style';
+      document.head.appendChild(styleEl);
+    }
+    styleEl.textContent = `
+      .viewer-carousel-button { background: ${bg} !important; color: ${fc} !important; }
+      .viewer-carousel-label { color: ${fc} !important; }
+      .viewer-left-carousel-btn { background: ${bg} !important; color: ${fc} !important; }
+      .viewer-bottom-btn { background: ${bg} !important; color: ${fc} !important; }
+      .viewer-delete-button { background: ${bg} !important; color: ${fc} !important; }
+      .viewer-close-button { background: ${bg} !important; color: ${fc} !important; }
+    `;
+  }
+
+  window._applyViewerBtnStyles = applyViewerBtnStyles;
+  applyViewerBtnStyles();
 })();
 
 // ===== LEFT CAMERA CAROUSEL =====
@@ -13671,33 +14090,128 @@ document.addEventListener('DOMContentLoaded', function() {
 
 console.log('AI Camera Styles app initialized!');
 
-// --- Double-tap to toggle BOTH main camera carousels ---
+// --- Main Camera Screen: Button Styles + Tap-to-Toggle Carousels ---
 
 (function() {
+  // ── Load saved settings
+
+  const DEFAULT_SETTINGS = { bgColor: '#000000', opacity: 100, fontColor: '#ffffff', tapMode: 'single' };
+  let settings = { ...DEFAULT_SETTINGS };
+  try {
+    const saved = localStorage.getItem('r1_cam_btn_settings');
+    if (saved) settings = { ...DEFAULT_SETTINGS, ...JSON.parse(saved) };
+  } catch (e) {}
+
+  // Expose on window so the settings submenu (wired up elsewhere) can read/write it
+  window._camBtnSettings = settings;
+
+  // ── Apply button styles 
+
+  function hexToRgb(hex) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return { r, g, b };
+  }
+
+  function applyCamBtnStyles() {
+    const s = window._camBtnSettings;
+    const { r, g, b } = hexToRgb(s.bgColor);
+    const a = s.opacity / 100;
+    const bg = `rgba(${r}, ${g}, ${b}, ${a})`;
+    const fc = s.fontColor;
+
+    // Use an injected <style> tag so CSS class-based active states (enabled, random-active, etc.) still work
+    let styleEl = document.getElementById('_cam-btn-custom-style');
+    if (!styleEl) {
+      styleEl = document.createElement('style');
+      styleEl.id = '_cam-btn-custom-style';
+      document.head.appendChild(styleEl);
+    }
+    styleEl.textContent = `
+      .left-cam-btn:not(.enabled) { background: ${bg} !important; }
+      .left-cam-btn { color: ${fc} !important; }
+      .mode-button:not(.random-active):not(.active):not(.burst-active):not(.timer-active):not(.camera-multi-active):not(.combine-active):not(.layer-active) { background: ${bg} !important; }
+      .mode-button { color: ${fc} !important; }
+      .camera-button { background: ${bg} !important; }
+      .mode-label { color: ${fc} !important; }
+      .button-label { color: ${fc} !important; }
+    `;
+  }
+
+  // Expose so the settings submenu event listeners can call it
+  window._applyCamBtnStyles = applyCamBtnStyles;
+
+  // Apply on load
+  applyCamBtnStyles();
+
+  // ── Tap-to-toggle carousels
+
   let lastTapTime = 0;
   let lastTapX = 0;
   let lastTapY = 0;
-  const DOUBLE_TAP_DELAY = 300;   // max ms between taps to count as double-tap
-  const DOUBLE_TAP_RADIUS = 40;   // max px movement between taps
+  const DOUBLE_TAP_DELAY = 300;
+  const DOUBLE_TAP_RADIUS = 40;
 
-  // Track whether carousels are currently visible
   let leftVisible = true;
   let rightVisible = true;
 
-  // Right carousel visible state controlled by CSS and .hidden class only
+  function isOnMainCameraScreen() {
+    if (document.getElementById('gallery-modal')?.style.display === 'flex') return false;
+    if (document.getElementById('image-viewer')?.style.display === 'flex') return false;
+    if (document.getElementById('unified-menu')?.style.display === 'flex') return false;
+    if (document.getElementById('settings-submenu')?.style.display === 'flex') return false;
+    if (document.getElementById('master-prompt-submenu')?.style.display === 'flex') return false;
+    if (document.getElementById('preset-builder-submenu')?.style.display === 'flex') return false;
+    if (document.getElementById('button-settings-submenu')?.style.display === 'flex') return false;
+    if (document.getElementById('resolution-submenu')?.style.display === 'flex') return false;
+    if (document.getElementById('aspect-ratio-submenu')?.style.display === 'flex') return false;
+    if (document.getElementById('burst-submenu')?.style.display === 'flex') return false;
+    if (document.getElementById('timer-settings-submenu')?.style.display === 'flex') return false;
+    if (document.getElementById('motion-submenu')?.style.display === 'flex') return false;
+    if (document.getElementById('visible-presets-submenu')?.style.display === 'flex') return false;
+    if (document.getElementById('import-resolution-submenu')?.style.display === 'flex') return false;
+    if (document.getElementById('tutorial-submenu')?.style.display === 'flex') return false;
+    return true;
+  }
+
+  function toggleCarousels() {
+    const leftCarousel = document.getElementById('left-cam-carousel');
+    const rightCarousel = document.querySelector('.mode-carousel');
+
+    leftVisible = !leftVisible;
+    rightVisible = !rightVisible;
+
+    if (leftCarousel) {
+      if (leftVisible) leftCarousel.classList.remove('hidden');
+      else leftCarousel.classList.add('hidden');
+    }
+    if (rightCarousel) {
+      if (rightVisible) {
+        rightCarousel.style.transform = 'translateX(0)';
+        rightCarousel.style.pointerEvents = 'auto';
+      } else {
+        rightCarousel.style.transform = 'translateX(calc(100% + 8px))';
+        rightCarousel.style.pointerEvents = 'none';
+      }
+    }
+    lastTapTime = 0;
+  }
 
   document.addEventListener('touchend', (e) => {
-    // Only on main camera screen
-    if (document.getElementById('gallery-modal')?.style.display === 'flex') return;
-    if (document.getElementById('image-viewer')?.style.display === 'flex') return;
-    if (document.getElementById('unified-menu')?.style.display === 'flex') return;
-    if (document.getElementById('settings-submenu')?.style.display === 'flex') return;
-    if (document.getElementById('master-prompt-submenu')?.style.display === 'flex') return;
-    if (document.getElementById('preset-builder-submenu')?.style.display === 'flex') return;
-
-    // Ignore if more than one finger (pinch to zoom)
+    if (!isOnMainCameraScreen()) return;
     if (e.changedTouches.length !== 1) return;
 
+    const s = window._camBtnSettings;
+
+    if (s.tapMode === 'single') {
+      // Single-tap: skip if the user tapped a button or interactive element so those still work normally
+      if (e.target.closest('button, a, input, select, textarea, [role="button"]')) return;
+      toggleCarousels();
+      return;
+    }
+
+    // Double-tap mode (default)
     const touch = e.changedTouches[0];
     const now = Date.now();
     const timeDiff = now - lastTapTime;
@@ -13705,32 +14219,8 @@ console.log('AI Camera Styles app initialized!');
     const distY = Math.abs(touch.clientY - lastTapY);
 
     if (timeDiff < DOUBLE_TAP_DELAY && distX < DOUBLE_TAP_RADIUS && distY < DOUBLE_TAP_RADIUS) {
-      // Valid double-tap — toggle both carousels
-      const leftCarousel = document.getElementById('left-cam-carousel');
-      const rightCarousel = document.querySelector('.mode-carousel');
-
-      leftVisible = !leftVisible;
-      rightVisible = !rightVisible;
-
-      if (leftCarousel) {
-        if (leftVisible) leftCarousel.classList.remove('hidden');
-        else leftCarousel.classList.add('hidden');
-      }
-
-      if (rightCarousel) {
-        if (rightVisible) {
-          rightCarousel.style.transform = 'translateX(0)';
-          rightCarousel.style.pointerEvents = 'auto';
-        } else {
-          rightCarousel.style.transform = 'translateX(calc(100% + 8px))';
-          rightCarousel.style.pointerEvents = 'none';
-        }
-      }
-
-      // Reset so triple-tap doesn't re-trigger
-      lastTapTime = 0;
+      toggleCarousels();
     } else {
-      // First tap — record it
       lastTapTime = now;
       lastTapX = touch.clientX;
       lastTapY = touch.clientY;
