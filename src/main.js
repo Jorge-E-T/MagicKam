@@ -534,9 +534,11 @@ const STORAGE_KEY = 'r1_camera_styles';
 
 // Local storage key (for the ARRAY of favorite style names)
 let favoriteStyles = []; 
+let _favoriteStylesSet = new Set(); // Fast O(1) lookup mirror for favoriteStyles
 const FAVORITE_STYLES_KEY = 'r1_camera_favorites';
 const VISIBLE_PRESETS_KEY = 'r1_camera_visible_presets';
 let visiblePresets = []; // Array of preset names that should be shown
+let _visiblePresetsSet = new Set(); // Fast O(1) lookup mirror for visiblePresets
 let isVisiblePresetsSubmenuOpen = false;
 let currentVisiblePresetsIndex = 0;
 let visiblePresetsFilterText = '';
@@ -3448,6 +3450,7 @@ async function loadStyles() {
             favoriteStyles = []; 
         }
     }
+    _favoriteStylesSet = new Set(favoriteStyles);
     
     loadLastUsedStyle(); 
     
@@ -3472,6 +3475,7 @@ async function loadStyles() {
     const validPresetNames = new Set(CAMERA_PRESETS.map(p => p.name));
     const originalLength = visiblePresets.length;
     visiblePresets = visiblePresets.filter(name => validPresetNames.has(name));
+    _visiblePresetsSet = new Set(visiblePresets);
     
     // If we removed any invalid names, save the cleaned list
     if (originalLength !== visiblePresets.length) {
@@ -3636,6 +3640,7 @@ async function mergePresetsWithStorage() {
 
 // Save visible presets to localStorage
 function saveVisiblePresets() {
+    _visiblePresetsSet = new Set(visiblePresets);
     try {
         localStorage.setItem(VISIBLE_PRESETS_KEY, JSON.stringify(visiblePresets));
     } catch (err) {
@@ -3645,7 +3650,7 @@ function saveVisiblePresets() {
 
 // Get only visible presets
 function getVisiblePresets() {
-    return CAMERA_PRESETS.filter(preset => visiblePresets.includes(preset.name));
+    return CAMERA_PRESETS.filter(preset => _visiblePresetsSet.has(preset.name));
 }
 
 // Save resolution setting
@@ -3860,7 +3865,7 @@ function loadResolution() {
 }
 
 function getStylesLists() {
-    const presets = CAMERA_PRESETS.filter(p => visiblePresets.includes(p.name));
+    const presets = CAMERA_PRESETS.filter(p => _visiblePresetsSet.has(p.name));
     
     const sortedAll = presets.slice().sort((a, b) => a.name.localeCompare(b.name));
     
@@ -3873,10 +3878,8 @@ function getStylesLists() {
 
 function getSortedPresets() {
     const { favorites, regular } = getStylesLists();
-    // Filter to only visible presets
-    const visibleFavorites = favorites.filter(p => visiblePresets.includes(p.name));
-    const visibleRegular = regular.filter(p => visiblePresets.includes(p.name));
-    return [...visibleFavorites, ...visibleRegular];
+    // getStylesLists already filters to visible presets — just combine them
+    return [...favorites, ...regular];
 }
 
 // Get the current preset's position in the sorted array
@@ -3970,8 +3973,10 @@ function saveFavoriteStyle(styleName) {
     
     if (index > -1) {
         favoriteStyles.splice(index, 1);
+        _favoriteStylesSet.delete(styleName);
     } else {
         favoriteStyles.push(styleName);
+        _favoriteStylesSet.add(styleName);
     }
 
     localStorage.setItem(FAVORITE_STYLES_KEY, JSON.stringify(favoriteStyles));
@@ -4005,7 +4010,7 @@ function loadLastUsedStyle() {
 
 // Check if style is favorited
 function isFavoriteStyle(styleName) {
-    return favoriteStyles.includes(styleName);
+    return _favoriteStylesSet.has(styleName);
 }
 
 // Get random preset index from favorites (or all presets if no favorites)
@@ -5023,7 +5028,7 @@ async function saveCustomPreset() {
     CAMERA_PRESETS.push(newPreset);
     
     // Add to visible presets (always make new presets visible by default)
-    if (!visiblePresets.includes(newPreset.name)) {
+    if (!_visiblePresetsSet.has(newPreset.name)) {
       visiblePresets.push(newPreset.name);
     }
   }
@@ -5098,7 +5103,7 @@ async function deleteCustomPreset() {
   
   // If we deleted the current preset, switch to first visible preset
   if (wasCurrentPreset) {
-    const visiblePresetObjects = CAMERA_PRESETS.filter(p => visiblePresets.includes(p.name));
+    const visiblePresetObjects = CAMERA_PRESETS.filter(p => _visiblePresetsSet.has(p.name));
     if (visiblePresetObjects.length > 0) {
       currentPresetIndex = CAMERA_PRESETS.findIndex(p => p.name === visiblePresetObjects[0].name);
     } else if (CAMERA_PRESETS.length > 0) {
@@ -5106,7 +5111,7 @@ async function deleteCustomPreset() {
       currentPresetIndex = 0;
     }
   }
-
+  
   // Always update the camera footer after deletion
   updatePresetDisplay();
 
@@ -5191,7 +5196,7 @@ const allPresets = CAMERA_PRESETS.filter(p => {
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.className = 'master-prompt-checkbox';
-    checkbox.checked = visiblePresets.includes(preset.name);
+    checkbox.checked = _visiblePresetsSet.has(preset.name);
     checkbox.style.marginRight = '3vw';
     
     const name = document.createElement('span');
@@ -5218,7 +5223,7 @@ const allPresets = CAMERA_PRESETS.filter(p => {
   
   const countElement = document.getElementById('visible-presets-count');
   if (countElement) {
-    const visibleCount = sorted.filter(p => visiblePresets.includes(p.name)).length;
+    const visibleCount = sorted.filter(p => _visiblePresetsSet.has(p.name)).length;
     countElement.textContent = visibleCount;
   }
   
@@ -5244,7 +5249,7 @@ function toggleVisiblePreset(presetName, isVisible) {
   const currentPreset = CAMERA_PRESETS[currentPresetIndex];
   if (currentPreset && !isVisible && currentPreset.name === presetName) {
     // Current preset was made invisible - switch to first visible preset
-    const visiblePresetObjects = CAMERA_PRESETS.filter(p => visiblePresets.includes(p.name));
+    const visiblePresetObjects = CAMERA_PRESETS.filter(p => _visiblePresetsSet.has(p.name));
     if (visiblePresetObjects.length > 0) {
       // Find index of first visible preset in CAMERA_PRESETS
       currentPresetIndex = CAMERA_PRESETS.findIndex(p => p.name === visiblePresetObjects[0].name);
@@ -10017,6 +10022,9 @@ function populateStylesList(preserveScroll = false) {
     
     const fragment = document.createDocumentFragment();
     
+    // Build a one-time index map so createStyleMenuItemFast doesn't need findIndex per item
+    const presetIndexMap = new Map(CAMERA_PRESETS.map((p, i) => [p, i]));
+
     const { favorites, regular } = getStylesLists();
     
     const filteredFavorites = favorites.filter(preset => {
@@ -10065,7 +10073,7 @@ function populateStylesList(preserveScroll = false) {
         fragment.appendChild(favHeader);
 
         filteredFavorites.forEach(preset => {
-            const item = createStyleMenuItemFast(preset);
+            const item = createStyleMenuItemFast(preset, presetIndexMap);
             fragment.appendChild(item);
         });
     }
@@ -10077,7 +10085,7 @@ function populateStylesList(preserveScroll = false) {
         fragment.appendChild(regularHeader);
         
         filtered.forEach(preset => {
-            const item = createStyleMenuItemFast(preset);
+            const item = createStyleMenuItemFast(preset, presetIndexMap);
             fragment.appendChild(item);
         });
     }
@@ -10094,12 +10102,10 @@ function populateStylesList(preserveScroll = false) {
     // Single event listener for the entire list using event delegation
     newList.addEventListener('click', handleStyleListClick);
 
-// Update styles count - count from getStylesLists which already filters to visible
+// Update styles count — reuse already-computed filtered lists
   const stylesCountElement = document.getElementById('styles-count');
   if (stylesCountElement) {
-    const { favorites, regular } = getStylesLists();
-    const totalVisible = favorites.length + regular.length;
-    stylesCountElement.textContent = totalVisible;
+    stylesCountElement.textContent = filteredFavorites.length + filtered.length;
   }
     
     if (!preserveScroll) {
@@ -10108,8 +10114,8 @@ function populateStylesList(preserveScroll = false) {
     }
 }
 
-function createStyleMenuItemFast(preset) {
-    const originalIndex = CAMERA_PRESETS.findIndex(p => p === preset);
+function createStyleMenuItemFast(preset, indexMap) {
+    const originalIndex = indexMap ? indexMap.get(preset) : CAMERA_PRESETS.findIndex(p => p === preset);
     
     const item = document.createElement('div');
     item.className = 'style-item';
@@ -10494,7 +10500,7 @@ async function deleteStyle() {
       
       // If we deleted the currently active preset, switch to first visible preset
       if (deletingCurrentPreset) {
-        const visiblePresetObjects = CAMERA_PRESETS.filter(p => visiblePresets.includes(p.name));
+        const visiblePresetObjects = CAMERA_PRESETS.filter(p => _visiblePresetsSet.has(p.name));
         if (visiblePresetObjects.length > 0) {
           currentPresetIndex = CAMERA_PRESETS.findIndex(p => p.name === visiblePresetObjects[0].name);
         } else if (CAMERA_PRESETS.length > 0) {
@@ -10505,9 +10511,9 @@ async function deleteStyle() {
       
       // After deletion, verify the current preset is visible; if not, switch to first visible
       const currentPreset = CAMERA_PRESETS[currentPresetIndex];
-      if (currentPreset && !visiblePresets.includes(currentPreset.name)) {
+      if (currentPreset && !_visiblePresetsSet.has(currentPreset.name)) {
         // Current preset is not visible, switch to first visible preset
-        const visiblePresetObjects = CAMERA_PRESETS.filter(p => visiblePresets.includes(p.name));
+        const visiblePresetObjects = CAMERA_PRESETS.filter(p => _visiblePresetsSet.has(p.name));
         if (visiblePresetObjects.length > 0) {
           currentPresetIndex = CAMERA_PRESETS.findIndex(p => p.name === visiblePresetObjects[0].name);
         } else if (CAMERA_PRESETS.length > 0) {
@@ -12438,7 +12444,7 @@ const result = await presetImporter.import();
           
           // Add ONLY truly NEW presets (ones that didn't exist before import) as visible by default
           CAMERA_PRESETS.forEach(preset => {
-            if (!presetsBeforeImport.has(preset.name) && !visiblePresets.includes(preset.name)) {
+            if (!presetsBeforeImport.has(preset.name) && !_visiblePresetsSet.has(preset.name)) {
               visiblePresets.push(preset.name);
             }
           });
@@ -12452,7 +12458,7 @@ const result = await presetImporter.import();
           // Update styles count
           const stylesCountElement = document.getElementById('styles-count');
           if (stylesCountElement) {
-            const visibleCount = CAMERA_PRESETS.filter(p => visiblePresets.includes(p.name)).length;
+            const visibleCount = CAMERA_PRESETS.filter(p => _visiblePresetsSet.has(p.name)).length;
             stylesCountElement.textContent = visibleCount;
           }
 
@@ -12917,7 +12923,7 @@ const result = await presetImporter.import();
             
             // Add ONLY truly NEW presets (ones that didn't exist before import) as visible by default
             CAMERA_PRESETS.forEach(preset => {
-              if (!presetsBeforeImport.has(preset.name) && !visiblePresets.includes(preset.name)) {
+              if (!presetsBeforeImport.has(preset.name) && !_visiblePresetsSet.has(preset.name)) {
                 visiblePresets.push(preset.name);
               }
             });

@@ -12,6 +12,18 @@
     "additionalInstructions": ""
   },
   {
+    "name": "TEST",
+    "category": [
+      "ART",
+      "PAINTING",
+      "CLASSIC"
+    ],
+    "message": "Take a picture and transform the image into a French Impressionist painting. Preserve subject identity. Use loose, visible brushstrokes, soft edges, and blended colors emphasizing natural light and atmosphere. Painterly oil-on-canvas texture with warm, luminous tones.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": ""
+  },
+  {
     "name": "#NOFILTER",
     "category": [
       "OPTIONS",
@@ -7408,6 +7420,18 @@
     "additionalInstructions": ""
   },
   {
+    "name": "DATABENDING",
+    "category": [
+      "DIGITAL",
+      "GLITCH",
+      "EXPERIMENTAL"
+    ],
+    "message": "Take a picture and transform the image using Databending techniques. Preserve subject identity while introducing controlled digital corruption. Open the image data as raw audio or text and reinterpret it, creating colorful distortions, shifted color channels, and fragmented visual artifacts that reveal the hidden structure of digital data.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": ""
+  },
+  {
     "name": "DATAMOSH",
     "category": [
       "OPTIONS",
@@ -12424,6 +12448,19 @@
     "additionalInstructions": ""
   },
   {
+    "name": "GOND ART",
+    "category": [
+      "ART",
+      "CULTURAL",
+      "INDIAN",
+      "TRIBAL"
+    ],
+    "message": "Take a picture and transform the image into Gond Art. Preserve subject identity. Use the traditional art style of the Gond tribe of central India. Fill forms with intricate dots, dashes, and fine lines creating elaborate patterns within bold outlines. Emphasize vibrant colors, nature motifs, and detailed internal patterning inspired by forest life.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": ""
+  },
+  {
     "name": "GOO GOO GAA GAA",
     "category": [
       "HUMOR",
@@ -12757,6 +12794,69 @@
     ],
     "randomizeOptions": true,
     "additionalInstructions": "FINAL RESULT:\nThe image should depict the subject as the living embodiment of the selected Greek/Roman deity, with all their iconic symbols and divine attributes, in a mythological setting that captures their godly domain and power."
+  },
+  {
+  "name": "GREETING CARD",
+  "category": [
+    "OPTIONS",
+    "GREETING CARD",
+    "LAYOUT",
+    "PRINT"
+  ],
+  "message": "Take a picture and transform the subject(s) into a printable four-panel greeting card arranged in a 1:1 square layout designed to be folded into a physical card.\n\nMASTER PROMPT RULE:\n• If a master prompt provides specific holiday, tone, message, names, or context — PRIORITIZE and USE that information\n\nGENERAL REQUIREMENTS:\n• Maintain recognizable subject(s)\n• Integrate subject(s) ONLY on the front cover panel\n• Match tone, colors, and visuals to the selected Holiday and Style\n• Treat this as PRINT PRODUCTION LAYOUT, not artistic interpretation\n",
+  "randomizeOptions": true,
+  "optionGroups": [
+    {
+      "title": "HOLIDAY",
+      "options": [
+        { "id": "001", "text": "Birthday — festive, colorful, celebratory" },
+        { "id": "002", "text": "Mother’s Day — warm, loving, floral" },
+        { "id": "003", "text": "Father’s Day — bold, warm, appreciative" },
+        { "id": "004", "text": "Valentine’s Day — romantic, soft, heartfelt" },
+        { "id": "005", "text": "Anniversary — elegant, romantic" },
+        { "id": "006", "text": "Graduation — achievement, academic celebration" },
+        { "id": "007", "text": "Christmas — festive, cozy, winter holiday" },
+        { "id": "008", "text": "New Year — fireworks, celebration, fresh start" },
+        { "id": "009", "text": "Thanksgiving — warm autumn, gratitude" },
+        { "id": "010", "text": "Easter — pastel, spring, renewal" },
+        { "id": "011", "text": "Baby Shower — soft, welcoming, gentle" },
+        { "id": "012", "text": "Wedding — elegant, formal, romantic" },
+        { "id": "013", "text": "Get Well Soon — uplifting, calming" },
+        { "id": "014", "text": "Sympathy — respectful, minimal, subdued" },
+        { "id": "015", "text": "Congratulations — celebratory milestone" },
+        { "id": "016", "text": "Retirement — relaxed, life transition" },
+        { "id": "017", "text": "Housewarming — warm, welcoming home" },
+        { "id": "018", "text": "Friendship — fun, casual, heartfelt" },
+        { "id": "019", "text": "Apology — sincere, minimal" },
+        { "id": "020", "text": "Just Because — flexible, thoughtful" }
+      ]
+    },
+    {
+      "title": "STYLE",
+      "options": [
+        { "id": "001", "text": "Elegant — refined typography, soft gradients" },
+        { "id": "002", "text": "Playful — bright colors, humorous, fun" },
+        { "id": "003", "text": "Modern Minimal — clean, white space" },
+        { "id": "004", "text": "Luxury — gold accents, rich tones" },
+        { "id": "005", "text": "Vintage — aged textures, muted palette" },
+        { "id": "006", "text": "Handmade Craft — scrapbook, paper textures" },
+        { "id": "007", "text": "Bold Graphic — strong contrast, large typography" },
+        { "id": "008", "text": "Cute & Cartoon — soft shapes, friendly tone" }
+      ]
+    },
+    {
+      "title": "PAPER SIMULATION",
+      "options": [
+        { "id": "001", "text": "Matte cardstock — smooth, non-reflective" },
+        { "id": "002", "text": "Glossy photo paper — vibrant, slight reflections" },
+        { "id": "003", "text": "Linen textured paper — woven texture" },
+        { "id": "004", "text": "Recycled paper — natural grain" },
+        { "id": "005", "text": "Embossed paper — raised texture" },
+        { "id": "006", "text": "Foil-accent paper — metallic highlights" }
+      ]
+    }
+  ],
+  "additionalInstructions": "FINAL RESULT:\n\nABSOLUTE LAYOUT (NON-NEGOTIABLE):\n• Perfect 1:1 square\n• Exact 2x2 grid\n• Hard panel boundaries (no overlap, no bleed)\n• Each panel is an isolated canvas\n\nCRITICAL CONTAINMENT RULE:\n• NOTHING may cross panel dividers\n• ALL content must stay fully inside its assigned panel\n• If anything spills into another panel → FAIL\n\nPANEL RULES (STRICT — NO EXCEPTIONS):\n\nTOP LEFT (BACK PANEL):\n• COMPLETELY BLANK\n• NO text\n• NO images\n• ONLY paper texture allowed\n\nTOP RIGHT (FRONT COVER):\n• ONLY panel with subject(s)\n• Main design + title text + ALL greeting/message text\n• ALL text MUST stay inside this panel\n• MUST NOT extend into bottom-right\n\nBOTTOM LEFT (INSIDE PANEL):\n• NO TEXT under ANY circumstance\n• NO readable characters\n• DESIGN ELEMENTS ONLY (patterns, textures, graphics)\n\nBOTTOM RIGHT (INSIDE FRONT):\n• COMPLETELY BLANK\n• NO text\n• NO images\n\nFAIL CONDITIONS (INVALID IF ANY OCCUR):\n• ANY content in top-left → FAIL\n• ANY content in bottom-right → FAIL\n• ANY text in bottom-left → FAIL\n• ANY content crossing panel boundaries → FAIL\n• ANY top-right content entering bottom-right → FAIL\n\nSTYLE & MATERIAL:\n• Apply STYLE consistently\n• Apply PAPER texture realistically\n\nQUALITY:\n• Print-ready\n• Ultra sharp text\n• High detail (4K-quality)\n• Clean edges\n• No blur or artifacts"
   },
   {
     "name": "GRIMMS FAIRY TALE",
@@ -13539,6 +13639,19 @@
       "AMERICAN"
     ],
     "message": "Take a picture and transform the image into a Hudson River School painting. Preserve subject identity. Place the subject within a grand, luminous American landscape with dramatic skies, pristine wilderness, and golden light inspired by Thomas Cole and Frederic Edwin Church. Emphasize sublime natural beauty, detailed foliage, and romantic atmosphere.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": ""
+  },
+  {
+    "name": "HUICHOL BEADWORK",
+    "category": [
+      "ART",
+      "CULTURAL",
+      "MEXICAN",
+      "INDIGENOUS"
+    ],
+    "message": "Take a picture and transform the image into Huichol Beadwork art. Preserve subject identity. Use the traditional Wixáritari (Huichol) art style of Mexico with intricate bead-by-bead patterns in vivid neon colors. Emphasize psychedelic symmetrical designs, sacred symbols like peyote and deer, and densely packed colorful bead textures.",
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
@@ -15106,6 +15219,19 @@
       "MEXICAN"
     ],
     "message": "Take a picture and transform it into a portrait inspired by Frida Kahlo. Center the subject prominently with symbolic elements drawn from nature or personal identity. Use bold colors, flat backgrounds, and strong outlines. The subject should feel emotionally direct, intimate, and iconic.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": ""
+  },
+  {
+    "name": "KALAMKARI",
+    "category": [
+      "ART",
+      "CULTURAL",
+      "INDIAN",
+      "TEXTILE"
+    ],
+    "message": "Take a picture and transform the image into Kalamkari art. Preserve subject identity. Use the traditional Indian hand-painted or block-printed textile art style. Render with fine pen-like outlines filled with natural dye colors — deep reds, indigo, mustard, and black. Emphasize flowing botanical motifs, mythological scenes, and intricate detail.",
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
@@ -18232,6 +18358,19 @@
     ],
     "randomizeOptions": true,
     "additionalInstructions": "RESTRICTIONS:\n• No text overlays or captions\n• No additional scale changes elsewhere in the image\n• No surreal or abstract styles\n\nFINAL RESULT:\nThe image should look like a normal photograph at first glance, except for one unmistakably wrong-scale object that creates a clean, humorous visual gag."
+  },
+  {
+    "name": "MOLAS",
+    "category": [
+      "ART",
+      "CULTURAL",
+      "TEXTILE",
+      "PANAMANIAN"
+    ],
+    "message": "Take a picture and transform the image into Mola art. Preserve subject identity. Use the traditional reverse-appliqué textile art of the Kuna people of Panama and Colombia. Render with multiple layers of bright, contrasting colors revealed through cut-away fabric layers. Emphasize bold geometric and organic forms with vibrant color combinations.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": ""
   },
   {
     "name": "MONA LISA",
@@ -21825,6 +21964,19 @@
     "additionalInstructions": ""
   },
   {
+    "name": "PATTACHITRA",
+    "category": [
+      "ART",
+      "CULTURAL",
+      "INDIAN",
+      "TRADITIONAL"
+    ],
+    "message": "Take a picture and transform the image into Pattachitra art. Preserve subject identity. Use the traditional scroll painting style from Odisha and West Bengal, India. Render with bold outlines, rich natural pigments, and intricate mythological narrative scenes. Emphasize detailed borders, vibrant reds and yellows, and classical Indian iconography.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": ""
+  },
+  {
     "name": "PEACOCKING",
     "category": [
       "HUMOR",
@@ -22890,6 +23042,18 @@
     "additionalInstructions": "FINAL RESULT:\nA fully reconstructed image made entirely from refracted spectral light, with all shapes defined by prism dispersion rather than solid surfaces."
   },
   {
+    "name": "PROCEDURAL TEXTURE",
+    "category": [
+      "DIGITAL",
+      "3D",
+      "TECHNICAL"
+    ],
+    "message": "Take a picture and transform the image into a Procedural Texture artwork. Preserve subject identity. Render surfaces using mathematically generated textures — Perlin noise, Voronoi cells, marble veins, and wood grain patterns. Emphasize the beauty of algorithmic material generation with photorealistic yet clearly computed surface detail.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": ""
+  },
+  {
     "name": "PRODUCT LABEL",
     "category": [
       "HUMOR",
@@ -23847,6 +24011,19 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": "FINAL RESULT:\nA nostalgic futuristic scene inspired by mid-20th century visions of the future."
+  },
+  {
+    "name": "REVERSE GLASS PAINTING",
+    "category": [
+      "ART",
+      "CULTURAL",
+      "FOLK",
+      "GLASS"
+    ],
+    "message": "Take a picture and transform the image into a Reverse Glass Painting. Preserve subject identity. Use the traditional technique of painting on the back of glass, creating a luminous, jewel-like quality. Render with bold outlines, flat vivid colors, and folk art motifs. Emphasize the glossy, translucent surface quality and rich color saturation.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": ""
   },
   {
     "name": "RICK AND MORTY",
@@ -25841,6 +26018,56 @@
     ],
     "randomizeOptions": true,
     "additionalInstructions": ""
+  },
+  {
+  "name": "SPIN ART",
+  "category": [
+    "OPTIONS",
+    "STYLE",
+    "EFFECT",
+    "DISTORTION"
+  ],
+  "message": "Take a picture and transform the image into psychedelic spin art, as if the ORIGINAL IMAGE ITSELF were physically spun in a centrifugal machine.\n\nMASTER PROMPT RULE:\n• If a master prompt specifies intensity, colors, or focus — PRIORITIZE and USE that information\n\nGENERAL REQUIREMENTS:\n• Maintain partial recognizability unless fully abstracted by option\n• Simulate TRUE rotational motion — not drawn or added effects\n• Motion must come from transforming existing pixels, not adding new streaks\n",
+  "randomizeOptions": true,
+  "optionGroups": [
+    {
+      "title": "SPIN TARGET",
+      "options": [
+        { "id": "001", "text": "Subject Only — subject is spun, background remains stable" },
+        { "id": "002", "text": "Background Only — subject remains intact, background spins" },
+        { "id": "003", "text": "Entire Scene — everything spins together" }
+      ]
+    },
+    {
+      "title": "SPIN STYLE",
+      "options": [
+        { "id": "001", "text": "Classic Radial — smooth circular centrifugal streaks" },
+        { "id": "002", "text": "Paint Splatter — droplets stretch outward into streaks" },
+        { "id": "003", "text": "Liquid Melt — soft flowing blended spin distortion" },
+        { "id": "004", "text": "Sharp Streaks — high-speed stretched lines" },
+        { "id": "005", "text": "Hypnotic Spiral — tight vortex-like rotation" }
+      ]
+    },
+    {
+      "title": "SPIN INTENSITY",
+      "options": [
+        { "id": "001", "text": "Light — subtle motion blur, mostly recognizable" },
+        { "id": "002", "text": "Medium — clear spinning distortion" },
+        { "id": "003", "text": "Heavy — strong centrifugal stretching" },
+        { "id": "004", "text": "Extreme — near-abstract swirl" }
+      ]
+    },
+    {
+      "title": "COLOR MODE",
+      "options": [
+        { "id": "001", "text": "Original Colors — preserve original palette" },
+        { "id": "002", "text": "Enhanced — boosted saturation and contrast" },
+        { "id": "003", "text": "Neon — high-energy psychedelic colors" },
+        { "id": "004", "text": "Tie-Dye Fusion — blended rainbow dye effect" }
+      ]
+    }
+  ],
+  "additionalInstructions": "SPIN PHYSICS (CRITICAL):\n\n• Apply ROTATIONAL TRANSFORMATION to existing pixels\n• Image must appear physically rotated and stretched from a central axis\n• DO NOT draw, paint, or overlay motion lines\n• DO NOT simulate motion using added streak graphics\n\nANTI-CHEAT RULE (STRICT):\n• Every streak or smear must come from displaced original image content\n• If streaks appear as separate drawn lines → FAIL\n• If background looks \"decorated\" instead of rotated → FAIL\n\nTARGET RULES (STRICT):\n\nIF \"SUBJECT ONLY\":\n• ONLY the subject pixels are rotationally distorted\n• Background pixels remain completely unchanged\n\nIF \"BACKGROUND ONLY\":\n• Background pixels must be physically rotated and stretched\n• Subject must remain sharp, undistorted, and NOT duplicated\n• NO spin lines behind subject — only warped background content\n\nIF \"ENTIRE SCENE\":\n• All pixels follow the same rotational transformation\n\nEDGE CONTROL:\n• Maintain detail near the spin center\n• Increase distortion gradually toward edges\n• Avoid uniform blur — must show directional rotation\n\nFAIL CONDITIONS:\n• No clear spin center → FAIL\n• Use of overlay streaks or drawn lines → FAIL\n• Background not actually warped in \"Background Only\" → FAIL\n• Subject distorted in \"Background Only\" → FAIL\n• Generic blur instead of rotational motion → FAIL\n\nQUALITY:\n• True radial motion\n• High detail\n• No artificial overlays\n• No pixel tearing or artifacts\n• Physically believable spin effect"
   },
   {
     "name": "SPONGEBOB SQUAREPANTS",
@@ -28015,6 +28242,50 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+  "name": "TIE-DYE PALETTE",
+  "category": [
+    "COLOR",
+    "STYLE",
+    "EFFECT"
+  ],
+  "message": "Take a picture and transform the subject or scene using a vibrant tie-dye color palette while preserving the original structure and recognizable features.\n\nMASTER PROMPT RULE:\n• If a master prompt provides specific colors, mood, or theme — PRIORITIZE and USE that information\n\nGENERAL REQUIREMENTS:\n• Maintain recognizable subject(s)\n• Do NOT distort proportions or shapes\n• Apply color treatment only — not structural changes\n",
+  "randomizeOptions": true,
+  "optionGroups": [
+    {
+      "title": "TIE-DYE STYLE",
+      "options": [
+        { "id": "001", "text": "Spiral — classic radial swirl from a central point" },
+        { "id": "002", "text": "Crinkle — chaotic, organic bursts and folds" },
+        { "id": "003", "text": "Stripes — flowing horizontal or diagonal bands" },
+        { "id": "004", "text": "Sunburst — radiating light explosion pattern" },
+        { "id": "005", "text": "Wave — soft flowing gradients like liquid color" },
+        { "id": "006", "text": "Kaleidoscope — symmetrical mirrored color patterns" }
+      ]
+    },
+    {
+      "title": "COLOR INTENSITY",
+      "options": [
+        { "id": "001", "text": "Soft Pastel — light, airy, washed tones" },
+        { "id": "002", "text": "Balanced — vibrant but not overpowering" },
+        { "id": "003", "text": "Neon — extremely bright, high saturation" },
+        { "id": "004", "text": "Vintage Fade — slightly muted, retro wash" }
+      ]
+    },
+    {
+      "title": "COLOR PALETTE",
+      "options": [
+        { "id": "001", "text": "Rainbow — full spectrum multicolor" },
+        { "id": "002", "text": "Warm — reds, oranges, yellows" },
+        { "id": "003", "text": "Cool — blues, greens, purples" },
+        { "id": "004", "text": "Sunset — pink, orange, purple blend" },
+        { "id": "005", "text": "Ocean — teal, blue, aqua tones" },
+        { "id": "006", "text": "Psychedelic — unexpected contrasting color combos" }
+      ]
+    }
+  ],
+  "additionalInstructions": "EFFECT RULES (STRICT):\n\n• Apply tie-dye colors as a surface overlay or texture\n• Colors should blend smoothly with soft transitions\n• Avoid harsh digital edges unless style explicitly calls for it\n• Preserve lighting, shadows, and depth of the original image\n\nSUBJECT PROTECTION:\n• Faces must remain clear and recognizable\n• Important details must NOT be obscured by color overload\n\nFAIL CONDITIONS:\n• Subject becomes unrecognizable → FAIL\n• Colors appear as flat filters instead of blended dye → FAIL\n• Pattern looks like simple gradient instead of tie-dye → FAIL\n\nQUALITY:\n• High detail\n• Smooth color blending\n• No banding or artifacts\n• Visually rich and dynamic"
   },
   {
     "name": "TIKTOK CHALLENGE",
