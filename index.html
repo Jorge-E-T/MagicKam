@@ -1374,6 +1374,18 @@ All of the presets are optimized to avoid "camera ran dry" or "content filter" i
                             <button id="cam-btn-font-color-default" class="batch-control-button">Default</button>
                         </div>
                     </div>
+                    <div class="burst-setting-item">
+                        <label>Border Color</label>
+                        <div style="display: flex; align-items: center; gap: 12px; margin-top: 8px;">
+                            <input type="color" id="cam-btn-border-color-picker" value="#FE5F00" style="width: 52px; height: 38px; border: none; padding: 2px; cursor: pointer; border-radius: 4px;">
+                            <button id="cam-btn-border-color-default" class="batch-control-button">Default</button>
+                        </div>
+                    </div>
+                    <div class="burst-setting-item" style="padding-top: 16px;">
+                        <label>Border Opacity: <span id="cam-btn-border-opacity-value">100%</span></label>
+                        <input type="range" id="cam-btn-border-opacity-slider" min="0" max="100" value="100" step="1">
+                        <p class="setting-hint">0% = fully transparent, 100% = fully solid</p>
+                    </div>
                     <div class="burst-setting-item" style="padding-top: 16px;">
                         <label>Taps to Hide / Reveal Buttons</label>
                         <p class="setting-hint">Does not affect the camera switch button (top right).</p>
@@ -1407,6 +1419,18 @@ All of the presets are optimized to avoid "camera ran dry" or "content filter" i
                             <input type="color" id="viewer-btn-font-color-picker" value="#ffffff" style="width: 52px; height: 38px; border: none; padding: 2px; cursor: pointer; border-radius: 4px;">
                             <button id="viewer-btn-font-color-default" class="batch-control-button">Default</button>
                         </div>
+                    </div>
+                    <div class="burst-setting-item">
+                        <label>Border Color</label>
+                        <div style="display: flex; align-items: center; gap: 12px; margin-top: 8px;">
+                            <input type="color" id="viewer-btn-border-color-picker" value="#FE5F00" style="width: 52px; height: 38px; border: none; padding: 2px; cursor: pointer; border-radius: 4px;">
+                            <button id="viewer-btn-border-color-default" class="batch-control-button">Default</button>
+                        </div>
+                    </div>
+                    <div class="burst-setting-item" style="padding-top: 16px;">
+                        <label>Border Opacity: <span id="viewer-btn-border-opacity-value">100%</span></label>
+                        <input type="range" id="viewer-btn-border-opacity-slider" min="0" max="100" value="100" step="1">
+                        <p class="setting-hint">0% = fully transparent, 100% = fully solid</p>
                     </div>
                     <div class="burst-setting-item" style="padding-top: 16px;">
                         <label>Taps to Hide / Reveal Buttons</label>
