@@ -7761,26 +7761,9 @@ async function reinitializeCamera() {
       videoTrack = null;
     }
 
-    // Get a temporary stream so the browser reveals real camera device IDs
-    let tempStream = null;
-    try {
-      tempStream = await navigator.mediaDevices.getUserMedia({ video: true });
-    } catch (e) {
-      console.warn('Could not get temp stream for device enumeration:', e);
-    }
-
-    // Enumerate cameras now that a stream is active — real device IDs are available
-    await enumerateCameras();
-
-    // Stop the temporary stream before starting the real one
-    if (tempStream) {
-      tempStream.getTracks().forEach(track => track.stop());
-    }
-
-    // Small pause to let the browser fully release the temp stream
-    await new Promise(resolve => setTimeout(resolve, 200));
-
-    // Start the real camera stream with full device constraints
+    // Open the correct camera directly — no temporary stream needed.
+    // The original device IDs from initCamera are still valid and will
+    // open the right camera without any front-camera cycling flash.
     const constraints = getCameraConstraints();
     stream = await navigator.mediaDevices.getUserMedia(constraints);
 
@@ -7795,6 +7778,7 @@ async function reinitializeCamera() {
           setTimeout(resolve, 100);
         }).catch((err) => {
           console.error('Video reinit error:', err);
+          applyVideoTransform();
           resolve();
         });
       } else {
@@ -7807,6 +7791,7 @@ async function reinitializeCamera() {
             setTimeout(resolve, 100);
           } catch (err) {
             console.error('Video reinit error:', err);
+            applyVideoTransform();
             resolve();
           }
         };
@@ -7815,6 +7800,21 @@ async function reinitializeCamera() {
     });
 
     video.style.display = 'block';
+
+    // NOW that the real camera stream is active, re-enumerate cameras.
+    // This gives us real device IDs so switchCamera() works correctly after
+    // returning from the gallery or menu — without opening any extra camera.
+    await enumerateCameras();
+
+    // Keep currentCameraIndex in sync with the camera that actually opened.
+    if (videoTrack) {
+      const trackSettings = videoTrack.getSettings ? videoTrack.getSettings() : {};
+      if (trackSettings.deviceId && availableCameras.length > 0) {
+        const matchIdx = availableCameras.findIndex(c => c.deviceId === trackSettings.deviceId);
+        if (matchIdx !== -1) currentCameraIndex = matchIdx;
+      }
+    }
+
     console.log('Camera fully re-initialized. Available cameras:', availableCameras.length);
 
   } catch (err) {
@@ -7848,25 +7848,9 @@ async function reinitializeCamera() {
 async function resumeCamera() {
   if (video) {
     try {
-      // Get a temporary stream first so enumerateDevices() can return real device IDs.
-      // Without an active stream, browsers hide camera device IDs for privacy,
-      // which causes switchCamera() to fail after closing the gallery.
-      let tempStream = null;
-      try {
-        tempStream = await navigator.mediaDevices.getUserMedia({ video: true });
-      } catch (e) {
-        console.warn('Could not get temp stream for device enumeration:', e);
-      }
-
-      // Re-enumerate cameras now that a stream is active — real device IDs will be returned
-      await enumerateCameras();
-
-      // Stop the temporary stream before starting the real one
-      if (tempStream) {
-        tempStream.getTracks().forEach(track => track.stop());
-      }
-
-      // Restart the camera with the correct constraints (proper device IDs now available)
+      // Open the camera directly using current constraints.
+      // No temporary stream needed — the original device IDs are still valid
+      // and open the right camera without any front-camera cycling flash.
       const constraints = getCameraConstraints();
       stream = await navigator.mediaDevices.getUserMedia(constraints);
       
@@ -7874,7 +7858,6 @@ async function resumeCamera() {
       videoTrack = stream.getVideoTracks()[0];
 
       await new Promise((resolve) => {
-        // If metadata is already available, don't wait for the event
         if (video.readyState >= 1) {
           video.play().then(() => {
             applyVideoTransform();
@@ -7882,6 +7865,7 @@ async function resumeCamera() {
             setTimeout(resolve, 100);
           }).catch((err) => {
             console.error('Video resume error:', err);
+            applyVideoTransform();
             resolve();
           });
         } else {
@@ -7894,15 +7878,28 @@ async function resumeCamera() {
               setTimeout(resolve, 100);
             } catch (err) {
               console.error('Video resume error:', err);
+              applyVideoTransform();
               resolve();
             }
           };
-          // Safety timeout so we never hang forever
           setTimeout(resolve, 3000);
         }
       });
       
       video.style.display = 'block';
+
+      // Re-enumerate cameras now that the real stream is active.
+      // This populates real device IDs so switchCamera() works correctly.
+      await enumerateCameras();
+
+      // Keep currentCameraIndex in sync with the camera that actually opened.
+      if (videoTrack) {
+        const trackSettings = videoTrack.getSettings ? videoTrack.getSettings() : {};
+        if (trackSettings.deviceId && availableCameras.length > 0) {
+          const matchIdx = availableCameras.findIndex(c => c.deviceId === trackSettings.deviceId);
+          if (matchIdx !== -1) currentCameraIndex = matchIdx;
+        }
+      }
             
     } catch (err) {
       console.error('Failed to resume camera:', err);
@@ -9646,6 +9643,12 @@ function _syncBtnSettingsCamTab() {
   if (opacityValue) opacityValue.textContent = s.opacity + '%';
   if (fontColorPicker) fontColorPicker.value = s.fontColor;
   if (tapHint) tapHint.textContent = 'Current: ' + (s.tapMode === 'single' ? 'Single Tap' : 'Double Tap');
+  const camBorderPicker = document.getElementById('cam-btn-border-color-picker');
+  const camBorderOpacitySlider = document.getElementById('cam-btn-border-opacity-slider');
+  const camBorderOpacityValue = document.getElementById('cam-btn-border-opacity-value');
+  if (camBorderPicker) camBorderPicker.value = s.borderColor || '#FE5F00';
+  if (camBorderOpacitySlider) camBorderOpacitySlider.value = s.borderOpacity !== undefined ? s.borderOpacity : 100;
+  if (camBorderOpacityValue) camBorderOpacityValue.textContent = (s.borderOpacity !== undefined ? s.borderOpacity : 100) + '%';
   updateCamTapHighlight(s.tapMode || 'double');
 }
 
@@ -9661,6 +9664,12 @@ function _syncBtnSettingsGalleryTab() {
   if (opacityValue) opacityValue.textContent = s.opacity + '%';
   if (fontColorPicker) fontColorPicker.value = s.fontColor;
   if (tapHint) tapHint.textContent = 'Current: ' + (s.tapMode === 'single' ? 'Single Tap' : 'Double Tap');
+  const viewerBorderPicker = document.getElementById('viewer-btn-border-color-picker');
+  const viewerBorderOpacitySlider = document.getElementById('viewer-btn-border-opacity-slider');
+  const viewerBorderOpacityValue = document.getElementById('viewer-btn-border-opacity-value');
+  if (viewerBorderPicker) viewerBorderPicker.value = s.borderColor || '#FE5F00';
+  if (viewerBorderOpacitySlider) viewerBorderOpacitySlider.value = s.borderOpacity !== undefined ? s.borderOpacity : 100;
+  if (viewerBorderOpacityValue) viewerBorderOpacityValue.textContent = (s.borderOpacity !== undefined ? s.borderOpacity : 100) + '%';
   updateViewerTapHighlight(s.tapMode || 'double');
 }
 
@@ -11377,7 +11386,7 @@ window.addEventListener('load', () => {
   const camScreenResetAllBtn = document.getElementById('cam-screen-reset-all');
   if (camScreenResetAllBtn) {
     camScreenResetAllBtn.addEventListener('click', () => {
-      window._camBtnSettings = { bgColor: '#000000', opacity: 100, fontColor: '#ffffff', tapMode: 'single' };
+      window._camBtnSettings = { bgColor: '#000000', opacity: 100, fontColor: '#ffffff', tapMode: 'single', borderColor: '#FE5F00', borderOpacity: 100 };
       const colorPickerEl = document.getElementById('cam-btn-color-picker');
       const opacitySliderEl = document.getElementById('cam-btn-opacity-slider');
       const opacityValueEl = document.getElementById('cam-btn-opacity-value');
@@ -11388,7 +11397,45 @@ window.addEventListener('load', () => {
       if (opacityValueEl) opacityValueEl.textContent = '100%';
       if (fontColorPickerEl) fontColorPickerEl.value = '#ffffff';
       if (tapHintEl) tapHintEl.textContent = 'Current: Single Tap';
+      const camBorderPickerEl = document.getElementById('cam-btn-border-color-picker');
+      const camBorderOpacitySliderEl = document.getElementById('cam-btn-border-opacity-slider');
+      const camBorderOpacityValueEl = document.getElementById('cam-btn-border-opacity-value');
+      if (camBorderPickerEl) camBorderPickerEl.value = '#FE5F00';
+      if (camBorderOpacitySliderEl) camBorderOpacitySliderEl.value = 100;
+      if (camBorderOpacityValueEl) camBorderOpacityValueEl.textContent = '100%';
       updateCamTapHighlight('single');
+      window._applyCamBtnStyles();
+      localStorage.setItem('r1_cam_btn_settings', JSON.stringify(window._camBtnSettings));
+    });
+  }
+
+  const camBtnBorderColorPicker = document.getElementById('cam-btn-border-color-picker');
+  if (camBtnBorderColorPicker) {
+    camBtnBorderColorPicker.addEventListener('input', (e) => {
+      window._camBtnSettings.borderColor = e.target.value;
+      window._applyCamBtnStyles();
+      localStorage.setItem('r1_cam_btn_settings', JSON.stringify(window._camBtnSettings));
+    });
+  }
+
+  const camBtnBorderColorDefaultBtn = document.getElementById('cam-btn-border-color-default');
+  if (camBtnBorderColorDefaultBtn) {
+    camBtnBorderColorDefaultBtn.addEventListener('click', () => {
+      window._camBtnSettings.borderColor = '#FE5F00';
+      const pickerEl = document.getElementById('cam-btn-border-color-picker');
+      if (pickerEl) pickerEl.value = '#FE5F00';
+      window._applyCamBtnStyles();
+      localStorage.setItem('r1_cam_btn_settings', JSON.stringify(window._camBtnSettings));
+    });
+  }
+
+  const camBtnBorderOpacitySlider = document.getElementById('cam-btn-border-opacity-slider');
+  if (camBtnBorderOpacitySlider) {
+    camBtnBorderOpacitySlider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value);
+      window._camBtnSettings.borderOpacity = val;
+      const opacityValueEl = document.getElementById('cam-btn-border-opacity-value');
+      if (opacityValueEl) opacityValueEl.textContent = val + '%';
       window._applyCamBtnStyles();
       localStorage.setItem('r1_cam_btn_settings', JSON.stringify(window._camBtnSettings));
     });
@@ -11477,7 +11524,7 @@ window.addEventListener('load', () => {
   const viewerScreenResetAllBtn = document.getElementById('viewer-screen-reset-all');
   if (viewerScreenResetAllBtn) {
     viewerScreenResetAllBtn.addEventListener('click', () => {
-      window._viewerBtnSettings = { bgColor: '#000000', opacity: 100, fontColor: '#ffffff', tapMode: 'single' };
+      window._viewerBtnSettings = { bgColor: '#000000', opacity: 100, fontColor: '#ffffff', tapMode: 'single', borderColor: '#FE5F00', borderOpacity: 100 };
       const colorPickerEl = document.getElementById('viewer-btn-color-picker');
       const opacitySliderEl = document.getElementById('viewer-btn-opacity-slider');
       const opacityValueEl = document.getElementById('viewer-btn-opacity-value');
@@ -11488,7 +11535,45 @@ window.addEventListener('load', () => {
       if (opacityValueEl) opacityValueEl.textContent = '100%';
       if (fontColorPickerEl) fontColorPickerEl.value = '#ffffff';
       if (tapHintEl) tapHintEl.textContent = 'Current: Single Tap';
+      const viewerBorderPickerEl = document.getElementById('viewer-btn-border-color-picker');
+      const viewerBorderOpacitySliderEl = document.getElementById('viewer-btn-border-opacity-slider');
+      const viewerBorderOpacityValueEl = document.getElementById('viewer-btn-border-opacity-value');
+      if (viewerBorderPickerEl) viewerBorderPickerEl.value = '#FE5F00';
+      if (viewerBorderOpacitySliderEl) viewerBorderOpacitySliderEl.value = 100;
+      if (viewerBorderOpacityValueEl) viewerBorderOpacityValueEl.textContent = '100%';
       updateViewerTapHighlight('single');
+      window._applyViewerBtnStyles();
+      localStorage.setItem('r1_viewer_btn_settings', JSON.stringify(window._viewerBtnSettings));
+    });
+  }
+
+  const viewerBtnBorderColorPicker = document.getElementById('viewer-btn-border-color-picker');
+  if (viewerBtnBorderColorPicker) {
+    viewerBtnBorderColorPicker.addEventListener('input', (e) => {
+      window._viewerBtnSettings.borderColor = e.target.value;
+      window._applyViewerBtnStyles();
+      localStorage.setItem('r1_viewer_btn_settings', JSON.stringify(window._viewerBtnSettings));
+    });
+  }
+
+  const viewerBtnBorderColorDefaultBtn = document.getElementById('viewer-btn-border-color-default');
+  if (viewerBtnBorderColorDefaultBtn) {
+    viewerBtnBorderColorDefaultBtn.addEventListener('click', () => {
+      window._viewerBtnSettings.borderColor = '#FE5F00';
+      const pickerEl = document.getElementById('viewer-btn-border-color-picker');
+      if (pickerEl) pickerEl.value = '#FE5F00';
+      window._applyViewerBtnStyles();
+      localStorage.setItem('r1_viewer_btn_settings', JSON.stringify(window._viewerBtnSettings));
+    });
+  }
+
+  const viewerBtnBorderOpacitySlider = document.getElementById('viewer-btn-border-opacity-slider');
+  if (viewerBtnBorderOpacitySlider) {
+    viewerBtnBorderOpacitySlider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value);
+      window._viewerBtnSettings.borderOpacity = val;
+      const opacityValueEl = document.getElementById('viewer-btn-border-opacity-value');
+      if (opacityValueEl) opacityValueEl.textContent = val + '%';
       window._applyViewerBtnStyles();
       localStorage.setItem('r1_viewer_btn_settings', JSON.stringify(window._viewerBtnSettings));
     });
@@ -14092,7 +14177,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // --- Gallery Image Viewer Screen: Button Styles ---
 
 (function() {
-  const DEFAULT_VIEWER_SETTINGS = { bgColor: '#000000', opacity: 100, fontColor: '#ffffff', tapMode: 'single' };
+  const DEFAULT_VIEWER_SETTINGS = { bgColor: '#000000', opacity: 100, fontColor: '#ffffff', tapMode: 'single', borderColor: '#FE5F00', borderOpacity: 100 };
   let viewerSettings = { ...DEFAULT_VIEWER_SETTINGS };
   try {
     const saved = localStorage.getItem('r1_viewer_btn_settings');
@@ -14114,6 +14199,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const a = s.opacity / 100;
     const bg = `rgba(${r}, ${g}, ${b}, ${a})`;
     const fc = s.fontColor;
+    const bc = hexToRgb(s.borderColor || '#FE5F00');
+    const ba = (s.borderOpacity !== undefined ? s.borderOpacity : 100) / 100;
+    const border = `rgba(${bc.r}, ${bc.g}, ${bc.b}, ${ba})`;
 
     let styleEl = document.getElementById('_viewer-btn-custom-style');
     if (!styleEl) {
@@ -14122,10 +14210,10 @@ document.addEventListener('DOMContentLoaded', function() {
       document.head.appendChild(styleEl);
     }
     styleEl.textContent = `
-      .viewer-carousel-button { background: ${bg} !important; color: ${fc} !important; }
+      .viewer-carousel-button { background: ${bg} !important; color: ${fc} !important; border-color: ${border} !important; }
       .viewer-carousel-label { color: ${fc} !important; }
-      .viewer-left-carousel-btn { background: ${bg} !important; color: ${fc} !important; }
-      .viewer-bottom-btn { background: ${bg} !important; color: ${fc} !important; }
+      .viewer-left-carousel-btn { background: ${bg} !important; color: ${fc} !important; border-color: ${border} !important; }
+      .viewer-bottom-btn { background: ${bg} !important; color: ${fc} !important; border-color: ${border} !important; }
       .viewer-delete-button { background: ${bg} !important; color: ${fc} !important; }
       .viewer-close-button { background: ${bg} !important; color: ${fc} !important; }
     `;
@@ -14190,7 +14278,7 @@ console.log('AI Camera Styles app initialized!');
 (function() {
   // ── Load saved settings
 
-  const DEFAULT_SETTINGS = { bgColor: '#000000', opacity: 100, fontColor: '#ffffff', tapMode: 'single' };
+  const DEFAULT_SETTINGS = { bgColor: '#000000', opacity: 100, fontColor: '#ffffff', tapMode: 'single', borderColor: '#FE5F00', borderOpacity: 100 };
   let settings = { ...DEFAULT_SETTINGS };
   try {
     const saved = localStorage.getItem('r1_cam_btn_settings');
@@ -14215,8 +14303,10 @@ console.log('AI Camera Styles app initialized!');
     const a = s.opacity / 100;
     const bg = `rgba(${r}, ${g}, ${b}, ${a})`;
     const fc = s.fontColor;
+    const bc = hexToRgb(s.borderColor || '#FE5F00');
+    const ba = (s.borderOpacity !== undefined ? s.borderOpacity : 100) / 100;
+    const border = `rgba(${bc.r}, ${bc.g}, ${bc.b}, ${ba})`;
 
-    // Use an injected <style> tag so CSS class-based active states (enabled, random-active, etc.) still work
     let styleEl = document.getElementById('_cam-btn-custom-style');
     if (!styleEl) {
       styleEl = document.createElement('style');
@@ -14224,11 +14314,11 @@ console.log('AI Camera Styles app initialized!');
       document.head.appendChild(styleEl);
     }
     styleEl.textContent = `
-      .left-cam-btn:not(.enabled) { background: ${bg} !important; }
+      .left-cam-btn:not(.enabled) { background: ${bg} !important; border-color: ${border} !important; }
       .left-cam-btn { color: ${fc} !important; }
-      .mode-button:not(.random-active):not(.active):not(.burst-active):not(.timer-active):not(.camera-multi-active):not(.combine-active):not(.layer-active) { background: ${bg} !important; }
+      .mode-button:not(.random-active):not(.active):not(.burst-active):not(.timer-active):not(.camera-multi-active):not(.combine-active):not(.layer-active) { background: ${bg} !important; border-color: ${border} !important; }
       .mode-button { color: ${fc} !important; }
-      .camera-button { background: ${bg} !important; }
+      .camera-button { background: ${bg} !important; border-color: ${border} !important; }
       .mode-label { color: ${fc} !important; }
       .button-label { color: ${fc} !important; }
     `;
