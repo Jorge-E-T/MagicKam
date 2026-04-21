@@ -535,6 +535,11 @@ const STORAGE_KEY = 'r1_camera_styles';
 // Local storage key (for the ARRAY of favorite style names)
 let favoriteStyles = []; 
 let _favoriteStylesSet = new Set(); // Fast O(1) lookup mirror for favoriteStyles
+let _stylesListCache = null;        // Cached result of getStylesLists()
+let _stylesDataVersion = 0;         // Incremented whenever presets/visibility/favorites change
+let _stylesListCacheVersion = -1;   // Version when cache was last built
+let _listDOMVersion = -1;           // _stylesDataVersion when the menu DOM was last fully built
+let _listDOMIsFiltered = false;     // true when the current menu DOM was built with a filter active
 const FAVORITE_STYLES_KEY = 'r1_camera_favorites';
 const VISIBLE_PRESETS_KEY = 'r1_camera_visible_presets';
 let visiblePresets = []; // Array of preset names that should be shown
@@ -3390,9 +3395,11 @@ async function loadStyles() {
     if (hasImports || hasModifications) {
         // Merge factory presets with user modifications
         CAMERA_PRESETS = await mergePresetsWithStorage();
+        _stylesDataVersion++;
     } else {
         // First time user - don't load anything yet
         CAMERA_PRESETS = [];
+        _stylesDataVersion++;
         
         // Show a message that they need to import presets
         setTimeout(async () => {
@@ -3641,6 +3648,7 @@ async function mergePresetsWithStorage() {
 // Save visible presets to localStorage
 function saveVisiblePresets() {
     _visiblePresetsSet = new Set(visiblePresets);
+    _stylesDataVersion++;
     try {
         localStorage.setItem(VISIBLE_PRESETS_KEY, JSON.stringify(visiblePresets));
     } catch (err) {
@@ -3865,15 +3873,16 @@ function loadResolution() {
 }
 
 function getStylesLists() {
+    if (_stylesListCache && _stylesListCacheVersion === _stylesDataVersion) {
+        return _stylesListCache;
+    }
     const presets = CAMERA_PRESETS.filter(p => _visiblePresetsSet.has(p.name));
-    
     const sortedAll = presets.slice().sort((a, b) => a.name.localeCompare(b.name));
-    
     const favorites = sortedAll.filter(p => isFavoriteStyle(p.name));
-    
     const regular = sortedAll.filter(p => !isFavoriteStyle(p.name));
-
-    return { favorites, regular };
+    _stylesListCache = { favorites, regular };
+    _stylesListCacheVersion = _stylesDataVersion;
+    return _stylesListCache;
 }
 
 function getSortedPresets() {
@@ -3979,6 +3988,7 @@ function saveFavoriteStyle(styleName) {
         _favoriteStylesSet.add(styleName);
     }
 
+    _stylesDataVersion++;
     localStorage.setItem(FAVORITE_STYLES_KEY, JSON.stringify(favoriteStyles));
     
     // Save current scroll position before repopulating
@@ -5146,7 +5156,7 @@ async function deleteCustomPreset() {
   }
 }
 
-function populateVisiblePresetsList() {
+function populateVisiblePresetsList(skipScrollSync = false) {
   const list = document.getElementById('visible-presets-list');
   
   // Save current scroll position from the scroll container (like favorites does)
@@ -5227,10 +5237,12 @@ const allPresets = CAMERA_PRESETS.filter(p => {
     countElement.textContent = visibleCount;
   }
   
-// Update selection after render
-  setTimeout(() => {
-    updateVisiblePresetsSelection();
-  }, 50);
+// Update selection after render — skipped when caller manages scroll position itself
+  if (!skipScrollSync) {
+    setTimeout(() => {
+      updateVisiblePresetsSelection();
+    }, 50);
+  }
 }
 
 function toggleVisiblePreset(presetName, isVisible) {
@@ -5262,9 +5274,10 @@ function toggleVisiblePreset(presetName, isVisible) {
   const scrollContainer = document.querySelector('#visible-presets-submenu .submenu-list');
   const scrollPosition = scrollContainer ? scrollContainer.scrollTop : 0;
   
-  populateVisiblePresetsList(); // Update the current submenu list
+  // Pass true to skip the internal scrollIntoView — we restore the position ourselves below
+  populateVisiblePresetsList(true);
   
-  // Restore scroll position after repopulating - use requestAnimationFrame to ensure DOM is updated
+  // Restore scroll position after repopulating
   if (scrollContainer) {
     requestAnimationFrame(() => {
       scrollContainer.scrollTop = scrollPosition;
@@ -9169,26 +9182,40 @@ function showUnifiedMenu() {
   if (capturedImage && capturedImage.style.display === 'block') {
     resetToCamera();
   }
-  
-  populateStylesList();
-  // Initialize styles count display
-  const stylesCountElement = document.getElementById('styles-count');
-  if (stylesCountElement) {
-    const { favorites, regular } = getStylesLists();
-    const totalVisible = favorites.length + regular.length;
-    stylesCountElement.textContent = totalVisible;
-  }
+
   updateResolutionDisplay();
   updateBurstDisplay();
   updateMasterPromptDisplay();
   updateTimerDisplay();
-  
+
   isMenuOpen = true;
   menuScrollEnabled = true;
-  
-  pauseCamera();
-  cancelTimerCountdown();
-  menu.style.display = 'flex';
+
+  // Peek at whether the list is already current so we know before doing any work
+  const menuList = document.getElementById('menu-styles-list');
+  const willFastPath = !styleFilterText && !mainMenuFilterByCategory &&
+      !_listDOMIsFiltered &&
+      _listDOMVersion === _stylesDataVersion &&
+      menuList?.children.length > 0;
+
+  if (willFastPath) {
+    // List is already correct — open instantly with no spinner at all
+    pauseCamera();
+    cancelTimerCountdown();
+    menu.style.display = 'flex';
+    populateStylesList();
+  } else {
+    // List needs a full rebuild — show the loading overlay IMMEDIATELY so the user
+    // sees a spinner at once rather than a frozen camera or settings screen.
+    showLoadingOverlay('Opening menu...');
+    pauseCamera();
+    cancelTimerCountdown();
+    menu.style.display = 'flex';
+    setTimeout(() => {
+      populateStylesList();
+      hideLoadingOverlay();
+    }, 30);
+  }
 }
 
 async function hideUnifiedMenu() {
@@ -10012,17 +10039,53 @@ function getPresetHistory(presetName) {
   return selectionHistory[presetName] || [];
 }
 
+function _escapeHTML(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function buildStyleItemHTML(preset, indexMap, activeIndex) {
+    const originalIndex = indexMap.get(preset);
+    const activeClass = originalIndex === activeIndex ? ' active' : '';
+    const favText = isFavoriteStyle(preset.name) ? '⭐' : '☆';
+    const isUserPreset = (preset.internal === false);
+    const editAction = isUserPreset ? 'builder' : 'edit';
+    const editText = isUserPreset ? 'Builder' : 'Edit';
+    const escapedName = _escapeHTML(preset.name);
+    return `<div class="style-item${activeClass}" data-index="${originalIndex}"><button class="style-favorite" data-action="favorite" data-style-name="${escapedName}">${favText}</button><span class="style-name">${escapedName}</span><button class="style-edit" data-action="${editAction}" data-index="${originalIndex}">${editText}</button></div>`;
+}
+
 function populateStylesList(preserveScroll = false) {
     const list = document.getElementById('menu-styles-list');
-    list.innerHTML = '';
-    
-    // Remove old event listener if it exists
-    list.replaceWith(list.cloneNode(false));
-    const newList = document.getElementById('menu-styles-list');
-    
-    const fragment = document.createDocumentFragment();
-    
-    // Build a one-time index map so createStyleMenuItemFast doesn't need findIndex per item
+
+    // ── Fast path: skip full rebuild if data hasn't changed and no filter is active ──
+    // The existing DOM nodes are still correct — just update the active highlight.
+    if (!styleFilterText && !mainMenuFilterByCategory &&
+        !_listDOMIsFiltered &&
+        _listDOMVersion === _stylesDataVersion &&
+        list.children.length > 0) {
+
+        // Update active-preset highlight cheaply (no layout, just class toggling)
+        const allItems = list.querySelectorAll('.style-item');
+        allItems.forEach(item => item.classList.remove('active'));
+        const activeItem = list.querySelector(`[data-index="${currentPresetIndex}"]`);
+        if (activeItem) activeItem.classList.add('active');
+
+        if (!preserveScroll) {
+            currentMenuIndex = 0;
+        }
+        return;
+    }
+
+    // Slow path: rebuild needed — caller is responsible for visual feedback via overlay
+    _doPopulateStylesList(list, preserveScroll);
+}
+
+function _doPopulateStylesList(list, preserveScroll) {
+    // Remove the old delegation listener before re-adding below
+    list.removeEventListener('click', handleStyleListClick);
+    const newList = list;
+
+    // Build a one-time index map so we can look up originalIndex in O(1)
     const presetIndexMap = new Map(CAMERA_PRESETS.map((p, i) => [p, i]));
 
     const { favorites, regular } = getStylesLists();
@@ -10066,51 +10129,50 @@ function populateStylesList(preserveScroll = false) {
       return true;
     });
 
-    if (filteredFavorites.length > 0) {
-        const favHeader = document.createElement('h3');
-        favHeader.className = 'menu-section-header';
-        favHeader.textContent = '★ Favorites';
-        fragment.appendChild(favHeader);
+    // Build HTML as a string — 10x faster than createElement for large lists
+    const parts = [];
 
+    if (filteredFavorites.length > 0) {
+        parts.push('<h3 class="menu-section-header">★ Favorites</h3>');
         filteredFavorites.forEach(preset => {
-            const item = createStyleMenuItemFast(preset, presetIndexMap);
-            fragment.appendChild(item);
+            parts.push(buildStyleItemHTML(preset, presetIndexMap, currentPresetIndex));
         });
     }
 
     if (filtered.length > 0) {
-        const regularHeader = document.createElement('h3');
-        regularHeader.className = 'menu-section-header';
-        regularHeader.textContent = styleFilterText ? 'Search Results' : 'All Styles';
-        fragment.appendChild(regularHeader);
-        
+        const headerText = styleFilterText ? 'Search Results' : 'All Styles';
+        parts.push(`<h3 class="menu-section-header">${headerText}</h3>`);
         filtered.forEach(preset => {
-            const item = createStyleMenuItemFast(preset, presetIndexMap);
-            fragment.appendChild(item);
+            parts.push(buildStyleItemHTML(preset, presetIndexMap, currentPresetIndex));
         });
     }
-    
+
     if (filtered.length === 0 && filteredFavorites.length === 0 && styleFilterText) {
-      const emptyMsg = document.createElement('div');
-      emptyMsg.className = 'menu-empty';
-      emptyMsg.textContent = 'No styles found';
-      fragment.appendChild(emptyMsg);
+        parts.push('<div class="menu-empty">No styles found</div>');
     }
 
-    newList.appendChild(fragment);
+    newList.innerHTML = parts.join('');
+
+    // Track whether this DOM represents a filtered or full list
+    _listDOMIsFiltered = !!(styleFilterText || mainMenuFilterByCategory);
+    if (!_listDOMIsFiltered) {
+        _listDOMVersion = _stylesDataVersion;
+    }
     
     // Single event listener for the entire list using event delegation
     newList.addEventListener('click', handleStyleListClick);
 
-// Update styles count — reuse already-computed filtered lists
-  const stylesCountElement = document.getElementById('styles-count');
-  if (stylesCountElement) {
-    stylesCountElement.textContent = filteredFavorites.length + filtered.length;
-  }
+    // Update styles count — reuse already-computed filtered lists
+    const stylesCountElement = document.getElementById('styles-count');
+    if (stylesCountElement) {
+        stylesCountElement.textContent = filteredFavorites.length + filtered.length;
+    }
     
     if (!preserveScroll) {
         currentMenuIndex = 0;
-        updateMenuSelection();
+        if (isMenuOpen && document.getElementById('unified-menu')?.style.display === 'flex') {
+            updateMenuSelection();
+        }
     }
 }
 
@@ -11713,9 +11775,13 @@ window.addEventListener('load', () => {
 
   const visiblePresetsFilter = document.getElementById('visible-presets-filter');
   if (visiblePresetsFilter) {
+    let visiblePresetsFilterDebounce = null;
     visiblePresetsFilter.addEventListener('input', (e) => {
       visiblePresetsFilterText = e.target.value;
-      populateVisiblePresetsList();
+      if (visiblePresetsFilterDebounce) clearTimeout(visiblePresetsFilterDebounce);
+      visiblePresetsFilterDebounce = setTimeout(() => {
+        populateVisiblePresetsList();
+      }, 150);
     });
     
     // Hide category footer when field is focused (keyboard appears)
@@ -12435,6 +12501,7 @@ const result = await presetImporter.import();
           
           // Reload presets (merges imported + modifications)
           CAMERA_PRESETS = await mergePresetsWithStorage();
+          _stylesDataVersion++;
           
           // Clean up visible presets after reloading and add only NEW presets
           const validPresetNames = new Set(CAMERA_PRESETS.map(p => p.name));
@@ -12914,6 +12981,7 @@ const result = await presetImporter.import();
             
             // Reload presets
             CAMERA_PRESETS = await mergePresetsWithStorage();
+            _stylesDataVersion++;
             
             // Clean up visible presets after reloading and add only NEW presets
             const validPresetNames = new Set(CAMERA_PRESETS.map(p => p.name));
@@ -13121,9 +13189,13 @@ const result = await presetImporter.import();
   
   const presetFilter = document.getElementById('preset-filter');
   if (presetFilter) {
+    let presetFilterDebounce = null;
     presetFilter.addEventListener('input', (e) => {
       presetFilterText = e.target.value;
-      populatePresetList();
+      if (presetFilterDebounce) clearTimeout(presetFilterDebounce);
+      presetFilterDebounce = setTimeout(() => {
+        populatePresetList();
+      }, 150);
     });
     
     // Hide footer and controls when user starts typing (keyboard appears)
@@ -13884,6 +13956,7 @@ document.getElementById('factory-reset-button').addEventListener('click', async 
     
     // Reload presets from imported list or factory presets
     CAMERA_PRESETS = await mergePresetsWithStorage();
+    _stylesDataVersion++;
     
     // Reset visible presets to show everything (fresh start)
     if (CAMERA_PRESETS.length > 0) {
