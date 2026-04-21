@@ -9199,11 +9199,15 @@ function showUnifiedMenu() {
       menuList?.children.length > 0;
 
   if (willFastPath) {
-    // List is already correct — open instantly with no spinner at all
+    // List is already correct — just update the active highlight and show
     pauseCamera();
     cancelTimerCountdown();
     menu.style.display = 'flex';
     populateStylesList();
+    // Defer hiding so the browser has time to actually paint the spinner
+    // before it disappears — without this, the spinner shows and hides
+    // in the same frame and the user never sees it.
+    setTimeout(() => hideLoadingOverlay(), 50);
   } else {
     // List needs a full rebuild — show the loading overlay IMMEDIATELY so the user
     // sees a spinner at once rather than a frozen camera or settings screen.
@@ -9294,10 +9298,22 @@ function hideSettingsSubmenu() {
     return;
   }
   
-  document.getElementById('settings-submenu').style.display = 'none';
+// Show the spinner IMMEDIATELY — it paints over the settings screen,
+  // which is still visible at this point. This is intentional: we keep
+  // settings visible during the 30ms paint window so the overlay appears
+  // on top of settings, not on top of the camera behind it.
+  showLoadingOverlay('Opening menu...');
+
   isSettingsSubmenuOpen = false;
   currentSettingsIndex = 0;
-  showUnifiedMenu();
+
+  // Wait one paint frame so the browser renders the spinner over settings,
+  // THEN hide settings and open the menu. The overlay stays up until
+  // showUnifiedMenu hides it once the list is ready.
+  setTimeout(() => {
+    document.getElementById('settings-submenu').style.display = 'none';
+    showUnifiedMenu();
+  }, 30);
 }
 
 // Show Timer Settings submenu
@@ -10064,10 +10080,10 @@ function populateStylesList(preserveScroll = false) {
         _listDOMVersion === _stylesDataVersion &&
         list.children.length > 0) {
 
-        // Update active-preset highlight cheaply (no layout, just class toggling)
-        const allItems = list.querySelectorAll('.style-item');
-        allItems.forEach(item => item.classList.remove('active'));
-        const activeItem = list.querySelector(`[data-index="${currentPresetIndex}"]`);
+        // Update active-preset highlight — touch only the 2 affected nodes, not all 800
+        const prevActive = list.querySelector('.style-item.active');
+        if (prevActive) prevActive.classList.remove('active');
+        const activeItem = list.querySelector(`.style-item[data-index="${currentPresetIndex}"]`);
         if (activeItem) activeItem.classList.add('active');
 
         if (!preserveScroll) {
