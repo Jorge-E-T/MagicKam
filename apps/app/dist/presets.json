@@ -12,18 +12,6 @@
     "additionalInstructions": ""
   },
   {
-    "name": "TEST",
-    "category": [
-      "ART",
-      "PAINTING",
-      "CLASSIC"
-    ],
-    "message": "Take a picture and transform the image into a French Impressionist painting. Preserve subject identity. Use loose, visible brushstrokes, soft edges, and blended colors emphasizing natural light and atmosphere. Painterly oil-on-canvas texture with warm, luminous tones.",
-    "options": [],
-    "randomizeOptions": false,
-    "additionalInstructions": ""
-  },
-  {
     "name": "#NOFILTER",
     "category": [
       "OPTIONS",
@@ -932,6 +920,18 @@
       "PARODY"
     ],
     "message": "Take a picture and recreate the classic painting American Gothic. Replace one figure in the painting with the subject. If the subject is male, replace the male figure. If the subject is female, replace the female figure. If two subjects are present, replace both figures accordingly. Preserve the iconic composition, clothing style, background, and serious tone of the original artwork while integrating the subject naturally. The final image should be instantly recognizable as American Gothic with a humorous modern twist.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": ""
+  },
+  {
+    "name": "AMBROTYPE",
+    "category": [
+      "PHOTOGRAPHY",
+      "VINTAGE",
+      "HISTORICAL"
+    ],
+    "message": "Take a picture and transform the image into an Ambrotype photograph. Preserve subject identity. Simulate the 1850s glass-plate photographic process. Render with a delicate, luminous quality on glass, warm sepia tones, and soft detail. Place against a dark velvet backing and within a decorative brass mat and hinged case.",
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
@@ -7320,6 +7320,18 @@
     "additionalInstructions": ""
   },
   {
+    "name": "DAGUERREOTYPE",
+    "category": [
+      "PHOTOGRAPHY",
+      "VINTAGE",
+      "HISTORICAL"
+    ],
+    "message": "Take a picture and transform the image into a Daguerreotype photograph. Preserve subject identity. Simulate the first commercially successful photographic process from the 1840s. Render with a silvery, mirror-like surface quality, fine detail, slight hand-tinting, and the characteristic metallic sheen of a polished silver plate. Add an ornate period frame.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": ""
+  },
+  {
     "name": "DALÍ",
     "category": [
       "ART",
@@ -12923,6 +12935,18 @@
   "additionalInstructions": "FINAL RESULT:\nA single, highly detailed medical-style anatomical illustration of the subject, where internal biological systems are revealed in layered form within the same image. The selected option determines which system is emphasized, but all elements must remain anatomically aligned, visually integrated, and clearly readable without breaking the single-image rule."
   },
   {
+    "name": "GUM BICHROMATE",
+    "category": [
+      "PHOTOGRAPHY",
+      "ALTERNATIVE PROCESS",
+      "FINE ART"
+    ],
+    "message": "Take a picture and transform the image into a Gum Bichromate print. Preserve subject identity. Simulate the hand-coated, painterly photographic process. Render with soft, impressionistic detail, visible brushstrokes in the emulsion, and rich watercolor-like pigment tones. Emphasize the handmade, one-of-a-kind quality with multiple color layers.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": ""
+  },
+  {
     "name": "GUMBY",
     "category": [
       "ANIMATION",
@@ -17400,6 +17424,19 @@
     ],
     "randomizeOptions": true,
     "additionalInstructions": "RESTRICTIONS:\n• No fantasy elements (dragons, magic)\n• No cartoon or stylized rendering\n• No text overlays or captions\n• No modern items or anachronisms\n• No unrealistic shiny armor (show battle wear)\n• No samurai, Roman, or other non-medieval armor\n• Historical accuracy prioritized\n\nFINAL RESULT:\nThe image should present the subject as an authentic medieval knight in the selected scene with realistic armor, weapons, and setting. The transformation should preserve the subject's identity while immersing them in a photorealistic medieval world."
+  },
+  {
+    "name": "MEHNDI",
+    "category": [
+      "ART",
+      "CULTURAL",
+      "INDIAN",
+      "BODY ART"
+    ],
+    "message": "Take a picture and transform the image into Mehndi (Henna) art style. Preserve subject identity. Apply intricate henna-inspired patterns as a decorative overlay. Render with fine, flowing lines creating elaborate paisley, floral, and geometric designs in rich reddish-brown tones. Emphasize delicate detail and ornamental beauty.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": ""
   },
   {
     "name": "MEL BROOKS FILM",
@@ -22127,6 +22164,19 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": "ABSOLUTE PROHIBITIONS:\n• No body horror\n• No hybrid human limbs\n• No disturbing anatomy\n• No aggressive or threatening behavior\n\nFINAL RESULT:\nThe final image must feel like a clever visual role-reversal or identity translation: the subject convincingly reimagined as a dog or cat, and — when a pet is present — the pet charmingly dressed like the subject, creating a humorous, wholesome, and instantly understandable transformation."
+  },
+  {
+    "name": "PHENAKISTOSCOPE",
+    "category": [
+      "ART",
+      "ANIMATION",
+      "VINTAGE",
+      "OPTICAL"
+    ],
+    "message": "Take a picture and transform the image into a Phenakistoscope disc. Preserve subject identity. Create a circular disc design with sequential animation frames arranged radially around the center, in the style of 19th-century optical animation toys. Emphasize Victorian illustration style, sequential motion, and the decorative beauty of pre-cinema animation.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": ""
   },
   {
     "name": "PHINEAS AND FERB",
@@ -27718,6 +27768,19 @@
     "additionalInstructions": "FINAL RESULT:\nThe image should capture the subject in the exact moment of gaining superpowers through the selected origin method, with dramatic visual effects, appropriate environment, civilian clothing, and that epic cinematic superhero movie moment where an ordinary person becomes extraordinary."
   },
   {
+    "name": "SUPPORTS/SURFACES",
+    "category": [
+      "ART",
+      "PAINTING",
+      "FRENCH",
+      "ABSTRACT"
+    ],
+    "message": "Take a picture and transform the image into a Supports/Surfaces artwork. Preserve subject identity. Deconstruct the painting into its material components — unstretched canvas, raw fabric, rope, and dye. Emphasize the physical properties of art materials, folded or draped canvas, and visible process inspired by Claude Viallat and Daniel Dezeuze.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": ""
+  },
+  {
     "name": "SUPREMATISM",
     "category": [
       "ABSTRACT",
@@ -28641,7 +28704,18 @@
     "randomizeOptions": false,
     "additionalInstructions": ""
   },
-
+  {
+    "name": "TINTYPE",
+    "category": [
+      "PHOTOGRAPHY",
+      "VINTAGE",
+      "HISTORICAL"
+    ],
+    "message": "Take a picture and transform the image into a Tintype photograph. Preserve subject identity. Simulate the Civil War-era photographic process on dark metal plates. Render with slightly underexposed tones, a dark metallic background, soft focus, and the characteristic reversed image quality. Add period-appropriate scratches and patina.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": ""
+  },
   {
     "name": "TINY BUBBLES",
     "category": [
