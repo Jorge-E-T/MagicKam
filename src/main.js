@@ -14212,7 +14212,8 @@ document.addEventListener('DOMContentLoaded', function() {
     styleEl.textContent = `
       .viewer-carousel-button { background: ${bg} !important; color: ${fc} !important; border-color: ${border} !important; }
       .viewer-carousel-label { color: ${fc} !important; }
-      .viewer-left-carousel-btn { background: ${bg} !important; color: ${fc} !important; border-color: ${border} !important; }
+      .viewer-left-carousel-btn:not(.enabled) { background: ${bg} !important; border-color: ${border} !important; }
+      .viewer-left-carousel-btn { color: ${fc} !important; }
       .viewer-bottom-btn { background: ${bg} !important; color: ${fc} !important; border-color: ${border} !important; }
       .viewer-delete-button { background: ${bg} !important; color: ${fc} !important; }
       .viewer-close-button { background: ${bg} !important; color: ${fc} !important; }
