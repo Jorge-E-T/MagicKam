@@ -2300,6 +2300,37 @@
     "additionalInstructions": ""
   },
   {
+    "name": "BAS-RELIEF COIN PORTRAIT",
+    "category": [
+      "OPTIONS",
+      "COIN",
+      "ENGRAVED",
+      "RELIEF",
+      "VINTAGE"
+    ],
+    "message": "Take a picture and transform the subject into a minted bas-relief coin engraving portrait.\n\nThe final image must look like the subject is struck into an antique commemorative medallion.\n\nMASTER PROMPT RULE:\n• If a master prompt specifies denomination or theme — PRIORITIZE and USE that information\n\nGENERAL REQUIREMENTS:\n• Maintain recognizable subject profile\n• Entire image rendered as coin engraving\n• Antique mint realism required\n",
+    "randomizeOptions": true,
+    "optionGroups": [
+    {
+      "title": "COIN STYLE",
+      "options": [
+        { "id": "001", "text": "Classical Medal — formal commemorative portrait" },
+        { "id": "002", "text": "Currency Coin — government mint style" },
+        { "id": "003", "text": "Ornate Token — decorative carnival medallion" }
+      ]
+    },
+    {
+      "title": "ENGRAVING DEPTH",
+      "options": [
+        { "id": "001", "text": "Fine — shallow engraved lines" },
+        { "id": "002", "text": "Medium — clear minted relief" },
+        { "id": "003", "text": "Deep — dramatic sculpted coin face" }
+      ]
+    }
+    ],
+    "additionalInstructions": "• Entire portrait must be rebuilt as engraved metal coin linework\n• Add radial mint scratches, stamped rim, and antique metallic wear\n• Subject must feel struck into the surface\n• No photo regions may remain\n• Strong numismatic realism required"
+  },
+  {
     "name": "BASALT COLUMN FORMATION",
     "category": [
       "ART",
@@ -2830,6 +2861,37 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "BLUEPRINT WIREFRAME GHOST",
+    "category": [
+      "OPTIONS",
+      "TECH",
+      "BLUEPRINT",
+      "WIREFRAME",
+      "GHOST"
+    ],
+    "message": "Take a picture and transform the subject into a luminous blueprint wireframe ghost rendering.\n\nThe final image must look like a technical engineering hologram made of glowing drafting lines over a dark field.\n\nMASTER PROMPT RULE:\n• If a master prompt specifies technical density or sci-fi level — PRIORITIZE and USE that information\n\nGENERAL REQUIREMENTS:\n• Maintain recognizable subject\n• Entire image reconstructed from wireframe drafting geometry\n• Strong luminous technical feel\n",
+    "randomizeOptions": true,
+    "optionGroups": [
+    {
+      "title": "WIRE DENSITY",
+      "options": [
+        { "id": "001", "text": "Light — sparse blueprint edges" },
+        { "id": "002", "text": "Medium — full drafting mesh" },
+        { "id": "003", "text": "Heavy — dense CAD wireframe" }
+      ]
+    },
+    {
+      "title": "GLOW LEVEL",
+      "options": [
+        { "id": "001", "text": "Soft — subtle neon blueprint glow" },
+        { "id": "002", "text": "Medium — visible electric edges" },
+        { "id": "003", "text": "Strong — holographic energy lines" }
+      ]
+    }
+    ],
+    "additionalInstructions": "• Entire subject must be drawn from luminous blueprint wire contours\n• Add construction lines, technical guide marks, and CAD mesh hints\n• Background should remain dark for contrast\n• No solid photo surfaces may remain\n• Final image should feel like an engineering ghost projection"
   },
   {
     "name": "BLUEY",
@@ -4908,7 +4970,20 @@
     "randomizeOptions": true,
     "additionalInstructions": "IDENTITY PRESERVATION:\n• Subject must remain clearly recognizable despite the color distortion\n• The effect should enhance the image artistically, not destroy legibility\n\nFINAL RESULT:\nThe image should look like a deliberate artistic application of chromatic aberration, not a camera malfunction."
   },
-    {
+  {
+    "name": "CHROMOSTEREOPSIS",
+    "category": [
+      "OPTICAL",
+      "ILLUSION",
+      "COLOR",
+      "DEPTH"
+    ],
+    "message": "Take a picture and transform the subject into a strict chromostereopsis optical illusion. The subject must be exclusively red and black, and the background exclusively blue and black. Depth perception is achieved by the red appearing closer, blue further, separated by a perfect, solid black border.",
+    "options": [],
+    "randomizeOptions": false,
+    "additionalInstructions": "FINAL RESULT:\nA high-contrast digital piece where the red subject appears to physically float in front of the blue background.\n\nCORE REQUIREMENTS:\n• STRICT COLOR PALETTE: Use ONLY #FF0000 (Red), #0000FF (Blue), and #000000 (Black). Absolutely zero mid-tones, gradients, or anti-aliasing.\n• BLACK NOISE DENSITY: The subject and background must not be solid colors, but rather a dense, 50/50 mix of color and black pixels to create a gritty, high-contrast digital grain.\n• SUBJECT TREATMENT: Render the subject exclusively in Red and Black noise. Ensure zero blue pixels exist within the subject's area.\n• BACKGROUND TREATMENT: Render the background exclusively in blue and black noise. CRITICALLY: This background static must have a significantly larger, coarser scale (like low-resolution macro-pixels), making the background pattern blockier and less fine compared to the subject. Ensure zero red pixels exist within the background area.\n• ZERO AURA/GLOW: Strictly prohibit any blue or red halos, glows, or translucent 'auras' around the subject. The transition from color to border must be instantaneous and sharp.\n• ISOLATION BORDER: The subject must be enclosed in a thick, solid, continuous Pitch Black border line. This border must be the only divider between the red subject and the blue background.\n• TEXTURE: Use randomized digital static overall. The black pixels must be interspersed evenly throughout the red and blue areas, with the background employing a lower resolution, blockier grain as specified in the treatments."
+  },
+  {
     "name": "CHRONOPHOTOGRAPHY",
     "category": [
       "PHOTOGRAPHY",
@@ -4919,6 +4994,29 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "CIGAR BAND PORTRAIT",
+    "category": [
+      "OPTIONS",
+      "VINTAGE",
+      "ORNATE",
+      "LABEL",
+      "PRINT"
+    ],
+    "message": "Take a picture and transform the subject into a luxurious vintage cigar band portrait.\n\nThe final image must resemble an ornate engraved cigar label with the subject as the noble centerpiece.\n\nMASTER PROMPT RULE:\n• If a master prompt specifies elegance or title — PRIORITIZE and USE that information\n",
+    "randomizeOptions": true,
+    "options": [
+      {
+        "id": "001",
+        "text": "Classic — rich decorative frame"
+      },
+      { 
+        "id": "002",
+        "text": "Royal — extreme gold filigree and medallions"
+      }
+    ],
+    "additionalInstructions": "• Subject must appear as engraved noble portrait medallion\n• Add gold filigree, scrollwork, seals, banners, and vintage cigar typography\n• Rich old-world luxury label design required."
   },
   {
     "name": "CINEMATIC HORROR",
@@ -5280,6 +5378,36 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "CLOCKWORK AUTOMATON",
+    "category": [
+      "OPTIONS",
+      "MECHANICAL",
+      "STEAMPUNK",
+      "VICTORIAN",
+      "GEARS"
+    ],
+    "message": "Take a picture and transform the subject into a Victorian clockwork automaton.\n\nThe final image must reinterpret the subject as a brass mechanical humanoid filled with gears, springs, dials, and ornate machinery.\n\nMASTER PROMPT RULE:\n• If a master prompt specifies complexity or elegance — PRIORITIZE and USE that information\n",
+    "randomizeOptions": true,
+    "optionGroups": [
+    {
+      "title": "MECHANICAL DENSITY",
+      "options": [
+        { "id": "001", "text": "Light — subtle exposed gears" },
+        { "id": "002", "text": "Medium — clear automaton conversion" },
+        { "id": "003", "text": "Heavy — dense machinery and clockwork" }
+      ]
+    },
+    {
+      "title": "STYLE MODE",
+      "options": [
+        { "id": "001", "text": "Elegant Brass — polished Victorian machinery" },
+        { "id": "002", "text": "Industrial Steam — darker soot-covered mechanisms" }
+      ]
+    }
+    ],
+    "additionalInstructions": "• Subject must remain recognizable but mechanical\n• Use brass, copper, steel gears, springs, rivets, and clock parts\n• Victorian craftsmanship required\n• No modern robot styling"
   },
   {
     "name": "CLOISONNISM",
@@ -13459,6 +13587,37 @@
     "additionalInstructions": ""
   },
   {
+    "name": "HEATMAP TOPOGRAPHIC FACE",
+    "category": [
+      "OPTIONS",
+      "OPTICAL",
+      "TOPOGRAPHIC",
+      "CONTOUR",
+      "DEPTH"
+    ],
+    "message": "Take a picture and transform the subject into a topographic contour-map illusion built from stacked elevation bands.\n\nThe final image must reconstruct the subject using layered contour lines and elevation zones like a dimensional terrain scan.\n\nMASTER PROMPT RULE:\n• If a master prompt specifies palette or terrain aggression — PRIORITIZE and USE that information\n\nGENERAL REQUIREMENTS:\n• Maintain recognizable subject\n• Entire image built from contour/elevation systems\n• Strong dimensional mapping effect\n",
+    "randomizeOptions": true,
+    "optionGroups": [
+    {
+      "title": "CONTOUR STYLE",
+      "options": [
+        { "id": "001", "text": "Smooth Bands — flowing terrain layers" },
+        { "id": "002", "text": "Sharp Terraces — stepped elevation cuts" },
+        { "id": "003", "text": "Mixed Survey — engineering map contour blend" }
+      ]
+    },
+    {
+      "title": "DEPTH STACK",
+      "options": [
+        { "id": "001", "text": "Low — gentle elevation" },
+        { "id": "002", "text": "Medium — visible terrain face" },
+        { "id": "003", "text": "High — dramatic stacked relief" }
+      ]
+    }
+    ],
+    "additionalInstructions": "• Entire portrait must be rebuilt from nested contour levels\n• Subject form should emerge through elevation changes only\n• Add dimensional terrain shadows between contour bands\n• No normal photographic textures may remain\n• Final result should feel like a 3D geological face map"
+  },
+  {
     "name": "HENRY DANGER",
     "category": [
       "TV",
@@ -13776,6 +13935,37 @@
     }
   ],
     "additionalInstructions": "CORE ILLUSION RULES (CRITICAL):\n\n• The subject must appear physically concave (curving inward)\n• Lighting must be REVERSED compared to normal depth\n• Highlights and shadows must contradict actual form\n\nPERCEPTION TRICK:\n\n• Human brain should interpret the concave shape as convex\n• This creates the illusion that the subject follows the viewer\n\nANTI-CHEAT RULES:\n\n• DO NOT create a normal 3D face or raised surface\n• DO NOT rely on blur or perspective alone\n• DO NOT produce a flat image without depth cues\n\nDEPTH CONSTRUCTION:\n\n• Eye sockets, cheeks, and facial structure must curve inward\n• Shadows must fall in unnatural directions for convex interpretation\n\nFOLLOW EFFECT REQUIREMENT:\n\n• Subject gaze must be centered and forward-facing\n• Depth cues must support perceived rotation when viewer moves\n\nFAIL CONDITIONS:\n\n• Face appears convex (normal) → FAIL\n• Lighting matches real-world depth → FAIL\n• No inward curvature visible → FAIL\n• No illusion of tracking/following → FAIL\n\nQUALITY:\n\n• Strong perceptual illusion\n• Clean shading transitions\n• Convincing concave structure\n• Recognizable subject with distorted depth"
+  },
+  {
+    "name": "HOLOGRAPHIC FOIL SHIFT",
+    "category": [
+      "OPTIONS",
+      "OPTICAL",
+      "HOLOGRAPHIC",
+      "FOIL",
+      "REFLECTIVE"
+    ],
+    "message": "Take a picture and transform the subject into a holographic diffraction foil illusion.\n\nThe final image must look like the subject is printed on reflective rainbow security foil with shifting iridescent optical surfaces.\n\nMASTER PROMPT RULE:\n• If a master prompt specifies holographic color preference — PRIORITIZE and USE that information\n\nGENERAL REQUIREMENTS:\n• Maintain recognizable subject\n• Entire image must appear foil printed\n• Strong metallic diffraction shimmer\n",
+    "randomizeOptions": true,
+    "optionGroups": [
+    {
+      "title": "FOIL DENSITY",
+      "options": [
+        { "id": "001", "text": "Light — subtle reflective foil" },
+        { "id": "002", "text": "Medium — visible holographic shimmer" },
+        { "id": "003", "text": "Heavy — aggressive rainbow diffraction" }
+      ]
+    },
+    {
+      "title": "SURFACE TYPE",
+      "options": [
+        { "id": "001", "text": "Smooth Security Foil — sleek metallic sheen" },
+        { "id": "002", "text": "Cracked Prism Foil — fragmented diffraction planes" },
+        { "id": "003", "text": "Wave Foil — flowing reflective bands" }
+      ]
+    }
+    ],
+    "additionalInstructions": "• Entire portrait must be rebuilt as reflective holographic foil\n• Rainbow diffraction should follow subject contours\n• Metallic highlights and spectral shine are mandatory\n• Background must also carry holographic foil texture\n• No normal matte surfaces allowed"
   },
   {
     "name": "HOLOGRAPHIC TRADING CARD",
@@ -15878,7 +16068,7 @@
       ]
     }
     ],
-    "additionalInstructions": "PROCESS (MANDATORY ORDER):\n\nSTEP 1 — DUAL IMAGE GENERATION (CRITICAL):\n\n• The model MUST create TWO COMPLETE and FULLY INDEPENDENT images:\n  - LEFT VIEW (entire frame)\n  - RIGHT VIEW (entire frame)\n\n• These MUST be placed side-by-side in the SAME canvas:\n  - LEFT image occupies the left half\n  - RIGHT image occupies the right half\n\n• Each half must be a complete, finished image\n• There must be a clean vertical split between them\n• NO blending, NO overlap, NO shared pixels\n\n• The LEFT and RIGHT images must show a clear horizontal perspective shift\n\nSTEP 2 — DESTRUCTIVE PREPARATION:\n\n• Treat BOTH halves as separate source images\n• Prepare to slice BOTH images into vertical strips\n\nSTEP 3 — SLICE:\n\n• Slice BOTH LEFT and RIGHT images into equal-width vertical strips\n• Strip width must be UNIFORM across entire image\n• Strips must be perfectly vertical and evenly spaced\n\nSTEP 4 — DESTRUCTIVE INTERLACE (CRITICAL):\n\n• DISCARD the original side-by-side layout completely\n• Rebuild a NEW single image using alternating strips\n\nSTRICT ORDER (MANDATORY):\n• Strip 1 = RIGHT\n• Strip 2 = LEFT\n• Strip 3 = RIGHT\n• Strip 4 = LEFT\n• Strip 5 = RIGHT\n• Strip 6 = LEFT\n• Continue this exact alternating pattern across the entire width\n\nCRITICAL STRUCTURE RULES:\n\n• Strip width MUST remain constant (no variation)\n• Strips must be perfectly vertical (no curves, no warping)\n• NO blending between strips\n• NO gradients between left/right views\n• NO averaging of pixels\n\nANTI-CHEAT RULES:\n\n• DO NOT generate a single image and fake stereo\n• DO NOT apply striping to only one image\n• DO NOT blend LEFT and RIGHT images together\n• DO NOT overlay images transparently\n• DO NOT approximate striping — must be exact alternating sequence\n• IF two distinct full images are not clearly created first → FAIL\n\nVISUAL REQUIREMENT:\n\n• Before interlacing, LEFT and RIGHT images must be visibly different\n• After interlacing, the image must show fine vertical strip pattern\n• Strip sequence must be consistent from edge to edge\n\nFAIL CONDITIONS:\n\n• Only one image used → FAIL\n• LEFT and RIGHT not clearly different → FAIL\n• Irregular strip width → FAIL\n• Missing strict alternation → FAIL\n• Blended or softened strip edges → FAIL\n• Side-by-side layout still visible → FAIL\n\nQUALITY:\n\n• Clean, sharp strip boundaries\n• Precise alignment\n• Consistent spacing across entire image\n• High detail retained in both views"
+    "additionalInstructions": "PROCESS (MANDATORY ORDER):\n\nSTEP 1 — DUAL IMAGE GENERATION (CRITICAL):\n\n• The model MUST create TWO COMPLETE and FULLY INDEPENDENT images:\n  - LEFT VIEW (entire frame)\n  - RIGHT VIEW (entire frame)\n\n• These MUST be placed side-by-side in the SAME canvas:\n  - LEFT image occupies the left half\n  - RIGHT image occupies the right half\n\n• Each half must be a complete, finished image\n• There must be a clean vertical split between them\n• NO blending, NO overlap, NO shared pixels\n\n• The LEFT and RIGHT images must show a clear horizontal perspective shift\n\nPARALLAX ENFORCEMENT (CRITICAL UPGRADE):\n\n• Foreground elements MUST shift horizontally MORE than background elements\n• Background elements should shift minimally\n• This creates true depth layering between LEFT and RIGHT views\n\n• The subject must occupy slightly different horizontal positions between LEFT and RIGHT views\n• Edges of the subject must NOT align perfectly between the two views\n\n• The difference between LEFT and RIGHT must be OBVIOUS when viewed side-by-side\n\nFAIL CONDITION:\n• If LEFT and RIGHT appear nearly identical → FAIL\n\nSTEP 2 — DESTRUCTIVE PREPARATION:\n\n• Treat BOTH halves as separate source images\n• Prepare to slice BOTH images into vertical strips\n\nSTEP 3 — SLICE:\n\n• Slice BOTH LEFT and RIGHT images into equal-width vertical strips\n• Strip width must be UNIFORM across entire image\n• Strips must be perfectly vertical and evenly spaced\n\nSTEP 4 — DESTRUCTIVE INTERLACE (CRITICAL):\n\n• DISCARD the original side-by-side layout completely\n• Rebuild a NEW single image using alternating strips\n\nSTRICT ORDER (MANDATORY):\n• Strip 1 = RIGHT\n• Strip 2 = LEFT\n• Strip 3 = RIGHT\n• Strip 4 = LEFT\n• Strip 5 = RIGHT\n• Strip 6 = LEFT\n• Continue this exact alternating pattern across the entire width\n\nCRITICAL STRUCTURE RULES:\n\n• Strip width MUST remain constant (no variation)\n• Strips must be perfectly vertical (no curves, no warping)\n• NO blending between strips\n• NO gradients between left/right views\n• NO averaging of pixels\n\nANTI-CHEAT RULES:\n\n• DO NOT generate a single image and fake stereo\n• DO NOT apply striping to only one image\n• DO NOT blend LEFT and RIGHT images together\n• DO NOT overlay images transparently\n• DO NOT approximate striping — must be exact alternating sequence\n• IF two distinct full images are not clearly created first → FAIL\n\nVISUAL REQUIREMENT:\n\n• Before interlacing, LEFT and RIGHT images must be visibly different\n• After interlacing, the image must show fine vertical strip pattern\n• Strip sequence must be consistent from edge to edge\n\nFAIL CONDITIONS:\n\n• Only one image used → FAIL\n• LEFT and RIGHT not clearly different → FAIL\n• Irregular strip width → FAIL\n• Missing strict alternation → FAIL\n• Blended or softened strip edges → FAIL\n• Side-by-side layout still visible → FAIL\n\nQUALITY:\n\n• Clean, sharp strip boundaries\n• Precise alignment\n• Consistent spacing across entire image\n• High detail retained in both views"
   },
   {
     "name": "LEPRECHAUN",
@@ -16133,6 +16323,37 @@
     "additionalInstructions": ""
   },
   {
+    "name": "LINE PORTRAIT DECODER",
+    "category": [
+      "OPTIONS",
+      "OPTICAL",
+      "HIDDEN",
+      "DECODER",
+      "LINES"
+    ],
+    "message": "Take a picture and transform the subject into a hidden line portrait decoder illusion.\n\nThe final image must simulate a printed encoded portrait concealed inside dense linear noise, designed to be revealed by a striped decoder overlay.\n\nMASTER PROMPT RULE:\n• If a master prompt specifies concealment or visibility — PRIORITIZE and USE that information\n\nGENERAL REQUIREMENTS:\n• Final image should appear mostly abstract at first glance\n• Subject portrait must be hidden structurally inside line modulation\n• Entire image must be black and white only\n",
+    "randomizeOptions": true,
+    "optionGroups": [
+      {
+        "title": "LINE ORIENTATION",
+        "options": [
+          { "id": "001", "text": "Vertical — hidden portrait inside vertical code lines" },
+          { "id": "002", "text": "Horizontal — hidden portrait inside horizontal code lines" },
+          { "id": "003", "text": "Radial — hidden portrait inside radiating decoder lines" }
+        ]
+      },
+      {
+        "title": "VISIBILITY LEVEL",
+        "options": [
+          { "id": "001", "text": "Deep Hidden — portrait barely visible" },
+          { "id": "002", "text": "Medium Hidden — portrait subtly detectable" },
+          { "id": "003", "text": "Decoder Ready — portrait partially readable through code" }
+        ]
+      }
+    ],
+    "additionalInstructions": "• Build the entire image from dense repeating black and white line code\n• Encode the subject only by changing line thickness, spacing, interruptions, and local modulation\n• No normal grayscale photo regions may remain\n• Portrait must feel concealed inside the code field\n• Must resemble a hidden decoder print"
+  },
+  {
     "name": "LINOCUT PRINT",
     "category": [
       "PRINTMAKING",
@@ -16156,6 +16377,45 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "LIQUID CHROME",
+    "category": [
+      "OPTIONS",
+      "METALLIC",
+      "LIQUID",
+      "REFLECTIVE",
+      "SURREAL"
+    ],
+    "message": "Take a picture and transform the subject into flowing liquid chrome.\n\nThe final image must reinterpret the subject as if made from reflective molten mirror-metal with fluid deformation and surreal mercury-like shine.\n\nMASTER PROMPT RULE:\n• If a master prompt specifies intensity or environment — PRIORITIZE and USE that information\n\nGENERAL REQUIREMENTS:\n• Maintain recognizable subject silhouette\n• Convert all visible surfaces into reflective liquid chrome\n• Emphasize mirror reflections and metallic fluidity\n",
+    "randomizeOptions": true,
+    "optionGroups": [
+    {
+      "title": "FLOW STYLE",
+      "options": [
+        { "id": "001", "text": "Smooth Mercury — gentle flowing chrome surfaces" },
+        { "id": "002", "text": "Dripping Chrome — elongated molten drips" },
+        { "id": "003", "text": "Ribbon Stretch — curling chrome strands" }
+      ]
+    },
+    {
+      "title": "REFLECTION INTENSITY",
+      "options": [
+        { "id": "001", "text": "Soft Mirror — muted reflections" },
+        { "id": "002", "text": "High Mirror — strong reflective shine" },
+        { "id": "003", "text": "Blinding Chrome — extreme specular highlights" }
+      ]
+    },
+    {
+      "title": "SURREAL LEVEL",
+      "options": [
+        { "id": "001", "text": "Subtle — mostly intact form" },
+        { "id": "002", "text": "Medium — strong fluid deformation" },
+        { "id": "003", "text": "Extreme — dramatic melting surrealism" }
+      ]
+    }
+    ],
+    "additionalInstructions": "• Subject must appear made entirely of reflective chrome liquid\n• Surface must be mirror-like and glossy\n• No matte metal allowed\n• Maintain recognizable subject while allowing fluid melt behavior\n• Strong white specular highlights required\n• No non-metal textures"
   },
   {
   "name": "LIQUID DISPLACEMENT",
@@ -16838,18 +17098,6 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": "FINAL RESULT:\nThe final image should resemble a lavishly illustrated European sci-fi graphic novel panel."
-  },
-  {
-    "name": "MAGIC EYE",
-    "category": [
-      "ILLUSION",
-      "STEREOGRAM",
-      "3D"
-    ],
-    "message": "Take a picture and transform it into a single-image autostereogram (Magic Eye–style illusion). Encode the subject’s shape and depth into a repeating patterned texture so the image appears abstract at first glance but reveals the subject when viewed with relaxed or unfocused eyes.\n\nUse a dense, repeating pattern with subtle depth cues that form the subject’s silhouette and major features in three dimensions. Do not include outlines, labels, or hints. The subject should not be immediately obvious without proper viewing.\n\nEnsure the pattern is clean, evenly tiled, and centered. The final image should resemble a classic Magic Eye print that is visually stable and readable on a small screen.",
-    "options": [],
-    "randomizeOptions": false,
-    "additionalInstructions": ""
   },
   {
     "name": "MAGIC REALISM",
@@ -18750,6 +18998,29 @@
     "additionalInstructions": "RESTRICTIONS:\n• No text overlays or captions\n• No additional scale changes elsewhere in the image\n• No surreal or abstract styles\n\nFINAL RESULT:\nThe image should look like a normal photograph at first glance, except for one unmistakably wrong-scale object that creates a clean, humorous visual gag."
   },
   {
+    "name": "MOIRÉ ILLUSION",
+    "category": [
+      "OPTIONS",
+      "OPTICAL",
+      "PATTERN",
+      "ILLUSION",
+      "LINES"
+    ],
+    "message": "Take a picture and transform the subject into a true moiré interference illusion where the subject is entirely constructed from the same line system as the background.\n\nThe final image must show the subject emerging ONLY through changes in line frequency, spacing, and thickness — not through outlines, shading, or separation.\n\nGENERAL REQUIREMENTS:\n• Strict black and white only\n• No grayscale, no gradients\n• No visible original photo\n• Entire image must be composed of continuous line systems\n",
+    "options": [
+      {
+        "id": "001",
+        "text": "Radial Depth Field — background converges inward like a black hole" 
+      },
+      { 
+        "id": "002",
+        "text": "Linear Depth Field — background compresses into directional distance" 
+      }
+    ],
+    "randomizeOptions": true,
+    "additionalInstructions": "CORE RULE (ABSOLUTE):\n• The subject MUST be constructed entirely from the same continuous line system as the background\n• The image must NOT contain a drawn subject with lines placed on top\n• There must be no separation between subject and background systems\n\nFREQUENCY HIERARCHY (CRITICAL):\n• Background = very fine, tightly spaced lines\n• Subject = coarser, thicker, more widely spaced lines\n• This contrast MUST be clearly visible\n\n• The subject must emerge ONLY through this frequency shift\n• Do NOT use shading, fill, or tone to define the subject\n\nCONTINUITY ENFORCEMENT:\n• Lines must flow continuously through both background and subject regions\n• No breaks, gaps, or black bands around the subject\n• No halos, glows, or isolation zones\n\n• If a black aura or outline appears → REMOVE IT\n\nBACKGROUND DEPTH FIELD:\n• Background must create a receding depth effect (black hole or distance field)\n• Achieve this through gradual line compression and directional convergence\n• The depth must be created ONLY with line spacing and curvature\n\nSUBJECT FORMATION:\n• The subject must distort the background line field\n• Use displacement, thickness change, and spacing variation\n• The subject should feel like a structural disturbance in the field\n\n• The subject must NOT look drawn or illustrated\n\nINTERFERENCE LAYER (MOIRÉ GENERATION):\n• Apply a second line system across the entire image\n• This layer must be slightly coarser than the background but finer than the subject\n• Offset the two layers slightly to create visible moiré interaction\n\n• Keep interference stable — avoid chaotic vibration\n\nANTI-AURA / ANTI-OUTLINE (STRICT):\n• Do NOT create any black band, glow, or empty space around the subject\n• Do NOT outline the subject in any way\n• Do NOT isolate the subject from the background\n\n• Subject edges must be defined ONLY by frequency transition\n\nANTI-FAIL CONDITIONS:\n• Subject drawn separately from lines → FAIL\n• Any outline, halo, or aura → FAIL\n• Background and subject using same frequency → FAIL\n• Broken line continuity → FAIL\n\nQUALITY TARGET:\n• Subject clearly visible through line frequency contrast\n• Continuous line system across entire image\n• Strong depth in background\n• Clean, stable moiré shimmer\n• No artificial separation artifacts."
+  },
+  {
     "name": "MOLAS",
     "category": [
       "ART",
@@ -20396,6 +20667,37 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+  "name": "NEGATIVE SPACE SILHOUETTE",
+  "category": [
+    "OPTIONS",
+    "OPTICAL",
+    "SILHOUETTE",
+    "POSTER",
+    "GRAPHIC"
+  ],
+  "message": "Take a picture and reconstruct the subject using negative space silhouette engineering.\n\nThe final image must reveal the subject by the absence of material rather than by direct rendering.\n\nGENERAL REQUIREMENTS:\n• Subject must remain recognizable through contour only\n• Entire composition must be high contrast graphic design\n• Final image must feel like hidden portrait cut from a patterned field",
+  "randomizeOptions": true,
+  "optionGroups": [
+    {
+      "title": "FIELD TYPE",
+      "options": [
+        { "id": "001", "text": "Solid Black Field — subject cut from black mass" },
+        { "id": "002", "text": "Textured Pattern Field — subject cut from repeating texture" },
+        { "id": "003", "text": "Line Field — subject cut from dense line work" }
+      ]
+    },
+    {
+      "title": "SUBJECT VISIBILITY",
+      "options": [
+        { "id": "001", "text": "Head Only — portrait silhouette" },
+        { "id": "002", "text": "Upper Body — bust silhouette" },
+        { "id": "003", "text": "Full Figure — full body cutout" }
+      ]
+    }
+  ],
+  "additionalInstructions": "• Subject must be formed entirely by empty negative space\n• Background field must be continuous and uninterrupted outside subject cutout\n• No photographic shading allowed\n• Clean silhouette readability required"
   },
   {
     "name": "NEO-EXPRESSIONISM",
@@ -22368,6 +22670,37 @@
     "additionalInstructions": ""
   },
   {
+    "name": "PARALLAX PAPER CUT DEPTH",
+    "category": [
+      "OPTIONS",
+      "OPTICAL",
+      "PAPER",
+      "DEPTH",
+      "LAYERED"
+    ],
+    "message": "Take a picture and transform the subject into a dimensional parallax papercut illusion built from stacked cut-paper layers.\n\nThe final image must look like a handcrafted multi-layer tunnel portrait with physical depth.\n\nMASTER PROMPT RULE:\n• If a master prompt specifies color palette or theme — PRIORITIZE and USE that information\n\nGENERAL REQUIREMENTS:\n• Maintain recognizable subject\n• Entire image reconstructed from stacked paper slices\n• Strong foreground/background separation\n",
+    "randomizeOptions": true,
+    "optionGroups": [
+    {
+      "title": "LAYER COUNT",
+      "options": [
+        { "id": "001", "text": "Low — 4 to 6 paper layers" },
+        { "id": "002", "text": "Medium — 7 to 10 paper layers" },
+        { "id": "003", "text": "High — 11+ paper layers" }
+      ]
+    },
+    {
+      "title": "CUT STYLE",
+      "options": [
+        { "id": "001", "text": "Smooth Curves — flowing silhouette cuts" },
+        { "id": "002", "text": "Sharp Geometry — angular cut planes" },
+        { "id": "003", "text": "Mixed Organic — varied handcrafted contours" }
+      ]
+    }
+    ],
+    "additionalInstructions": "• Build the portrait from suspended paper cut layers receding backward\n• Every layer must cast realistic shadow onto the next\n• Subject should emerge as a dimensional tunnel sculpture\n• No flat photographic regions may remain\n• Strong handcrafted depth illusion required"
+  },
+  {
     "name": "PARALLEL UNIVERSE HISTORY",
     "category": [
       "HISTORICAL",
@@ -22508,6 +22841,36 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "PEGBOARD PORTRAIT",
+    "category": [
+      "OPTIONS",
+      "DOT",
+      "GRID",
+      "PORTRAIT",
+      "MECHANICAL"
+    ],
+    "message": "Take a picture and reconstruct the subject using only circular pegboard holes or pegs arranged on a strict industrial grid.\n\nGENERAL REQUIREMENTS:\n• Entire image built from evenly spaced circular dots\n• Subject visibility from density variation only\n• Mechanical monochrome feel",
+    "randomizeOptions": true,
+    "optionGroups": [
+    {
+      "title": "DOT TYPE",
+      "options": [
+        { "id": "001", "text": "Indented Holes — recessed pegboard holes" },
+        { "id": "002", "text": "Raised Pegs — protruding pegs" }
+      ]
+    },
+    {
+      "title": "DOT SCALE",
+      "options": [
+        { "id": "001", "text": "Fine Grid — small dense dots" },
+        { "id": "002", "text": "Medium Grid — visible peg spacing" },
+        { "id": "003", "text": "Chunky Grid — large industrial dots" }
+      ]
+    }
+    ],
+    "additionalInstructions": "• Dot spacing must remain mathematically uniform\n• Subject formed only by peg depth or tonal density\n• No normal shading beyond peg logic"
   },
   {
     "name": "PEN AND INK ILLUSTRATION",
@@ -24618,6 +24981,37 @@
     "additionalInstructions": ""
   },
   {
+    "name": "RIBBON DISINTEGRATION",
+    "category": [
+      "OPTIONS",
+      "SURREAL",
+      "DECONSTRUCTION",
+      "FLOW",
+      "STRIPS"
+    ],
+    "message": "Take a picture and transform the subject as if unraveling into long flowing ribbons.\n\nThe final image must show the subject partially intact and partially disintegrating into stretched strips.\n\nMASTER PROMPT RULE:\n• If a master prompt specifies intensity or direction — PRIORITIZE and USE that information\n",
+    "randomizeOptions": true,
+    "optionGroups": [
+    {
+      "title": "DISINTEGRATION LEVEL",
+      "options": [
+        { "id": "001", "text": "Light — small ribbon unraveling" },
+        { "id": "002", "text": "Medium — major sections unraveling" },
+        { "id": "003", "text": "Extreme — dramatic strip dissolution" }
+      ]
+    },
+    {
+      "title": "RIBBON STYLE",
+      "options": [
+        { "id": "001", "text": "Smooth Fabric — silky flowing strips" },
+        { "id": "002", "text": "Paper Strips — torn flat ribbons" },
+        { "id": "003", "text": "Energy Bands — luminous stretched bands" }
+      ]
+    }
+    ],
+    "additionalInstructions": "• Subject must visibly unravel into elongated ribbons\n• Ribbons must originate from actual body/clothing surfaces\n• Maintain partial recognizability\n• Motion must feel fluid and directional\n• No random particle disintegration"
+  },
+  {
     "name": "RICK AND MORTY",
     "category": [
       "ANIMATION",
@@ -26095,6 +26489,37 @@
     "options": [],
     "randomizeOptions": false,
     "additionalInstructions": ""
+  },
+  {
+    "name": "SHATTER MOSAIC",
+    "category": [
+      "OPTIONS",
+      "MOSAIC",
+      "FRACTURE",
+      "OPTICAL",
+      "GEOMETRIC"
+    ],
+    "message": "Take a picture and reconstruct the subject as a fractured shatter mosaic built from angular shards.\n\nGENERAL REQUIREMENTS:\n• Entire image built from broken polygon fragments\n• Subject remains recognizable through shard placement\n• Dynamic explosive geometry",
+    "randomizeOptions": true,
+    "optionGroups": [
+    {
+      "title": "SHARD SIZE",
+      "options": [
+        { "id": "001", "text": "Fine Cracks — many small shards" },
+        { "id": "002", "text": "Medium Breaks — balanced fractures" },
+        { "id": "003", "text": "Large Plates — dramatic broken chunks" }
+      ]
+    },
+    {
+      "title": "DISPERSION",
+      "options": [
+        { "id": "001", "text": "Contained — subject mostly intact" },
+        { "id": "002", "text": "Bursting — outer fragments displaced" },
+        { "id": "003", "text": "Explosion — major outward fracture" }
+      ]
+    }
+    ],
+    "additionalInstructions": "• Subject geometry must be built from angular broken pieces\n• Sharp shard boundaries required\n• No soft blending\n• Optical energy should feel explosive"
   },
   {
     "name": "SHATTERING",
@@ -31942,6 +32367,29 @@
     ],
     "randomizeOptions": true,
     "additionalInstructions": "FINAL RESULT:\nThe image should depict the subject as one member of the Village People, fully costumed and recognizable, performing or posing together with the other five characters in an authentic, energetic 1970s disco scene."
+  },
+  {
+    "name": "VINTAGE MATCHBOX LABEL",
+    "category": [
+      "OPTIONS",
+      "PACKAGING",
+      "VINTAGE",
+      "LABEL",
+      "PRINT"
+    ],
+    "message": "Take a picture and transform the subject into an illustrated vintage matchbox label design.\n\nThe final image must look like an old printed matchbox cover with the subject as the central brand artwork.\n\nMASTER PROMPT RULE:\n• If a master prompt specifies humor or product branding — PRIORITIZE and USE that information\n",
+    "randomizeOptions": true,
+    "options": [
+      { 
+        "id": "001",
+        "text": "Victorian Ornate — decorative engraved label" 
+      },
+      { 
+        "id": "002", 
+        "text": "Midcentury Bold — simplified printed branding"
+      }
+    ],
+    "additionalInstructions": "• Add authentic product label typography\n• Subject becomes central illustrated mascot or emblem\n• Decorative border and printed wear encouraged\n• Must look like vintage commercial packaging."
   },
   {
     "name": "VINTAGE POSTER",
