@@ -2894,6 +2894,37 @@
     "additionalInstructions": "• Entire subject must be drawn from luminous blueprint wire contours\n• Add construction lines, technical guide marks, and CAD mesh hints\n• Background should remain dark for contrast\n• No solid photo surfaces may remain\n• Final image should feel like an engineering ghost projection"
   },
   {
+    "name": "BLUE STATIC CRT INTERFERENCE",
+    "category": [
+      "OPTIONS",
+      "CRT",
+      "STATIC",
+      "SIGNAL",
+      "INTERFERENCE"
+    ],
+    "message": "Take a picture and transform the subject into an analog CRT signal interference portrait.\n\nThe final image must make the subject appear as if emerging from old television static and blue phosphor scanlines.\n\nMASTER PROMPT RULE:\n• If a master prompt specifies signal corruption or scan aggression — PRIORITIZE and USE that information\n\nGENERAL REQUIREMENTS:\n• Maintain recognizable subject through signal field\n• Entire image rebuilt from CRT noise systems\n• Strong analog television distortion feel\n",
+    "randomizeOptions": true,
+    "optionGroups": [
+    {
+      "title": "STATIC LEVEL",
+      "options": [
+        { "id": "001", "text": "Low — light signal fuzz" },
+        { "id": "002", "text": "Medium — visible CRT interference" },
+        { "id": "003", "text": "Heavy — aggressive analog corruption" }
+      ]
+    },
+    {
+      "title": "SCAN VISIBILITY",
+      "options": [
+        { "id": "001", "text": "Soft — subtle scanline field" },
+        { "id": "002", "text": "Medium — clear phosphor rows" },
+        { "id": "003", "text": "Strong — dominant TV raster" }
+      ]
+    }
+    ],
+    "additionalInstructions": "• Entire portrait must emerge from analog CRT static noise\n• Blue phosphor scanlines and signal flicker should define the image\n• Add occasional horizontal interference tearing\n• No normal photographic clarity may remain\n• Final result should feel like a ghost trapped in old television"
+  },
+  {
     "name": "BLUEY",
     "category": [
       "CARTOON",
