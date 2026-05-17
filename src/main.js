@@ -1,5 +1,5 @@
 import { presetStorage } from './storage.js';
-import { presetImporter, earnCredit, unlockAllPresets, getCredits } from './preset-import.js';
+import { presetImporter, earnCredit, unlockAllPresets, getCredits, presetsAreDifferent } from './preset-import.js';
 
 // Accent-insensitive search helper — strips diacritics so "cafe" finds "café"
 // NFC → NFD decomposes accented chars; removing \u0300-\u036F strips the accent marks.
@@ -374,6 +374,12 @@ let isGalleryLayerActive = false;
 let galleryLayerPresets = []; // saved layer selections for the gallery viewer
 let galleryLayerManualSelections = {}; // saved manual option selections
 
+// Gallery MULTI-preset variables (persists while viewer is open, like LAYER)
+
+let isGalleryMultiActive = false;
+let galleryMultiPresets = []; // saved multi selections for the gallery viewer
+let galleryMultiManualSelections = {}; // saved manual option selections for multi
+
 // Shared flag so selectPreset() knows we are picking layers
 
 let isLayerPresetMode = false;
@@ -555,6 +561,122 @@ let isVisiblePresetsSubmenuOpen = false;
 let currentVisiblePresetsIndex = 0;
 let visiblePresetsFilterText = '';
 let visiblePresetsScrollEnabled = true;
+
+// ===== PRESET SAMPLE IMAGE LONG-PRESS PREVIEW (SHARED UTILITY) =====
+
+let _presetPreviewOverlay = null;
+let _presetPreviewImg = null;
+let _presetPreviewLabel = null;
+let _presetPreviewNoImg = null;
+let _styleListLongPressTimer = null;
+
+function _ensurePresetPreviewOverlay() {
+  if (_presetPreviewOverlay) return;
+
+  _presetPreviewOverlay = document.createElement('div');
+  _presetPreviewOverlay.style.cssText = 'display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.88); z-index:99999; align-items:center; justify-content:center; flex-direction:column; pointer-events:all;';
+
+  const closeBtn = document.createElement('div');
+  closeBtn.textContent = '×';
+  closeBtn.style.cssText = 'position:absolute; top:10px; right:18px; color:#fff; font-size:28px; cursor:pointer; pointer-events:all; line-height:1;';
+  closeBtn.addEventListener('touchstart', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+  });
+  closeBtn.addEventListener('touchend', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    hidePresetImagePreview();
+  });
+  closeBtn.addEventListener('mousedown', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    hidePresetImagePreview();
+  });
+
+  const _presetPreviewImgWrapper = document.createElement('div');
+  _presetPreviewImgWrapper.style.cssText = 'width:92vw; height:72vh; display:flex; align-items:center; justify-content:center;';
+  _presetPreviewImg = document.createElement('img');
+  _presetPreviewImg.style.cssText = 'width:100%; height:100%; object-fit:contain; border-radius:10px; border:2px solid #555;';
+
+  _presetPreviewLabel = document.createElement('div');
+  _presetPreviewLabel.style.cssText = 'color:#fff; font-size:11px; margin-top:6px; font-weight:bold; letter-spacing:1px;';
+
+  _presetPreviewNoImg = document.createElement('div');
+  _presetPreviewNoImg.style.cssText = 'color:#aaa; font-size:13px; display:none; margin-top:20px;';
+  _presetPreviewNoImg.textContent = 'No sample image available';
+
+  _presetPreviewOverlay.appendChild(closeBtn);
+  _presetPreviewImgWrapper.appendChild(_presetPreviewImg);
+  _presetPreviewOverlay.appendChild(_presetPreviewImgWrapper);
+  _presetPreviewOverlay.appendChild(_presetPreviewLabel);
+  _presetPreviewOverlay.appendChild(_presetPreviewNoImg);
+  document.body.appendChild(_presetPreviewOverlay);
+}
+
+function showPresetImagePreview(preset) {
+  _ensurePresetPreviewOverlay();
+  _presetPreviewLabel.textContent = preset.name;
+  _presetPreviewImg.style.display = 'none';
+  _presetPreviewNoImg.style.display = 'none';
+
+  const safeName = preset.name.replace(/[\/\\:*?"<>|\s]/g, '_');
+  const autoUrl = './public/' + safeName + '.png';
+  const imageUrl = preset.imageUrl || autoUrl;
+
+  _presetPreviewImg.onload = () => {
+    _presetPreviewImg.style.display = 'block';
+    _presetPreviewNoImg.style.display = 'none';
+  };
+  _presetPreviewImg.onerror = () => {
+    _presetPreviewImg.style.display = 'none';
+    _presetPreviewNoImg.style.display = 'block';
+  };
+  _presetPreviewImg.src = imageUrl;
+  _presetPreviewOverlay.style.display = 'flex';
+}
+
+function hidePresetImagePreview() {
+  if (!_presetPreviewOverlay) return;
+  _presetPreviewOverlay.style.display = 'none';
+  _presetPreviewImg.src = '';
+}
+
+function attachPresetLongPress(item, preset) {
+  const LONG_PRESS_MS = 600;
+  let _timer = null;
+
+  item.addEventListener('touchstart', () => {
+    _timer = setTimeout(() => showPresetImagePreview(preset), LONG_PRESS_MS);
+  }, { passive: true });
+
+  item.addEventListener('touchend', () => { clearTimeout(_timer); _timer = null; });
+  item.addEventListener('touchmove', () => { clearTimeout(_timer); _timer = null; });
+  item.addEventListener('touchcancel', () => { clearTimeout(_timer); _timer = null; });
+
+  item.addEventListener('mousedown', () => {
+    _timer = setTimeout(() => showPresetImagePreview(preset), LONG_PRESS_MS);
+  });
+  item.addEventListener('mouseup', () => { clearTimeout(_timer); _timer = null; });
+  item.addEventListener('mouseleave', () => { clearTimeout(_timer); _timer = null; });
+}
+
+function _handleStyleListLongPressStart(e) {
+  const item = e.target.closest('.style-item');
+  if (!item) return;
+  const index = parseInt(item.dataset.index);
+  if (isNaN(index)) return;
+  const preset = CAMERA_PRESETS[index];
+  if (!preset) return;
+  _styleListLongPressTimer = setTimeout(() => showPresetImagePreview(preset), 600);
+}
+
+function _handleStyleListLongPressEnd() {
+  clearTimeout(_styleListLongPressTimer);
+  _styleListLongPressTimer = null;
+}
+
+// ===== END PRESET SAMPLE IMAGE LONG-PRESS PREVIEW =====
 
 // Style reveal functionality
 function showStyleReveal(styleName) {
@@ -810,12 +932,12 @@ function filterGalleryByDate(images) {
     let matchesEnd = true;
     
     if (galleryStartDate) {
-      const startTime = new Date(galleryStartDate).getTime();
+      const startTime = new Date(galleryStartDate + 'T00:00:00').getTime();
       matchesStart = itemTime >= startTime;
     }
     
     if (galleryEndDate) {
-      const endTime = new Date(galleryEndDate).getTime();
+      const endTime = new Date(galleryEndDate + 'T00:00:00').getTime();
       matchesEnd = itemTime <= endTime;
     }
     
@@ -869,6 +991,11 @@ async function showGallery(renderOnly = false) {
   if (sortOrderSelect) {
     sortOrderSelect.value = gallerySortOrder;
   }
+  // Sync the custom sort button label
+  const sortLabelSync = document.getElementById('gallery-sort-label');
+  if (sortLabelSync) {
+    sortLabelSync.textContent = '🔀 SORT';
+  }
   
   // Show or hide the folder breadcrumb bar
   let breadcrumb = document.getElementById('gallery-folder-breadcrumb');
@@ -901,8 +1028,8 @@ async function showGallery(renderOnly = false) {
     const d = new Date(img.timestamp);
     d.setHours(0,0,0,0);
     const t = d.getTime();
-    if (galleryStartDate && t < new Date(galleryStartDate).getTime()) return false;
-    if (galleryEndDate && t > new Date(galleryEndDate).getTime()) return false;
+    if (galleryStartDate && t < new Date(galleryStartDate + 'T00:00:00').getTime()) return false;
+    if (galleryEndDate && t > new Date(galleryEndDate + 'T00:00:00').getTime()) return false;
     return true;
   });
   const sortedImages = gallerySortOrder === 'oldest'
@@ -935,7 +1062,7 @@ async function showGallery(renderOnly = false) {
     const startIndex = (currentGalleryPage - 1) * ITEMS_PER_PAGE;
     const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, allItems.length);
     const pageItems = allItems.slice(startIndex, endIndex);
-
+    let lastDateLabel = null;
     pageItems.forEach(entry => {
       if (entry.type === 'folder') {
         const folder = entry.folder;
@@ -1005,6 +1132,19 @@ async function showGallery(renderOnly = false) {
       } else {
         // Image entry
         const item = entry.item;
+
+        // --- Date Divider ---
+        const _itemDate = new Date(item.timestamp);
+        const _dateLabel = _itemDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        if (_dateLabel !== lastDateLabel) {
+          lastDateLabel = _dateLabel;
+          const _divider = document.createElement('div');
+          _divider.className = 'gallery-date-divider';
+          _divider.innerHTML = `<span class="gallery-date-divider-text">${_dateLabel}</span>`;
+          fragment.appendChild(_divider);
+        }
+        // --- End Date Divider ---
+
         const imgContainer = document.createElement('div');
         imgContainer.className = 'gallery-item';
         imgContainer.dataset.imageId = item.id;
@@ -1174,6 +1314,9 @@ function openImageViewer(index) {
   isGalleryLayerActive         = false;
   galleryLayerPresets          = [];
   galleryLayerManualSelections = {};
+  isGalleryMultiActive         = false;
+  galleryMultiPresets          = [];
+  galleryMultiManualSelections = {};
   const presetHeader = document.getElementById('viewer-preset-header');
   if (presetHeader) presetHeader.textContent = 'NO PRESET LOADED';
 
@@ -1218,6 +1361,10 @@ function closeImageViewer() {
   currentViewerImageIndex = -1;
   viewerZoom = 1;
   window.viewerLoadedPreset = null;
+  isGalleryMultiActive         = false;
+  galleryMultiPresets          = [];
+  galleryMultiManualSelections = {};
+
   // When user exits the viewer, delete the combined temp image and clear combined mode
   if (window.isCombinedMode && window.pendingCombinedImageId) {
     const tempId = window.pendingCombinedImageId;
@@ -1268,6 +1415,9 @@ function showPresetSelector() {
   isMultiPresetMode = false;
   isBatchPresetSelectionActive = false;
   selectedPresets = [];
+
+  // Also clear saved gallery multi state — user is switching to single preset
+  clearGalleryMultiState();
   
   // Hide multi-preset controls if they exist
   const multiControls = document.getElementById('multi-preset-controls');
@@ -1788,6 +1938,7 @@ function populatePresetList() {
       }
     };
     
+    attachPresetLongPress(item, preset);
     list.appendChild(item);
   });
 // Update preset count
@@ -1899,6 +2050,21 @@ async function submitMagicTransform() {
   if (isGalleryLayerActive && galleryLayerPresets.length > 0) {
     const item = galleryImages[currentViewerImageIndex];
     const resizedImageBase64 = await resizeImageForSubmission(item.imageBase64);
+
+    // Always re-ask options for each options preset when manual options mode is on
+    if (manualOptionsMode && !noMagicMode) {
+      galleryLayerManualSelections = {};
+      for (const preset of galleryLayerPresets) {
+        const options = parsePresetOptions(preset);
+        if (options.length > 0) {
+          const selectedValue = await showManualOptionsModal(preset, options);
+          if (selectedValue !== null) {
+            galleryLayerManualSelections[preset.name] = selectedValue;
+          }
+        }
+      }
+    }
+
     const magicPrompt = buildCombinedLayerPrompt(galleryLayerPresets, galleryLayerManualSelections);
     if (typeof PluginMessageHandler !== 'undefined') {
       const layerMagicPayload = { pluginId: 'com.r1.pixelart', imageBase64: resizedImageBase64 };
@@ -1911,6 +2077,61 @@ async function submitMagicTransform() {
     return;
   }
   // END GALLERY LAYER MODE 
+
+  // GALLERY MULTI MODE
+  // Re-applies the previously saved multi presets without re-opening the selector.
+
+  if (isGalleryMultiActive && galleryMultiPresets.length > 0) {
+    const item = galleryImages[currentViewerImageIndex];
+    const resizedImageBase64 = await resizeImageForSubmission(item.imageBase64);
+
+    // Always re-ask options for each options preset when manual options mode is on
+    if (manualOptionsMode && !noMagicMode) {
+      galleryMultiManualSelections = {};
+      for (const preset of galleryMultiPresets) {
+        const options = parsePresetOptions(preset);
+        if (options.length > 0) {
+          const selectedValue = await showManualOptionsModal(preset, options);
+          if (selectedValue !== null) {
+            galleryMultiManualSelections[preset.name] = selectedValue;
+          }
+        }
+      }
+    }
+
+    const overlay = document.createElement('div');
+    overlay.className = 'batch-progress-overlay';
+    overlay.innerHTML = `
+      <div class="batch-progress-text">Applying preset <span id="batch-current">0</span> / ${galleryMultiPresets.length}</div>
+      <div class="batch-progress-bar">
+        <div class="batch-progress-fill" id="batch-progress-fill" style="width: 0%"></div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    let processed = 0;
+    for (const preset of galleryMultiPresets) {
+      try {
+        const manualSelection = galleryMultiManualSelections[preset.name] || null;
+        const finalPrompt = getFinalPrompt(preset, manualSelection);
+        if (typeof PluginMessageHandler !== 'undefined') {
+          const multiPayload = { pluginId: 'com.r1.pixelart', imageBase64: resizedImageBase64 };
+          if (finalPrompt && finalPrompt.trim()) multiPayload.message = finalPrompt;
+          PluginMessageHandler.postMessage(JSON.stringify(multiPayload));
+        }
+        processed++;
+        document.getElementById('batch-current').textContent = processed;
+        document.getElementById('batch-progress-fill').style.width = `${(processed / galleryMultiPresets.length) * 100}%`;
+        await new Promise(resolve => setTimeout(resolve, 3000));
+      } catch (error) {
+        console.error(`Failed to apply preset ${preset.name}:`, error);
+      }
+    }
+    document.body.removeChild(overlay);
+    alert(`${processed} preset${processed > 1 ? 's' : ''} applied successfully!`);
+    return;
+  }
+  // END GALLERY MULTI MODE
 
   const promptInput = document.getElementById('viewer-prompt');
   let prompt = promptInput.value.trim();
@@ -1996,6 +2217,8 @@ async function submitMagicTransform() {
         const credited = earnCredit(usedName);
         if (credited) {
           playTaDaSound();
+          const creditsEl = document.getElementById('import-credits-display');
+          if (creditsEl) creditsEl.textContent = `Credits: ${getCredits()}`;
           setTimeout(() => {
             const newTotal = getCredits();
             showGalleryCreditFlash(`🪙 Credit Earned!\n(${newTotal} total)`);
@@ -2829,7 +3052,8 @@ async function batchDeleteImages() {
 
 function openMultiPresetSelector(imageId) {
   multiPresetImageId = imageId;
-  selectedPresets = [];
+  // Pre-populate with previously saved gallery multi selections (like LAYER does)
+  selectedPresets = isGalleryMultiActive ? [...galleryMultiPresets] : [];
   isMultiPresetMode = true;
   
   const modal = document.getElementById('preset-selector');
@@ -3060,13 +3284,19 @@ async function applyMultiplePresets() {
 
   // Clear layer mode — user has chosen new multi presets
   clearGalleryLayerState();
+
+  // Save multi state persistently so MAGIC button can reuse it
+  galleryMultiPresets          = [...presetsToApply];
+  isGalleryMultiActive         = true;
+  galleryMultiManualSelections = {};
+  window.viewerLoadedPreset    = null;
+
   const multiHeader = document.getElementById('viewer-preset-header');
   if (multiHeader) multiHeader.textContent = `🎞️ MULTI (${presetsToApply.length})`;
 
   cancelMultiPresetMode();
 
   // If Manual Options mode is on, collect selections for each preset one at a time BEFORE feeding
-  const galleryMultiManualSelections = {};
   if (manualOptionsMode && !noMagicMode) {
     for (const preset of presetsToApply) {
       const options = parsePresetOptions(preset);
@@ -3135,9 +3365,24 @@ async function applyMultiplePresets() {
       }
       if (totalNewCredits > 0) {
         playTaDaSound();
-        const newTotal = getCredits();
+        const creditsEl = document.getElementById('import-credits-display');
+        if (creditsEl) creditsEl.textContent = `Credits: ${getCredits()}`;
+        // Lock in the MULTI label now so the restore always goes back to it
+        const _multiRestoreLabel = `🎞️ MULTI (${presetsToApply.length})`;
         setTimeout(() => {
-          showGalleryCreditFlash(`🪙 ${totalNewCredits > 1 ? totalNewCredits + ' Credits' : 'Credit'} Earned!\n(${newTotal} total)`);
+          const newTotal = getCredits();
+          const _flashHeader = document.getElementById('viewer-preset-header');
+          if (_flashHeader) {
+            const _origStyle = _flashHeader.style.cssText;
+            _flashHeader.style.whiteSpace = 'pre-line';
+            _flashHeader.style.lineHeight = '1.3';
+            _flashHeader.style.fontSize = '2.8vw';
+            _flashHeader.textContent = `🪙 ${totalNewCredits > 1 ? totalNewCredits + ' Credits' : 'Credit'} Earned!\n(${newTotal} total)`;
+            setTimeout(() => {
+              _flashHeader.textContent = _multiRestoreLabel;
+              _flashHeader.style.cssText = _origStyle;
+            }, 3500);
+          }
         }, 300);
       }
     }
@@ -3569,7 +3814,7 @@ async function checkForPresetsUpdates() {
     // Check for updated or new presets
     for (const jsonPreset of jsonPresets) {
       const existing = importedPresets.find(p => p.name === jsonPreset.name);
-      if (!existing || existing.message !== jsonPreset.message) {
+      if (!existing || presetsAreDifferent(existing, jsonPreset)) {
         hasUpdates = true;
         break;
       }
@@ -3603,7 +3848,7 @@ async function recheckForUpdates() {
     let stillHasUpdates = false;
     for (const jsonPreset of jsonPresets) {
       const existing = importedPresets.find(p => p.name === jsonPreset.name);
-      if (!existing || existing.message !== jsonPreset.message) {
+      if (!existing || presetsAreDifferent(existing, jsonPreset)) {
         stillHasUpdates = true;
         break;
       }
@@ -4196,6 +4441,9 @@ function hideVisiblePresetsSubmenu() {
 // Called when user taps the viewer prompt text area
 function handleViewerPromptTap() {
   const hasLoadedPreset = !!window.viewerLoadedPreset;
+
+// Clear saved gallery multi state — user is editing a prompt instead
+  clearGalleryMultiState();
   
   if (!hasLoadedPreset) {
     // No preset loaded: open Preset Builder to create a new one
@@ -5276,6 +5524,7 @@ const allPresets = CAMERA_PRESETS.filter(p => {
       toggleVisiblePreset(preset.name, checkbox.checked);
     };
     
+    attachPresetLongPress(item, preset);
     fragment.appendChild(item);
   });
   
@@ -5904,6 +6153,13 @@ function clearGalleryLayerState() {
   galleryLayerManualSelections = {};
 }
 
+function clearGalleryMultiState() {
+  if (!isGalleryMultiActive) return; // nothing to clear
+  isGalleryMultiActive         = false;
+  galleryMultiPresets          = [];
+  galleryMultiManualSelections = {};
+}
+
 // GALLERY LAYER 
 
 // Opens the preset selector in Layer mode from the gallery image viewer.
@@ -5912,6 +6168,9 @@ function openGalleryLayerPresetSelector(imageId) {
   galleryLayerImageId  = imageId;
   isLayerPresetMode    = true;
   layerSelectedPresets = [];
+  
+  // Clear gallery multi state — user is switching to layer mode
+  clearGalleryMultiState();
 
   const modal  = document.getElementById('preset-selector');
   const header = modal.querySelector('.preset-selector-header h3');
@@ -6013,6 +6272,29 @@ async function applyGalleryLayerPresets() {
 
     const presetHeader = document.getElementById('viewer-preset-header');
     if (presetHeader) presetHeader.textContent = '📑 LAYER';
+
+    // GALLERY LAYER CREDIT GAME — earn credits for each unique imported preset used
+    try {
+      const _layerImported = presetImporter.getImportedPresets();
+      if (_layerImported.length > 0) {
+        const _layerImportedNames = new Set(_layerImported.map(p => p.name));
+        let _layerNewCredits = 0;
+        for (const preset of presetsToApply) {
+          if (preset.name && _layerImportedNames.has(preset.name)) {
+            if (earnCredit(preset.name)) _layerNewCredits++;
+          }
+        }
+        if (_layerNewCredits > 0) {
+          playTaDaSound();
+          const _layerCreditsEl = document.getElementById('import-credits-display');
+          if (_layerCreditsEl) _layerCreditsEl.textContent = `Credits: ${getCredits()}`;
+          setTimeout(() => {
+            const _layerTotal = getCredits();
+            showGalleryCreditFlash(`🪙 ${_layerNewCredits > 1 ? _layerNewCredits + ' Credits' : 'Credit'} Earned!\n(${_layerTotal} total)`);
+          }, 300);
+        }
+      }
+    } catch (e) { /* non-critical */ }
 
     alert(`Layer preset applied! ${presetsToApply.length} preset${presetsToApply.length > 1 ? 's' : ''} merged into one transform.`);
   } else {
@@ -6526,7 +6808,7 @@ const TOUR_STEPS = [
   { section: 'Gallery', title: '☑️ Batch Operations', body: 'Tap the Select button to enter batch mode. Select multiple images, then apply one preset to all of them or delete them in bulk. If only two are selected, you may also combine them. Always tap DONE when finished.' },
   { section: 'Gallery', title: '📁+ New Folder', body: 'Create a new folder to organize your saved images. Name the folder and save. Long press edits name. Images may be moved by selecting image(s) then long pressing the last image.' },
   { section: 'Gallery', title: '🖼️🖼️ Combine Images', body: 'Tap the Select button to enter batch mode. Select two images, then click Combine to create one image. You can apply presets to create combined subjects into one final image using existing presets.' }, 
-  { section: 'Gallery', title: '📅 Sort and Filter', body: 'Sort by newest or oldest. Filter by date range. When filtering, always select the day after your end date. For example, to see December 25 photos, filter from December 25 to December 26.' },
+  { section: 'Gallery', title: '🔀 Sort and Filter', body: 'Use the SORT button — to the right of Start and End — to sort images by Newest First or Oldest First. Filter by date range using the Start and End buttons.' },
   { section: 'Gallery', title: '🖼️ Image Viewer', body: 'Tap a thumbnail image in the gallery to view it full-screen. The viewer is redesigned to give your photo maximum screen space. Pinch to zoom in and out.' },
   { section: 'Gallery', title: '🎨 Applying Presets to Single Image', body: 'After clicking on a single image, Tap LOAD or MULTI to transform a saved image. Click twice on a preset to apply to the image. You can stack multiple transformations. You may also layer up to five presets.' },
   { section: 'Gallery', title: '🏷️ Preset Header', body: 'At the very top of the image viewer a header shows the name of the currently loaded preset. Tap the header to hear the preset name and description.' },
@@ -6555,11 +6837,12 @@ const TOUR_STEPS = [
   { section: 'Settings', title: '⚙️ Button Settings', body: 'Includes the settings for the main camera screen carousel and the Gallery Image Viewer screen carousel buttons. You may select different colors for buttons and text in the main camera and gallery image viewer screens. You may also select opacity (default solid) and set how many taps to hide/reveal the buttons.' },
   { section: 'Settings', title: '📖 Tutorial', body: 'Last section in the settings. This area includes this audio tour. It also includes an indexed tutorial with a search engine. Type to search or click on the search field and press the side button to speak the query.' },
   { section: 'Tips and Advanced', title: '🏷️ Category Searching', body: 'Every preset has categories. When a preset is highlighted in the Visible Presets menu, its categories appear at the bottom. Tap a category to filter all presets in that group.' },
+  { section: 'Tips and Advanced', title: '🖼️ Preview Preset', body: 'When you long press on a preset, you are provided a sample image preview of what the style will look like.' },
   { section: 'Tips and Advanced', title: '🧠 Master Prompt Power Tip', body: 'Search for master or master prompt in the Visible Presets menu to find presets designed to work with Master Prompt. These respond to names, occasions, and custom context you provide. All presets may be affected by the Master Prompt.' },
   { section: 'Tips and Advanced', title: '📶 Offline Queue', body: 'If you take photos and the program goes offline - no worries - photos queue automatically and may be synced to the rabbit hole once your connection returns. The queue count shows on the screen.' },
   { section: 'Tips and Advanced', title: '🔁 Reset Database', body: 'The nuclear option in Settings. Wipes all custom presets and settings. Only imported presets from the library remain. Use only if something is seriously broken.' },
   { section: 'Tips and Advanced', title: '💀 Content Filter Error', body: 'If you go into your rabbit hole and you receive a content filter image error, this happens because AI is quirky. The beauty of Magic Kamera is you can reprompt. Keep trying until successful.' },
-  { section: 'Tips and Advanced', title: '↑↓ Jump Navigation', body: 'In the setting or areas in the program with presets, clicking the up/down arrows once will move to the next section/page.  If you double click on the up/down arrow, it will jump to the top/bottom of the list.' },
+  { section: 'Tips and Advanced', title: '↑↓ Jump Navigation', body: 'In areas with presets, clicking the up/down arrows once moves one page. Double-clicking jumps to the next or previous letter of the alphabet within that section (favorites and non-favorites are navigated separately). Triple-clicking jumps all the way to the top or bottom of the list.' },
   { section: 'Troubleshooting', title: '❌ Camera Access Denied', body: 'This error will appear at the bottom of your main camera screen if you do not have any active presets, either imported or made with the preset builder.' },
   { section: 'Done!', title: '🎉 Tour Complete!', body: 'That\'s Magic Kamera. Now go make magic! This tour or the text tutorial in this menu is here if you need a refresher. If you come across The One Ron G, The One Hashtag Cyber or The One Rabbit Jesus, tell them you enjoy this program.' },
 ];
@@ -8072,6 +8355,9 @@ addToGallery(dataUrl);
         if (isCameraMultiPresetActive && cameraSelectedPresets.length > 0) {
           // Multi-preset: check every selected preset
           presetsUsed = cameraSelectedPresets.filter(p => p.name && importedNames.has(p.name));
+        } else if (isCameraLayerActive && cameraLayerPresets.length > 0) {
+          // Layer-preset: check every layer preset
+          presetsUsed = cameraLayerPresets.filter(p => p.name && importedNames.has(p.name));
         } else {
           // Single preset (including random and voice modes)
           const activePreset = CAMERA_PRESETS[currentPresetIndex];
@@ -9618,6 +9904,47 @@ async function hideMasterPromptSubmenu() {
     // Show gallery first, then reopen the image viewer
     await showGallery(true);
     openImageViewer(savedViewerImageIndex);
+    // Restore whichever preset was selected before master prompt was opened
+    if (window._savedViewerPresetBeforeMaster) {
+      window.viewerLoadedPreset = window._savedViewerPresetBeforeMaster;
+      const presetHeader = document.getElementById('viewer-preset-header');
+      if (presetHeader) presetHeader.textContent = window._savedViewerPresetBeforeMaster.name;
+    }
+    window._savedViewerPresetBeforeMaster = null;
+
+    // Restore layer state if it was active before master was opened
+    if (window._savedGalleryLayerActiveBeforeMaster) {
+      isGalleryLayerActive = true;
+      galleryLayerPresets = window._savedGalleryLayerPresetsBeforeMaster || [];
+      galleryLayerManualSelections = window._savedGalleryLayerSelectionsBeforeMaster || {};
+    }
+    // Restore multi state if it was active before master was opened
+    if (window._savedGalleryMultiActiveBeforeMaster) {
+      isGalleryMultiActive = true;
+      galleryMultiPresets = window._savedGalleryMultiPresetsBeforeMaster || [];
+      galleryMultiManualSelections = window._savedGalleryMultiSelectionsBeforeMaster || {};
+    }
+    // Restore the header text for layer ("📑 LAYER"), multi ("🎞️ MULTI (N)"), or custom prompt
+    if (window._savedViewerHeaderBeforeMaster && window._savedViewerHeaderBeforeMaster !== 'NO PRESET LOADED') {
+      const restoredHeader = document.getElementById('viewer-preset-header');
+      if (restoredHeader && !window._savedViewerPresetBeforeMaster) {
+        restoredHeader.textContent = window._savedViewerHeaderBeforeMaster;
+      }
+    }
+    // Restore the prompt textarea value
+    if (window._savedViewerPromptBeforeMaster) {
+      const restoredPrompt = document.getElementById('viewer-prompt');
+      if (restoredPrompt) restoredPrompt.value = window._savedViewerPromptBeforeMaster;
+    }
+    // Clean up all saved state
+    window._savedGalleryLayerActiveBeforeMaster = null;
+    window._savedGalleryLayerPresetsBeforeMaster = null;
+    window._savedGalleryLayerSelectionsBeforeMaster = null;
+    window._savedGalleryMultiActiveBeforeMaster = null;
+    window._savedGalleryMultiPresetsBeforeMaster = null;
+    window._savedGalleryMultiSelectionsBeforeMaster = null;
+    window._savedViewerHeaderBeforeMaster = null;
+    window._savedViewerPromptBeforeMaster = null;
     return;
   }
 
@@ -10256,6 +10583,20 @@ function _doPopulateStylesList(list, preserveScroll) {
     
     // Single event listener for the entire list using event delegation
     newList.addEventListener('click', handleStyleListClick);
+
+    // Long-press image preview delegation for the main styles list
+    newList.removeEventListener('touchstart', _handleStyleListLongPressStart);
+    newList.removeEventListener('touchend', _handleStyleListLongPressEnd);
+    newList.removeEventListener('touchmove', _handleStyleListLongPressEnd);
+    newList.removeEventListener('mousedown', _handleStyleListLongPressStart);
+    newList.removeEventListener('mouseup', _handleStyleListLongPressEnd);
+    newList.removeEventListener('mouseleave', _handleStyleListLongPressEnd);
+    newList.addEventListener('touchstart', _handleStyleListLongPressStart, { passive: true });
+    newList.addEventListener('touchend', _handleStyleListLongPressEnd);
+    newList.addEventListener('touchmove', _handleStyleListLongPressEnd);
+    newList.addEventListener('mousedown', _handleStyleListLongPressStart);
+    newList.addEventListener('mouseup', _handleStyleListLongPressEnd);
+    newList.addEventListener('mouseleave', _handleStyleListLongPressEnd);
 
     // Update styles count — reuse already-computed filtered lists
     const stylesCountElement = document.getElementById('styles-count');
@@ -11010,48 +11351,140 @@ window.addEventListener('load', () => {
 
   const jumpToTopBtn = document.getElementById('jump-to-top');
   if (jumpToTopBtn) {
-    let menuUpTapTimer = null;
+    let menuUpTimer = null;
+    let menuUpCount = 0;
     jumpToTopBtn.addEventListener('click', () => {
-      if (menuUpTapTimer) {
-        // Double-tap: jump to very top
-        clearTimeout(menuUpTapTimer);
-        menuUpTapTimer = null;
-        jumpToTopOfMenu();
-      } else {
-        menuUpTapTimer = setTimeout(() => {
-          menuUpTapTimer = null;
+      menuUpCount++;
+      if (menuUpTimer) clearTimeout(menuUpTimer);
+      menuUpTimer = setTimeout(() => {
+        menuUpTimer = null;
+        const count = menuUpCount;
+        menuUpCount = 0;
+        const scrollContainer = document.querySelector('.styles-menu-scroll-container');
+        if (count === 1) {
           // Single-tap: scroll up one page
-          const scrollContainer = document.querySelector('.styles-menu-scroll-container');
           if (scrollContainer) {
             scrollContainer.scrollTop = Math.max(0, scrollContainer.scrollTop - scrollContainer.clientHeight);
+            const listEl = document.getElementById('menu-styles-list');
+            if (listEl) {
+              const allItems = Array.from(listEl.querySelectorAll('.style-item'));
+              const cRect = scrollContainer.getBoundingClientRect();
+              let firstIdx = 0;
+              for (let ii = 0; ii < allItems.length; ii++) {
+                if (allItems[ii].getBoundingClientRect().top >= cRect.top - 5) { firstIdx = ii; break; }
+              }
+              currentMenuIndex = firstIdx;
+              updateMenuSelection();
+            }
           }
-        }, 300);
-      }
+        } else if (count === 2) {
+          // Double-tap: jump to previous letter within the same section (favorites or non-favorites)
+          if (!scrollContainer) return;
+          const list = document.getElementById('menu-styles-list');
+          if (!list) return;
+          const items = Array.from(list.querySelectorAll('.style-item'));
+          if (items.length === 0) return;
+          const containerTop = scrollContainer.getBoundingClientRect().top;
+          let currentIdx = 0;
+          items.forEach((item, i) => {
+            if (item.getBoundingClientRect().top < containerTop + 10) currentIdx = i;
+          });
+          const currentName = ((items[currentIdx].querySelector('.style-name') || {}).textContent || '').trim();
+          const currentLetter = stripAccents(currentName).toUpperCase().charAt(0);
+          const currentIsFav = isFavoriteStyle(currentName);
+          for (let i = currentIdx - 1; i >= 0; i--) {
+            const nm = ((items[i].querySelector('.style-name') || {}).textContent || '').trim();
+            if (isFavoriteStyle(nm) !== currentIsFav) break;
+            const letter = stripAccents(nm).toUpperCase().charAt(0);
+            if (letter !== currentLetter) {
+              const targetLetter = letter;
+              let firstOfLetter = i;
+              while (firstOfLetter > 0) {
+                const prevNm = ((items[firstOfLetter - 1].querySelector('.style-name') || {}).textContent || '').trim();
+                if (isFavoriteStyle(prevNm) !== currentIsFav) break;
+                if (stripAccents(prevNm).toUpperCase().charAt(0) !== targetLetter) break;
+                firstOfLetter--;
+              }
+              const targetTop = items[firstOfLetter].getBoundingClientRect().top - scrollContainer.getBoundingClientRect().top + scrollContainer.scrollTop;
+      scrollContainer.scrollTo({ top: targetTop, behavior: 'smooth' });
+      currentMenuIndex = firstOfLetter;
+      items.forEach(item => item.classList.remove('menu-selected'));
+      items[firstOfLetter].classList.add('menu-selected');
+      return;
+    }
+  }
+} else {
+  // Triple-tap: jump to very top
+  jumpToTopOfMenu();
+        }
+      }, 300);
     });
   }
 
   const jumpToBottomBtn = document.getElementById('jump-to-bottom');
   if (jumpToBottomBtn) {
-    let menuDownTapTimer = null;
+    let menuDownTimer = null;
+    let menuDownCount = 0;
     jumpToBottomBtn.addEventListener('click', () => {
-      if (menuDownTapTimer) {
-        // Double-tap: jump to very bottom
-        clearTimeout(menuDownTapTimer);
-        menuDownTapTimer = null;
-        jumpToBottomOfMenu();
-      } else {
-        menuDownTapTimer = setTimeout(() => {
-          menuDownTapTimer = null;
+      menuDownCount++;
+      if (menuDownTimer) clearTimeout(menuDownTimer);
+      menuDownTimer = setTimeout(() => {
+        menuDownTimer = null;
+        const count = menuDownCount;
+        menuDownCount = 0;
+        const scrollContainer = document.querySelector('.styles-menu-scroll-container');
+        if (count === 1) {
           // Single-tap: scroll down one page
-          const scrollContainer = document.querySelector('.styles-menu-scroll-container');
           if (scrollContainer) {
             scrollContainer.scrollTop = Math.min(
               scrollContainer.scrollHeight - scrollContainer.clientHeight,
               scrollContainer.scrollTop + scrollContainer.clientHeight
             );
+            const listEl = document.getElementById('menu-styles-list');
+            if (listEl) {
+              const allItems = Array.from(listEl.querySelectorAll('.style-item'));
+              const cRect = scrollContainer.getBoundingClientRect();
+              let firstIdx = 0;
+              for (let ii = 0; ii < allItems.length; ii++) {
+                if (allItems[ii].getBoundingClientRect().top >= cRect.top - 5) { firstIdx = ii; break; }
+              }
+              currentMenuIndex = firstIdx;
+              updateMenuSelection();
+            }
           }
-        }, 300);
-      }
+        } else if (count === 2) {
+          // Double-tap: jump to next letter within the same section (favorites or non-favorites)
+          if (!scrollContainer) return;
+          const list = document.getElementById('menu-styles-list');
+          if (!list) return;
+          const items = Array.from(list.querySelectorAll('.style-item'));
+          if (items.length === 0) return;
+          const containerTop = scrollContainer.getBoundingClientRect().top;
+          let currentIdx = 0;
+          items.forEach((item, i) => {
+            if (item.getBoundingClientRect().top < containerTop + 10) currentIdx = i;
+          });
+          const currentName = ((items[currentIdx].querySelector('.style-name') || {}).textContent || '').trim();
+          const currentLetter = stripAccents(currentName).toUpperCase().charAt(0);
+          const currentIsFav = isFavoriteStyle(currentName);
+          for (let i = currentIdx + 1; i < items.length; i++) {
+            const nm = ((items[i].querySelector('.style-name') || {}).textContent || '').trim();
+            if (isFavoriteStyle(nm) !== currentIsFav) break;
+            const letter = stripAccents(nm).toUpperCase().charAt(0);
+            if (letter !== currentLetter) {
+              const targetTop = items[i].getBoundingClientRect().top - scrollContainer.getBoundingClientRect().top + scrollContainer.scrollTop;
+              scrollContainer.scrollTo({ top: targetTop, behavior: 'smooth' });
+              currentMenuIndex = i;
+              items.forEach(item => item.classList.remove('menu-selected'));
+              items[i].classList.add('menu-selected');
+              return;
+            }
+          }
+        } else {
+          // Triple-tap: jump to very bottom
+          jumpToBottomOfMenu();
+        }
+      }, 300);
     });
   }
   
@@ -11188,17 +11621,18 @@ window.addEventListener('load', () => {
         if (speakBtn) speakBtn.addEventListener('click', handleSpeak);
       }
 
-      // Multi preset mode active in gallery viewer
-      if (!window.viewerLoadedPreset && !isGalleryLayerActive) {
+      // Multi preset mode active in gallery viewer — show the list of selected presets
+      if (isGalleryMultiActive && galleryMultiPresets.length > 0) {
         const multiHeader = document.getElementById('viewer-preset-header');
-        if (multiHeader && multiHeader.textContent.startsWith('🎞️ MULTI')) {
-          showPresetInfoModal(
-            multiHeader.textContent,
-            'Multiple presets are queued to apply to this image sequentially.\n\nTap ✨ MAGIC to apply them.',
-            null
-          );
-          return;
-        }
+        const presetNames = galleryMultiPresets
+          .map((p, i) => `${i + 1}. ${p.name}`)
+          .join('\n');
+        showPresetInfoModal(
+          multiHeader ? multiHeader.textContent : `🎞️ MULTI (${galleryMultiPresets.length})`,
+          `${galleryMultiPresets.length} preset${galleryMultiPresets.length > 1 ? 's' : ''} queued to apply sequentially:\n\n${presetNames}\n\nTap ✨ MAGIC to apply again.`,
+          null
+        );
+        return;
       }
       
       // Layer mode active — show info but nothing to speak
@@ -11996,62 +12430,143 @@ window.addEventListener('load', () => {
   
   const visiblePresetsJumpUp = document.getElementById('visible-presets-jump-up');
   if (visiblePresetsJumpUp) {
-    let vpUpTapTimer = null;
+    let vpUpTimer = null;
+    let vpUpCount = 0;
     visiblePresetsJumpUp.addEventListener('click', () => {
-      if (vpUpTapTimer) {
-        // Double-tap: jump to very top
-        clearTimeout(vpUpTapTimer);
-        vpUpTapTimer = null;
-        currentVisiblePresetsIndex = 0;
-        updateVisiblePresetsSelection();
-      } else {
-        vpUpTapTimer = setTimeout(() => {
-          vpUpTapTimer = null;
+      vpUpCount++;
+      if (vpUpTimer) clearTimeout(vpUpTimer);
+      vpUpTimer = setTimeout(() => {
+        vpUpTimer = null;
+        const count = vpUpCount;
+        vpUpCount = 0;
+        const submenu = document.getElementById('visible-presets-submenu');
+        const container = submenu ? submenu.querySelector('.submenu-list') : null;
+        if (count === 1) {
           // Single-tap: page up
-          const submenu = document.getElementById('visible-presets-submenu');
-          if (submenu) {
-            const container = submenu.querySelector('.submenu-list');
-            if (container) {
-              container.scrollTop = Math.max(0, container.scrollTop - container.clientHeight);
+          if (container) {
+            container.scrollTop = Math.max(0, container.scrollTop - container.clientHeight);
+            const listEl = document.getElementById('visible-presets-list');
+            if (listEl) {
+              const allItems = Array.from(listEl.querySelectorAll('.style-item'));
+              const cRect = container.getBoundingClientRect();
+              let firstIdx = 0;
+              for (let ii = 0; ii < allItems.length; ii++) {
+                if (allItems[ii].getBoundingClientRect().top >= cRect.top - 5) { firstIdx = ii; break; }
+              }
+              currentVisiblePresetsIndex = firstIdx;
+              updateVisiblePresetsSelection();
             }
           }
-        }, 300);
-      }
+        } else if (count === 2) {
+          // Double-tap: jump to previous letter (purely alphabetical, no sections)
+          const list = document.getElementById('visible-presets-list');
+          if (!list || !container) return;
+          const items = Array.from(list.querySelectorAll('.style-item'));
+          if (items.length === 0) return;
+          const containerTop = container.getBoundingClientRect().top;
+          let currentIdx = 0;
+          items.forEach((item, i) => {
+            if (item.getBoundingClientRect().top < containerTop + 10) currentIdx = i;
+          });
+          const currentName = ((items[currentIdx].querySelector('.style-name') || {}).textContent || '').trim();
+          const currentLetter = stripAccents(currentName).toUpperCase().charAt(0);
+          for (let i = currentIdx - 1; i >= 0; i--) {
+            const nm = ((items[i].querySelector('.style-name') || {}).textContent || '').trim();
+            const letter = stripAccents(nm).toUpperCase().charAt(0);
+            if (letter !== currentLetter) {
+              const targetLetter = letter;
+              let firstOfLetter = i;
+              while (firstOfLetter > 0) {
+                const prevNm = ((items[firstOfLetter - 1].querySelector('.style-name') || {}).textContent || '').trim();
+                if (stripAccents(prevNm).toUpperCase().charAt(0) !== targetLetter) break;
+                firstOfLetter--;
+              }
+              const targetTop = items[firstOfLetter].getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop;
+              container.scrollTo({ top: targetTop, behavior: 'smooth' });
+              currentVisiblePresetsIndex = firstOfLetter;
+              items.forEach(item => item.classList.remove('menu-selected'));
+              items[firstOfLetter].classList.add('menu-selected');
+              return;
+            }
+          }
+        } else {
+          // Triple-tap: jump to very top
+          currentVisiblePresetsIndex = 0;
+          updateVisiblePresetsSelection();
+        }
+      }, 300);
     });
   }
 
   const visiblePresetsJumpDown = document.getElementById('visible-presets-jump-down');
   if (visiblePresetsJumpDown) {
-    let vpDownTapTimer = null;
+    let vpDownTimer = null;
+    let vpDownCount = 0;
     visiblePresetsJumpDown.addEventListener('click', () => {
-      if (vpDownTapTimer) {
-        // Double-tap: jump to very bottom
-        clearTimeout(vpDownTapTimer);
-        vpDownTapTimer = null;
-        const list = document.getElementById('visible-presets-list');
-        if (list) {
-          const items = list.querySelectorAll('.style-item');
-          if (items.length > 0) {
-            currentVisiblePresetsIndex = items.length - 1;
-            updateVisiblePresetsSelection();
-          }
-        }
-      } else {
-        vpDownTapTimer = setTimeout(() => {
-          vpDownTapTimer = null;
+      vpDownCount++;
+      if (vpDownTimer) clearTimeout(vpDownTimer);
+      vpDownTimer = setTimeout(() => {
+        vpDownTimer = null;
+        const count = vpDownCount;
+        vpDownCount = 0;
+        const submenu = document.getElementById('visible-presets-submenu');
+        const container = submenu ? submenu.querySelector('.submenu-list') : null;
+        if (count === 1) {
           // Single-tap: page down
-          const submenu = document.getElementById('visible-presets-submenu');
-          if (submenu) {
-            const container = submenu.querySelector('.submenu-list');
-            if (container) {
-              container.scrollTop = Math.min(
-                container.scrollHeight - container.clientHeight,
-                container.scrollTop + container.clientHeight
-              );
+          if (container) {
+            container.scrollTop = Math.min(
+              container.scrollHeight - container.clientHeight,
+              container.scrollTop + container.clientHeight
+            );
+            const listEl = document.getElementById('visible-presets-list');
+            if (listEl) {
+              const allItems = Array.from(listEl.querySelectorAll('.style-item'));
+              const cRect = container.getBoundingClientRect();
+              let firstIdx = 0;
+              for (let ii = 0; ii < allItems.length; ii++) {
+                if (allItems[ii].getBoundingClientRect().top >= cRect.top - 5) { firstIdx = ii; break; }
+              }
+              currentVisiblePresetsIndex = firstIdx;
+              updateVisiblePresetsSelection();
             }
           }
-        }, 300);
-      }
+        } else if (count === 2) {
+          // Double-tap: jump to next letter (purely alphabetical, no sections)
+          const list = document.getElementById('visible-presets-list');
+          if (!list || !container) return;
+          const items = Array.from(list.querySelectorAll('.style-item'));
+          if (items.length === 0) return;
+          const containerTop = container.getBoundingClientRect().top;
+          let currentIdx = 0;
+          items.forEach((item, i) => {
+            if (item.getBoundingClientRect().top < containerTop + 10) currentIdx = i;
+          });
+          const currentName = ((items[currentIdx].querySelector('.style-name') || {}).textContent || '').trim();
+          const currentLetter = stripAccents(currentName).toUpperCase().charAt(0);
+          for (let i = currentIdx + 1; i < items.length; i++) {
+            const nm = ((items[i].querySelector('.style-name') || {}).textContent || '').trim();
+            const letter = stripAccents(nm).toUpperCase().charAt(0);
+            if (letter !== currentLetter) {
+              const targetTop = items[i].getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop;
+              container.scrollTo({ top: targetTop, behavior: 'smooth' });
+              currentVisiblePresetsIndex = i;
+              items.forEach(item => item.classList.remove('menu-selected'));
+              items[i].classList.add('menu-selected');
+              return;
+            }
+          }
+        } else {
+          // Triple-tap: jump to very bottom
+          const list = document.getElementById('visible-presets-list');
+          if (list) {
+            const items = list.querySelectorAll('.style-item');
+            if (items.length > 0) {
+              currentVisiblePresetsIndex = items.length - 1;
+              updateVisiblePresetsSelection();
+            }
+          }
+        }
+      }, 300);
     });
   }
 
@@ -13115,7 +13630,7 @@ const result = await presetImporter.import();
           if (importedNames.has(jsonPreset.name)) {
             // Check if content is different (updated)
             const existing = importedPresets.find(p => p.name === jsonPreset.name);
-            if (existing && existing.message !== jsonPreset.message) {
+            if (existing && presetsAreDifferent(existing, jsonPreset)) {
               updatedCount++;
             }
           } else {
@@ -13211,9 +13726,22 @@ const result = await presetImporter.import();
   const mpViewerBtn = document.getElementById('mp-viewer-button');
   if (mpViewerBtn) {
     mpViewerBtn.addEventListener('click', () => {
-      // Save current viewer image index
+      // Save current viewer image index AND current preset
       savedViewerImageIndex = currentViewerImageIndex;
-      
+      window._savedViewerPresetBeforeMaster = window.viewerLoadedPreset || null;
+
+      // Save layer/multi/prompt state so it can also be restored on return
+      window._savedGalleryLayerActiveBeforeMaster = isGalleryLayerActive;
+      window._savedGalleryLayerPresetsBeforeMaster = [...galleryLayerPresets];
+      window._savedGalleryLayerSelectionsBeforeMaster = Object.assign({}, galleryLayerManualSelections);
+      window._savedGalleryMultiActiveBeforeMaster = isGalleryMultiActive;
+      window._savedGalleryMultiPresetsBeforeMaster = [...galleryMultiPresets];
+      window._savedGalleryMultiSelectionsBeforeMaster = Object.assign({}, galleryMultiManualSelections);
+      const _phEl = document.getElementById('viewer-preset-header');
+      window._savedViewerHeaderBeforeMaster = _phEl ? _phEl.textContent : 'NO PRESET LOADED';
+      const _vpEl = document.getElementById('viewer-prompt');
+      window._savedViewerPromptBeforeMaster = _vpEl ? _vpEl.value : '';
+
       // Close image viewer and gallery
       document.getElementById('image-viewer').style.display = 'none';
       document.getElementById('gallery-modal').style.display = 'none';
@@ -13270,25 +13798,171 @@ const result = await presetImporter.import();
     closeQrModalBtn.addEventListener('click', closeQrModal);
   }
 
+  // Custom date picker modal logic — uses scrollable button lists (no native OS picker)
+  const _MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  function _setDatePickerValue(field, value) {
+    const hidden = document.getElementById(`gallery-date-${field}`);
+    if (hidden) hidden.value = value;
+    const list = document.getElementById(`gallery-date-${field}-list`);
+    if (list) {
+      list.querySelectorAll('.gallery-date-option-btn').forEach(btn => {
+        btn.classList.toggle('date-selected', btn.dataset.value === value);
+      });
+      const sel = list.querySelector('.date-selected');
+      if (sel) sel.scrollIntoView({ block: 'nearest' });
+    }
+    if (field === 'month' || field === 'year') _populateDatePickerDays();
+  }
+
+  function _buildDateList(containerId, items, currentValue, field) {
+    const list = document.getElementById(containerId);
+    if (!list) return;
+    list.innerHTML = '';
+    items.forEach(({ label, value }) => {
+      const btn = document.createElement('button');
+      btn.className = 'gallery-date-option-btn' + (value === currentValue ? ' date-selected' : '');
+      btn.dataset.value = value;
+      btn.textContent = label;
+      btn.addEventListener('click', () => _setDatePickerValue(field, value));
+      list.appendChild(btn);
+    });
+  }
+
+  function _populateDatePickerDays() {
+    const monthVal   = (document.getElementById('gallery-date-month') || {}).value || '';
+    const yearVal    = (document.getElementById('gallery-date-year')  || {}).value || '';
+    const dayVal     = (document.getElementById('gallery-date-day')   || {}).value || '';
+    const month      = parseInt(monthVal, 10);
+    const year       = parseInt(yearVal,  10) || new Date().getFullYear();
+    const total      = month ? new Date(year, month, 0).getDate() : 31;
+    const items      = [];
+    for (let d = 1; d <= total; d++) {
+      const val = String(d).padStart(2, '0');
+      items.push({ label: String(d), value: val });
+    }
+    _buildDateList('gallery-date-day-list', items, dayVal, 'day');
+  }
+
+  function openDatePickerModal(type) {
+    const modal = document.getElementById('gallery-date-modal');
+    const title = document.getElementById('gallery-date-modal-title');
+    if (!modal) return;
+    modal._dateType = type;
+    if (title) title.textContent = type === 'start' ? 'START DATE' : 'END DATE';
+
+    const existing  = type === 'start' ? galleryStartDate : galleryEndDate;
+    const parts     = existing ? existing.split('-') : ['', '', ''];
+    const curYear   = parts[0] || '';
+    const curMonth  = parts[1] || '';
+    const curDay    = parts[2] || '';
+
+    // Pre-load hidden inputs so _populateDatePickerDays reads them correctly
+    const hidM = document.getElementById('gallery-date-month');
+    const hidD = document.getElementById('gallery-date-day');
+    const hidY = document.getElementById('gallery-date-year');
+    if (hidM) hidM.value = curMonth;
+    if (hidD) hidD.value = curDay;
+    if (hidY) hidY.value = curYear;
+
+    // Build month buttons
+    const monthItems = _MONTHS_SHORT.map((name, i) => ({
+      label: name,
+      value: String(i + 1).padStart(2, '0')
+    }));
+    _buildDateList('gallery-date-month-list', monthItems, curMonth, 'month');
+
+    // Build year buttons (newest first)
+    const nowYear = new Date().getFullYear();
+    const yearItems = [];
+    for (let y = nowYear; y >= 2020; y--) {
+      yearItems.push({ label: String(y), value: String(y) });
+    }
+    _buildDateList('gallery-date-year-list', yearItems, curYear, 'year');
+
+    // Build day buttons (respects current month/year)
+    _populateDatePickerDays();
+
+    modal.style.display = 'flex';
+  }
+
+  // OK button — confirm the selected date
+  const _dateOkBtn = document.getElementById('gallery-date-ok');
+  if (_dateOkBtn) {
+    _dateOkBtn.addEventListener('click', () => {
+      const modal    = document.getElementById('gallery-date-modal');
+      const monthVal = (document.getElementById('gallery-date-month') || {}).value || '';
+      const dayVal   = (document.getElementById('gallery-date-day')   || {}).value || '';
+      const yearVal  = (document.getElementById('gallery-date-year')  || {}).value || '';
+      const type     = modal._dateType;
+      if (monthVal && dayVal && yearVal) {
+        const dateValue = `${yearVal}-${monthVal}-${dayVal}`;
+        if (type === 'start') {
+          galleryStartDate = dateValue;
+          updateDateButtonText('start', galleryStartDate);
+        } else {
+          galleryEndDate = dateValue;
+          updateDateButtonText('end', galleryEndDate);
+        }
+        onGalleryFilterChange();
+      }
+      modal.style.display = 'none';
+    });
+  }
+
+  // Clear button — wipe the date filter
+  const _dateClearBtn = document.getElementById('gallery-date-clear');
+  if (_dateClearBtn) {
+    _dateClearBtn.addEventListener('click', () => {
+      const modal = document.getElementById('gallery-date-modal');
+      const type  = modal._dateType;
+      if (type === 'start') {
+        galleryStartDate = null;
+        updateDateButtonText('start', null);
+      } else {
+        galleryEndDate = null;
+        updateDateButtonText('end', null);
+      }
+      onGalleryFilterChange();
+      modal.style.display = 'none';
+    });
+  }
+
+  // Cancel button — close without changes
+  const _dateCancelBtn = document.getElementById('gallery-date-cancel');
+  if (_dateCancelBtn) {
+    _dateCancelBtn.addEventListener('click', () => {
+      document.getElementById('gallery-date-modal').style.display = 'none';
+    });
+  }
+
+  // Tap the dark overlay to cancel
+  const _dateOverlay = document.querySelector('#gallery-date-modal .gallery-custom-modal-overlay');
+  if (_dateOverlay) {
+    _dateOverlay.addEventListener('click', () => {
+      document.getElementById('gallery-date-modal').style.display = 'none';
+    });
+  }
+
   const startDateBtn = document.getElementById('gallery-start-date-btn');
   const startDateInput = document.getElementById('gallery-start-date');
-  if (startDateBtn && startDateInput) {
-    startDateBtn.addEventListener('click', () => {
-      startDateInput.showPicker();
-    });
+  if (startDateBtn) {
+    startDateBtn.addEventListener('click', () => openDatePickerModal('start'));
+  }
+  if (startDateInput) {
     startDateInput.addEventListener('change', (e) => {
       galleryStartDate = e.target.value || null;
       updateDateButtonText('start', galleryStartDate);
       onGalleryFilterChange();
     });
   }
-  
+
   const endDateBtn = document.getElementById('gallery-end-date-btn');
   const endDateInput = document.getElementById('gallery-end-date');
-  if (endDateBtn && endDateInput) {
-    endDateBtn.addEventListener('click', () => {
-      endDateInput.showPicker();
-    });
+  if (endDateBtn) {
+    endDateBtn.addEventListener('click', () => openDatePickerModal('end'));
+  }
+  if (endDateInput) {
     endDateInput.addEventListener('change', (e) => {
       galleryEndDate = e.target.value || null;
       updateDateButtonText('end', galleryEndDate);
@@ -13308,6 +13982,52 @@ const result = await presetImporter.import();
       }
       onGalleryFilterChange();
     });
+  }
+
+  // Custom sort modal wiring
+  const _gallerySortBtn   = document.getElementById('gallery-sort-btn');
+  const _gallerySortModal = document.getElementById('gallery-sort-modal');
+
+  if (_gallerySortBtn && _gallerySortModal) {
+    _gallerySortBtn.addEventListener('click', () => {
+      // Highlight whichever option is currently active
+      document.querySelectorAll('#gallery-sort-modal .gallery-custom-modal-option').forEach(opt => {
+        opt.classList.toggle('active-sort', opt.dataset.value === gallerySortOrder);
+      });
+      _gallerySortModal.style.display = 'flex';
+    });
+
+    // Each option button picks a sort order and closes
+    document.querySelectorAll('#gallery-sort-modal .gallery-custom-modal-option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        const newSort = opt.dataset.value;
+        if (sortOrderSelect) {
+          sortOrderSelect.value = newSort;
+          sortOrderSelect.dispatchEvent(new Event('change'));
+        }
+        const _sortLabel = document.getElementById('gallery-sort-label');
+        if (_sortLabel) {
+          _sortLabel.textContent = '🔀 SORT';
+        }
+        _gallerySortModal.style.display = 'none';
+      });
+    });
+
+    // Cancel button
+    const _sortCancelBtn = document.getElementById('gallery-sort-cancel');
+    if (_sortCancelBtn) {
+      _sortCancelBtn.addEventListener('click', () => {
+        _gallerySortModal.style.display = 'none';
+      });
+    }
+
+    // Tap the dark overlay to cancel
+    const _sortOverlay = _gallerySortModal.querySelector('.gallery-custom-modal-overlay');
+    if (_sortOverlay) {
+      _sortOverlay.addEventListener('click', () => {
+        _gallerySortModal.style.display = 'none';
+      });
+    }
   }
   
   const prevPageBtn = document.getElementById('prev-page');
@@ -13402,56 +14122,110 @@ const result = await presetImporter.import();
   
   const presetSelectorJumpUp = document.getElementById('preset-selector-jump-up');
   if (presetSelectorJumpUp) {
-    let psUpTapTimer = null;
+    let psUpTimer = null;
+    let psUpCount = 0;
     presetSelectorJumpUp.addEventListener('click', () => {
-      if (psUpTapTimer) {
-        // Double-tap: jump to very top
-        clearTimeout(psUpTapTimer);
-        psUpTapTimer = null;
-        currentPresetIndex_Gallery = 0;
-        updatePresetSelection();
-      } else {
-        psUpTapTimer = setTimeout(() => {
-          psUpTapTimer = null;
+      psUpCount++;
+      if (psUpTimer) clearTimeout(psUpTimer);
+      psUpTimer = setTimeout(() => {
+        psUpTimer = null;
+        const count = psUpCount;
+        psUpCount = 0;
+        const container = document.querySelector('.preset-list');
+        if (count === 1) {
           // Single-tap: page up
-          const container = document.querySelector('.preset-list');
           if (container) {
             container.scrollTop = Math.max(0, container.scrollTop - container.clientHeight);
           }
-        }, 300);
-      }
+        } else if (count === 2) {
+          // Double-tap: jump to previous letter within the same section (favorites or non-favorites)
+          const list = document.getElementById('preset-list');
+          if (!list) return;
+          const items = Array.from(list.querySelectorAll('.preset-item'));
+          if (items.length === 0) return;
+          const idx = Math.max(0, Math.min(currentPresetIndex_Gallery, items.length - 1));
+          const currentName = ((items[idx].querySelector('.preset-name') || {}).textContent || '').trim();
+          const currentLetter = stripAccents(currentName).toUpperCase().charAt(0);
+          const currentIsFav = isFavoriteStyle(currentName);
+          for (let i = idx - 1; i >= 0; i--) {
+            const nm = ((items[i].querySelector('.preset-name') || {}).textContent || '').trim();
+            if (isFavoriteStyle(nm) !== currentIsFav) break;
+            const letter = stripAccents(nm).toUpperCase().charAt(0);
+            if (letter !== currentLetter) {
+              const targetLetter = letter;
+              let firstOfLetter = i;
+              while (firstOfLetter > 0) {
+                const prevNm = ((items[firstOfLetter - 1].querySelector('.preset-name') || {}).textContent || '').trim();
+                if (isFavoriteStyle(prevNm) !== currentIsFav) break;
+                if (stripAccents(prevNm).toUpperCase().charAt(0) !== targetLetter) break;
+                firstOfLetter--;
+              }
+              currentPresetIndex_Gallery = firstOfLetter;
+              updatePresetSelection();
+              return;
+            }
+          }
+        } else {
+          // Triple-tap: jump to very top
+          currentPresetIndex_Gallery = 0;
+          updatePresetSelection();
+        }
+      }, 300);
     });
   }
 
   const presetSelectorJumpDown = document.getElementById('preset-selector-jump-down');
   if (presetSelectorJumpDown) {
-    let psDownTapTimer = null;
+    let psDownTimer = null;
+    let psDownCount = 0;
     presetSelectorJumpDown.addEventListener('click', () => {
-      if (psDownTapTimer) {
-        // Double-tap: jump to very bottom
-        clearTimeout(psDownTapTimer);
-        psDownTapTimer = null;
-        const list = document.getElementById('preset-list');
-        if (list) {
-          const items = list.querySelectorAll('.preset-item');
-          if (items.length > 0) {
-            currentPresetIndex_Gallery = items.length - 1;
-            updatePresetSelection();
-          }
-        }
-      } else {
-        psDownTapTimer = setTimeout(() => {
-          psDownTapTimer = null;
+      psDownCount++;
+      if (psDownTimer) clearTimeout(psDownTimer);
+      psDownTimer = setTimeout(() => {
+        psDownTimer = null;
+        const count = psDownCount;
+        psDownCount = 0;
+        const container = document.querySelector('.preset-list');
+        if (count === 1) {
           // Single-tap: page down
-          const container = document.querySelector('.preset-list');
           if (container) {
             container.scrollTop = Math.min(
               container.scrollHeight - container.clientHeight,
               container.scrollTop + container.clientHeight
             );
           }
-        }, 300);
-      }
+        } else if (count === 2) {
+          // Double-tap: jump to next letter within the same section (favorites or non-favorites)
+          const list = document.getElementById('preset-list');
+          if (!list) return;
+          const items = Array.from(list.querySelectorAll('.preset-item'));
+          if (items.length === 0) return;
+          const idx = Math.max(0, Math.min(currentPresetIndex_Gallery, items.length - 1));
+          const currentName = ((items[idx].querySelector('.preset-name') || {}).textContent || '').trim();
+          const currentLetter = stripAccents(currentName).toUpperCase().charAt(0);
+          const currentIsFav = isFavoriteStyle(currentName);
+          for (let i = idx + 1; i < items.length; i++) {
+            const nm = ((items[i].querySelector('.preset-name') || {}).textContent || '').trim();
+            if (isFavoriteStyle(nm) !== currentIsFav) break;
+            const letter = stripAccents(nm).toUpperCase().charAt(0);
+            if (letter !== currentLetter) {
+              currentPresetIndex_Gallery = i;
+              updatePresetSelection();
+              return;
+            }
+          }
+        } else {
+          // Triple-tap: jump to very bottom
+          const list = document.getElementById('preset-list');
+          if (list) {
+            const items = list.querySelectorAll('.preset-item');
+            if (items.length > 0) {
+              currentPresetIndex_Gallery = items.length - 1;
+              updatePresetSelection();
+            }
+          }
+        }
+      }, 300);
     });
   }
 
@@ -13887,35 +14661,28 @@ async function resizeAndCompressImage(blob, maxWidth = 640, maxHeight = 480, qua
   return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(blob);
-    
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      
-      // Calculate new dimensions maintaining aspect ratio
-      let width = img.width;
-      let height = img.height;
-      
+
+    const doResize = (sourceImg) => {
+      let width = sourceImg.width;
+      let height = sourceImg.height;
+
+      // Only resize if image exceeds either max dimension
       if (width > maxWidth || height > maxHeight) {
-        const aspectRatio = width / height;
-        
-        if (width > height) {
-          width = maxWidth;
-          height = width / aspectRatio;
-        } else {
-          height = maxHeight;
-          width = height * aspectRatio;
-        }
+        // Calculate scale needed to fit within both maxWidth and maxHeight
+        const scaleW = maxWidth / width;
+        const scaleH = maxHeight / height;
+        const scale = Math.min(scaleW, scaleH); // use the more restrictive scale
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
       }
-      
-      // Create canvas and draw resized image
+
       const canvas = document.createElement('canvas');
       canvas.width = width;
       canvas.height = height;
-      
+
       const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-      
-      // Convert to blob
+      ctx.drawImage(sourceImg, 0, 0, width, height);
+
       canvas.toBlob(
         (resizedBlob) => {
           if (resizedBlob) {
@@ -13928,36 +14695,22 @@ async function resizeAndCompressImage(blob, maxWidth = 640, maxHeight = 480, qua
         quality
       );
     };
-    
+
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      doResize(img);
+    };
+
     img.onerror = () => {
       URL.revokeObjectURL(url);
-      // If blob has no type or wrong type, retry by forcing it as image/png
+      // Retry by forcing blob type to image/png (some proxies strip content-type)
       if (blob.type !== 'image/png' && blob.type !== 'image/jpeg') {
         const retypedBlob = new Blob([blob], { type: 'image/png' });
         const retryUrl = URL.createObjectURL(retypedBlob);
         const retryImg = new Image();
         retryImg.onload = () => {
           URL.revokeObjectURL(retryUrl);
-          const canvas = document.createElement('canvas');
-          let w = retryImg.width;
-          let h = retryImg.height;
-          if (w > maxWidth || h > maxHeight) {
-            const aspectRatio = w / h;
-            if (w > h) { w = maxWidth; h = w / aspectRatio; }
-            else { h = maxHeight; w = h * aspectRatio; }
-          }
-          canvas.width = w;
-          canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(retryImg, 0, 0, w, h);
-          canvas.toBlob(
-            (resizedBlob) => {
-              if (resizedBlob) resolve(resizedBlob);
-              else reject(new Error('Failed to compress image'));
-            },
-            'image/jpeg',
-            quality
-          );
+          doResize(retryImg);
         };
         retryImg.onerror = () => {
           URL.revokeObjectURL(retryUrl);
@@ -13968,7 +14721,7 @@ async function resizeAndCompressImage(blob, maxWidth = 640, maxHeight = 480, qua
         reject(new Error('Failed to load image for resizing'));
       }
     };
-    
+
     img.src = url;
   });
 }
@@ -13980,131 +14733,105 @@ async function importFromQRCode() {
     showGalleryStatusMessage('No QR code detected', 'error', 3000);
     return;
   }
-  
+
   try {
     updateQRScannerStatus('Downloading image...', '');
-    
+
     const imageUrl = lastDetectedQR.trim();
-    
-    // Try multiple proxies in order
+
+    // Try direct fetch first (fastest, works when server allows it),
+    // then fall back to image-specific and generic CORS proxies
     const proxies = [
-      'https://api.codetabs.com/v1/proxy?quest=',
-      'https://corsproxy.io/?',
-      'https://api.allorigins.win/raw?url=',
-      '' // Try direct last
+      '',                                          // Direct fetch first
+      'https://wsrv.nl/?url=',                     // Image-specific proxy (best)
+      'https://corsproxy.io/?',                    // Generic CORS proxy
+      'https://api.allorigins.win/raw?url=',       // Generic CORS proxy
+      'https://api.codetabs.com/v1/proxy?quest='   // Generic CORS proxy
     ];
-    
+
     let response = null;
-    let lastError = null;
-    
+
     for (let i = 0; i < proxies.length; i++) {
       try {
-        const fetchUrl = proxies[i] ? proxies[i] + encodeURIComponent(imageUrl) : imageUrl;
-        
+        const fetchUrl = proxies[i]
+          ? proxies[i] + encodeURIComponent(imageUrl)
+          : imageUrl;
+
         updateQRScannerStatus(`Trying method ${i + 1}/${proxies.length}...`, '');
-        
+
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000);
-        
-        response = await fetch(fetchUrl, {
-          signal: controller.signal
-        });
-        
+        const timeoutId = setTimeout(() => controller.abort(), 20000);
+
+        const res = await fetch(fetchUrl, { signal: controller.signal });
         clearTimeout(timeoutId);
-        
-        if (response.ok) {
+
+        if (res.ok) {
+          response = res;
           updateQRScannerStatus('Download successful!', 'success');
-          break; // Success!
+          break;
         }
       } catch (error) {
-        lastError = error;
         continue; // Try next proxy
       }
     }
-    
+
     if (!response || !response.ok) {
-      throw new Error('All download methods failed');
+      throw new Error('All download methods failed. Check the URL and try again.');
     }
-    
+
     updateQRScannerStatus('Reading image data...', '');
-    
     let blob = await response.blob();
-    
+
     const originalSize = Math.round(blob.size / 1024);
     updateQRScannerStatus('Original size: ' + originalSize + 'KB', '');
-    
-    // Check if it's an image
-    // Allow image/* types AND octet-stream (some proxies return PNG as octet-stream)
+
+    // Accept image types and octet-stream (some proxies strip content-type)
     const isImageType = blob.type.startsWith('image/');
     const isOctetStream = blob.type === 'application/octet-stream' || blob.type === '';
     if (blob.type && !isImageType && !isOctetStream) {
-      throw new Error('Not an image: ' + blob.type);
+      throw new Error('Not an image file: ' + blob.type);
     }
-    
-    // Resize/compress large images to match camera capabilities
-    // Use UXGA (1600x1200) as max to balance quality and storage
+
     updateQRScannerStatus('Optimizing image...', '');
-    
-    // Use user's selected import resolution
     const importRes = IMPORT_RESOLUTION_OPTIONS[currentImportResolutionIndex];
     blob = await resizeAndCompressImage(blob, importRes.width, importRes.height, 0.85);
-    
+
     const newSize = Math.round(blob.size / 1024);
     updateQRScannerStatus('Compressed: ' + originalSize + 'KB → ' + newSize + 'KB', '');
-    
+
     updateQRScannerStatus('Converting to base64...', '');
-    
-    // Convert to base64 with timeout protection
     const base64Data = await new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
-        reject(new Error('Base64 conversion timeout'));
-      }, 10000);
-      
+        reject(new Error('Base64 conversion timeout — image may be too large'));
+      }, 15000);
+
       const reader = new FileReader();
-      
-      reader.onloadend = () => {
-        clearTimeout(timeout);
-        resolve(reader.result);
-      };
-      
-      reader.onerror = () => {
-        clearTimeout(timeout);
-        reject(new Error('FileReader error'));
-      };
-      
+      reader.onloadend = () => { clearTimeout(timeout); resolve(reader.result); };
+      reader.onerror = () => { clearTimeout(timeout); reject(new Error('FileReader error')); };
       reader.readAsDataURL(blob);
     });
-    
+
     updateQRScannerStatus('Saving to gallery...', '');
-    
-    // Save to gallery
+
     const imageData = {
       id: Date.now().toString() + '-' + Math.random().toString(36).substr(2, 9),
       imageBase64: base64Data,
       timestamp: Date.now()
     };
-    
-    // Add to memory array
-    galleryImages.unshift(imageData);
-    
-    // Save to IndexedDB
+
+    // Save to IndexedDB FIRST — only add to memory if save succeeds
     await saveImageToDB(imageData);
-    
+    galleryImages.unshift(imageData);
+
     updateQRScannerStatus('✅ Import successful!', 'success');
-      
     lastDetectedQR = null;
-    
-    // Close scanner modal after successful import
+
     closeQRScannerModal();
-    
-    // Refresh gallery to show new image and show success message
     await showGallery();
     showGalleryStatusMessage('Image imported successfully!', 'success', 3000);
-    
+
   } catch (error) {
     lastDetectedQR = null;
-    
-    // Close modal and show error in gallery
     closeQRScannerModal();
     showGalleryStatusMessage('Import failed: ' + error.message, 'error', 4000);
   }
@@ -14135,14 +14862,42 @@ document.getElementById('factory-reset-button').addEventListener('click', async 
         saveVisiblePresets();
     }
     
-    renderMenuStyles();
-    
+    // Show the success overlay FIRST before any menu transitions happen
     const successMessage = hasImportedPresets
-      ? 'All custom presets deleted, modifications cleared, and queue reset. Reset to imported presets!'
-      : 'All custom presets deleted, modifications cleared, and queue reset!';
-    alert(successMessage);
+      ? '✅ Reset complete!\n\n• Custom presets deleted\n• All edits undone\n• Photo queue cleared\n• Showing all imported presets'
+      : '✅ Reset complete!\n\n• Custom presets deleted\n• All edits undone\n• Photo queue cleared\n• All presets restored';
+
+    const resetOverlay = document.createElement('div');
+    resetOverlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.92); z-index:2147483647; display:flex; align-items:center; justify-content:center; pointer-events:all;';
+
+    const resetBox = document.createElement('div');
+    resetBox.style.cssText = 'background:#1a1a1a; border:1px solid #4CAF50; border-radius:12px; padding:28px 24px; max-width:85%; text-align:center;';
+
+    const resetMsg = document.createElement('div');
+    resetMsg.style.cssText = 'color:#fff; font-size:14px; white-space:pre-line; line-height:1.7; margin-bottom:20px;';
+    resetMsg.textContent = successMessage;
+
+    const resetBtn = document.createElement('button');
+    resetBtn.textContent = 'OK';
+    resetBtn.style.cssText = 'background:#4CAF50; color:#fff; border:none; border-radius:8px; padding:10px 32px; font-size:15px; cursor:pointer;';
+    resetBtn.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (document.body.contains(resetOverlay)) document.body.removeChild(resetOverlay);
+      renderMenuStyles();
+    });
+    resetBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (document.body.contains(resetOverlay)) document.body.removeChild(resetOverlay);
+      renderMenuStyles();
+    });
+
+    resetBox.appendChild(resetMsg);
+    resetBox.appendChild(resetBtn);
+    resetOverlay.appendChild(resetBox);
+    document.body.appendChild(resetOverlay);
   }
-});
+}); 
 
 // Carousel infinite scroll logic
 document.addEventListener('DOMContentLoaded', function() {

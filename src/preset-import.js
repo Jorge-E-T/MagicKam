@@ -1,7 +1,7 @@
 // preset-import.js - Handle external preset importing
 
 // Deep comparison for UPDATED detection — checks all meaningful preset fields
-function presetsAreDifferent(a, b) {
+export function presetsAreDifferent(a, b) {
   if (a.message !== b.message) return true;
   if (a.additionalInstructions !== b.additionalInstructions) return true;
   if (!!a.randomizeOptions !== !!b.randomizeOptions) return true;
@@ -377,8 +377,8 @@ export class PresetImporter {
       const currentCredits = loadUnlockState().credits || 0;
       header.innerHTML = `
         <div style="display:flex; flex-direction:column; gap:1px; line-height:1.1;">
-          <h2 style="font-size: 14px; margin:0; padding:0;">Import (<span id="import-preset-count">${availablePresets.length}</span>)</h2>
-          <span id="import-credits-display" style="font-size:10px; color:#aaa; margin:0; padding:0;">Credits: ${currentCredits}</span>
+          <h2 style="font-size: 5vw; margin:0; padding:0;">IMPORT (<span id="import-preset-count">${availablePresets.length}</span>)</h2>
+          <span id="import-credits-display" style="font-size:5vw; color:#aaa; margin:0; padding:0;">Credits: ${currentCredits}</span>
         </div>
         <div class="menu-nav-buttons">
           <button id="import-mute-toggle" class="menu-jump-button" title="Mute/Unmute">${this.isMuted ? '🔇' : '🔊'}</button>          
@@ -427,17 +427,19 @@ export class PresetImporter {
       previewOverlay.id = 'preset-image-preview-overlay';
       previewOverlay.style.cssText = 'display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.88); z-index:99999; align-items:center; justify-content:center; flex-direction:column; pointer-events:all;';
 
+      const previewImgWrapper = document.createElement('div');
+      previewImgWrapper.style.cssText = 'width:92vw; height:72vh; display:flex; align-items:center; justify-content:center;';
       const previewImg = document.createElement('img');
       previewImg.id = 'preset-preview-img';
-      previewImg.style.cssText = 'max-width:85%; max-height:65%; object-fit:contain; border-radius:10px; border:2px solid #555;';
+      previewImg.style.cssText = 'width:100%; height:100%; object-fit:contain; border-radius:10px; border:2px solid #555;';
 
       const previewLabel = document.createElement('div');
       previewLabel.id = 'preset-preview-label';
-      previewLabel.style.cssText = 'color:#fff; font-size:15px; margin-top:14px; font-weight:bold; letter-spacing:1px;';
+      previewLabel.style.cssText = 'color:#fff; font-size:11px; margin-top:6px; font-weight:bold; letter-spacing:1px;';
 
       const previewCloseBtn = document.createElement('div');
       previewCloseBtn.textContent = '×';
-      previewCloseBtn.style.cssText = 'position:absolute; top:14px; right:18px; color:#fff; font-size:28px; cursor:pointer; pointer-events:all; line-height:1;';
+      previewCloseBtn.style.cssText = 'position:absolute; top:10px; right:18px; color:#fff; font-size:28px; cursor:pointer; pointer-events:all; line-height:1;';
       previewCloseBtn.addEventListener('touchstart', (e) => {
         e.stopPropagation();
         e.preventDefault();
@@ -459,7 +461,8 @@ export class PresetImporter {
       previewNoImg.textContent = 'No sample image available';
 
       previewOverlay.appendChild(previewCloseBtn);
-      previewOverlay.appendChild(previewImg);
+      previewImgWrapper.appendChild(previewImg);
+      previewOverlay.appendChild(previewImgWrapper);
       previewOverlay.appendChild(previewLabel);
       previewOverlay.appendChild(previewNoImg);
       document.body.appendChild(previewOverlay);
@@ -470,7 +473,8 @@ export class PresetImporter {
         previewNoImg.style.display = 'none';
 
         // Build the image URL from the preset name (spaces become underscores)
-        const autoUrl = './public/' + preset.name.replace(/\s+/g, '_') + '.png';
+        const safeName = preset.name.replace(/[\/\\:*?"<>|\s]/g, '_');
+        const autoUrl = './public/' + safeName + '.png';
         const imageUrl = preset.imageUrl || autoUrl;
 
         previewImg.onload = () => {
@@ -928,44 +932,99 @@ footerSection.innerHTML = `
         }, 200);
       };
 
-      let importUpTapTimer = null;
+      let importUpTimer = null;
+      let importUpCount = 0;
       document.getElementById('import-jump-to-top').onclick = () => {
-        if (importUpTapTimer) {
-          // Double-tap: jump to very top
-          clearTimeout(importUpTapTimer);
-          importUpTapTimer = null;
-          scrollContainer.scrollTop = 0;
-          this.currentImportScrollIndex = 0;
-          updateImportSelection();
-        } else {
-          importUpTapTimer = setTimeout(() => {
-            importUpTapTimer = null;
+        importUpCount++;
+        if (importUpTimer) clearTimeout(importUpTimer);
+        importUpTimer = setTimeout(() => {
+          importUpTimer = null;
+          const count = importUpCount;
+          importUpCount = 0;
+          if (count === 1) {
             // Single-tap: page up
             scrollContainer.scrollTop = Math.max(0, scrollContainer.scrollTop - scrollContainer.clientHeight);
-          }, 300);
-        }
+          } else if (count === 2) {
+            // Double-tap: jump to previous letter within the same section (new/updated or owned/imported)
+            const items = Array.from(presetsList.querySelectorAll('.menu-item'));
+            if (items.length === 0) return;
+            const idx = Math.max(0, Math.min(this.currentImportScrollIndex, items.length - 1));
+            const currentItem = items[idx];
+            const currentName = (currentItem.dataset.presetName || '').trim();
+            const currentLetter = stripAccents(currentName).toUpperCase().charAt(0);
+            const currentIsNewOrUpdated = !!currentItem.querySelector('.preset-ticket');
+            for (let i = idx - 1; i >= 0; i--) {
+              const item = items[i];
+              if (!!item.querySelector('.preset-ticket') !== currentIsNewOrUpdated) break;
+              const nm = (item.dataset.presetName || '').trim();
+              const letter = stripAccents(nm).toUpperCase().charAt(0);
+              if (letter !== currentLetter) {
+                const targetLetter = letter;
+                let firstOfLetter = i;
+                while (firstOfLetter > 0) {
+                  const prevItem = items[firstOfLetter - 1];
+                  if (!!prevItem.querySelector('.preset-ticket') !== currentIsNewOrUpdated) break;
+                  const prevNm = (prevItem.dataset.presetName || '').trim();
+                  if (stripAccents(prevNm).toUpperCase().charAt(0) !== targetLetter) break;
+                  firstOfLetter--;
+                }
+                this.currentImportScrollIndex = firstOfLetter;
+                updateImportSelection();
+                return;
+              }
+            }
+          } else {
+            // Triple-tap: jump to very top
+            scrollContainer.scrollTop = 0;
+            this.currentImportScrollIndex = 0;
+            updateImportSelection();
+          }
+        }, 300);
       };
 
-      let importDownTapTimer = null;
+      let importDownTimer = null;
+      let importDownCount = 0;
       document.getElementById('import-jump-to-bottom').onclick = () => {
-        if (importDownTapTimer) {
-          // Double-tap: jump to very bottom
-          clearTimeout(importDownTapTimer);
-          importDownTapTimer = null;
-          scrollContainer.scrollTop = scrollContainer.scrollHeight;
-          const items = presetsList.querySelectorAll('.menu-item');
-          this.currentImportScrollIndex = items.length - 1;
-          updateImportSelection();
-        } else {
-          importDownTapTimer = setTimeout(() => {
-            importDownTapTimer = null;
+        importDownCount++;
+        if (importDownTimer) clearTimeout(importDownTimer);
+        importDownTimer = setTimeout(() => {
+          importDownTimer = null;
+          const count = importDownCount;
+          importDownCount = 0;
+          if (count === 1) {
             // Single-tap: page down
             scrollContainer.scrollTop = Math.min(
               scrollContainer.scrollHeight - scrollContainer.clientHeight,
               scrollContainer.scrollTop + scrollContainer.clientHeight
             );
-          }, 300);
-        }
+          } else if (count === 2) {
+            // Double-tap: jump to next letter within the same section (new/updated or owned/imported)
+            const items = Array.from(presetsList.querySelectorAll('.menu-item'));
+            if (items.length === 0) return;
+            const idx = Math.max(0, Math.min(this.currentImportScrollIndex, items.length - 1));
+            const currentItem = items[idx];
+            const currentName = (currentItem.dataset.presetName || '').trim();
+            const currentLetter = stripAccents(currentName).toUpperCase().charAt(0);
+            const currentIsNewOrUpdated = !!currentItem.querySelector('.preset-ticket');
+            for (let i = idx + 1; i < items.length; i++) {
+              const item = items[i];
+              if (!!item.querySelector('.preset-ticket') !== currentIsNewOrUpdated) break;
+              const nm = (item.dataset.presetName || '').trim();
+              const letter = stripAccents(nm).toUpperCase().charAt(0);
+              if (letter !== currentLetter) {
+                this.currentImportScrollIndex = i;
+                updateImportSelection();
+                return;
+              }
+            }
+          } else {
+            // Triple-tap: jump to very bottom
+            scrollContainer.scrollTop = scrollContainer.scrollHeight;
+            const items = presetsList.querySelectorAll('.menu-item');
+            this.currentImportScrollIndex = items.length - 1;
+            updateImportSelection();
+          }
+        }, 300);
       };
 
       this.scrollImportUp = () => {
