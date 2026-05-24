@@ -5803,3 +5803,41 @@ button, .touchable {
     transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.15s ease;
 }
 
+/* ═══════════════════════════════════
+   PRESET FILE SETTINGS — source row buttons
+   ═══════════════════════════════════ */
+
+/* ON/OFF, EDIT, ✕ — same height as .close-button, width = text only */
+.preset-source-action-btn {
+    height: 8vw;
+    min-height: 32px;
+    padding: 0 2vw;
+    border-radius: 1vw;
+    border: none;
+    font-size: 3vw;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+/* + Add Source / Save Changes — same height as .close-button, full width */
+.preset-source-add-btn {
+    height: 8vw;
+    min-height: 32px;
+    width: 100%;
+    margin-top: 8px;
+    border-radius: 1vw;
+    border: none;
+    font-size: 4vw;
+    font-weight: bold;
+    cursor: pointer;
+    background: #FE5F00;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

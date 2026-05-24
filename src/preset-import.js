@@ -20,6 +20,44 @@ const IMPORT_DB_NAME = 'ImportedPresetsDB';
 const IMPORT_DB_VERSION = 2;
 const IMPORT_STORE_NAME = 'imported_presets';
 
+// ===== CUSTOM PRESET SOURCES =====
+const CUSTOM_PRESET_SOURCES_KEY = 'mk_custom_preset_sources';
+const DEFAULT_PRESET_ENABLED_KEY = 'mk_default_preset_enabled';
+
+export function getCustomPresetSources() {
+  try {
+    const raw = localStorage.getItem(CUSTOM_PRESET_SOURCES_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+export function saveCustomPresetSources(sources) {
+  try {
+    localStorage.setItem(CUSTOM_PRESET_SOURCES_KEY, JSON.stringify(sources));
+    // Clear the session cache so the next import/check picks up the new sources
+    window._cachedFactoryPresets = null;
+  } catch (e) {}
+}
+
+export function getDefaultPresetEnabled() {
+  try {
+    const val = localStorage.getItem(DEFAULT_PRESET_ENABLED_KEY);
+    return val === null ? true : val === 'true'; // defaults to true
+  } catch (e) {
+    return true;
+  }
+}
+
+export function saveDefaultPresetEnabled(enabled) {
+  try {
+    localStorage.setItem(DEFAULT_PRESET_ENABLED_KEY, enabled ? 'true' : 'false');
+    window._cachedFactoryPresets = null;
+  } catch (e) {}
+}
+// ===== END CUSTOM PRESET SOURCES =====
+
 // ===== PRESET UNLOCK GAME =====
 
 const UNLOCK_GAME_KEY = 'r1_preset_unlock_game';
@@ -32,11 +70,23 @@ function loadUnlockState() {
       const state = JSON.parse(raw);
       if (!state.credits) state.credits = 0;
       if (!state.creditEarnedPresets) state.creditEarnedPresets = [];
-      // MIGRATION: ensure all starter presets are unlocked for existing users
+      if (!state.ownedPresets) state.ownedPresets = [];
+      // MIGRATION: ensure all starter presets are unlocked and permanently owned
       let migrated = false;
       STARTER_PRESETS.forEach(name => {
         if (!state.unlockedPresets.includes(name)) {
           state.unlockedPresets.push(name);
+          migrated = true;
+        }
+        if (!state.ownedPresets.includes(name)) {
+          state.ownedPresets.push(name);
+          migrated = true;
+        }
+      });
+      // MIGRATION: any preset already in unlockedPresets was previously paid for — make it permanently owned
+      state.unlockedPresets.forEach(name => {
+        if (!state.ownedPresets.includes(name)) {
+          state.ownedPresets.push(name);
           migrated = true;
         }
       });
@@ -46,7 +96,7 @@ function loadUnlockState() {
       return state;
     }
   } catch (e) {}
-  return { credits: 0, creditEarnedPresets: [], unlockedPresets: [...STARTER_PRESETS] };
+  return { credits: 0, creditEarnedPresets: [], unlockedPresets: [...STARTER_PRESETS], ownedPresets: [...STARTER_PRESETS] };
 }
 
 function saveUnlockState(state) {
@@ -238,25 +288,89 @@ export class PresetImporter {
       return window._cachedFactoryPresets;
     }
     try {
-      const response = await fetch('./presets.json');
-      if (!response.ok) {
-        throw new Error('Failed to load presets.json');
+      const allPresets = [];
+      const seenNames = new Set();
+
+      // --- Load default source (only if user has it enabled) ---
+      if (getDefaultPresetEnabled()) {
+        const response = await fetch('./presets.json');
+        if (!response.ok) {
+          throw new Error('Failed to load presets.json');
+        }
+        const defaultPresets = await response.json();
+        defaultPresets
+          .filter(p => p.name && Array.isArray(p.category))
+          .forEach(p => {
+            if (!seenNames.has(p.name)) {
+              seenNames.add(p.name);
+              allPresets.push(p);
+            }
+          });
       }
-      
-      const presets = await response.json();
-      
-      const validPresets = presets.filter(p => 
-        p.name && Array.isArray(p.category)
-      );
+
+      // --- Load custom sources (user-added) ---
+      const customSources = getCustomPresetSources();
+      for (const source of customSources) {
+        if (!source.enabled) continue;
+        try {
+          const resp = await fetch(source.url);
+          if (!resp.ok) {
+            console.warn(`Custom preset source "${source.name}" returned ${resp.status}`);
+            continue;
+          }
+          const customPresets = await resp.json();
+          if (!Array.isArray(customPresets)) {
+            console.warn(`Custom preset source "${source.name}" did not return an array`);
+            continue;
+          }
+          // Derive the folder that sits next to this source's presets.json
+          // e.g. https://raw.githubusercontent.com/user/repo/main/presets.json
+          //   -> https://raw.githubusercontent.com/user/repo/main/public/
+          const sourcePublicBase = source.url.substring(0, source.url.lastIndexOf('/') + 1) + 'public/';
+
+          customPresets
+            .filter(p => p.name && Array.isArray(p.category))
+            .forEach(p => {
+              if (!seenNames.has(p.name)) {
+                seenNames.add(p.name);
+                // Only tag with _sourcePublicBase if the preset doesn't already
+                // supply its own explicit imageUrl
+                allPresets.push(p.imageUrl ? p : { ...p, _sourcePublicBase: sourcePublicBase });
+              }
+            });
+        } catch (e) {
+          console.warn(`Failed to load custom preset source "${source.name}":`, e);
+        }
+      }
+
+      // Safety net: if nothing loaded at all, fall back to default regardless
+      if (allPresets.length === 0) {
+        try {
+          const response = await fetch('./presets.json');
+          if (response.ok) {
+            const defaultPresets = await response.json();
+            defaultPresets
+              .filter(p => p.name && Array.isArray(p.category))
+              .forEach(p => {
+                if (!seenNames.has(p.name)) {
+                  seenNames.add(p.name);
+                  allPresets.push(p);
+                }
+              });
+          }
+        } catch (e) {
+          console.warn('Safety-net load of presets.json also failed:', e);
+        }
+      }
 
       // Alphabetize presets by name
-      const sorted = validPresets.sort((a, b) => a.name.localeCompare(b.name));
+      const sorted = allPresets.sort((a, b) => a.name.localeCompare(b.name));
 
       // Store in memory so every other call this session skips the download
       window._cachedFactoryPresets = sorted;
       return sorted;
     } catch (error) {
-      console.error('Error loading presets.json:', error);
+      console.error('Error loading presets:', error);
       throw new Error('Could not load presets.json file');
     }
   }
@@ -347,6 +461,7 @@ export class PresetImporter {
       // Load the unlock game state for this session
       const unlockState = loadUnlockState();
       const unlockedNames = new Set(unlockState.unlockedPresets);
+      const permanentlyOwned = new Set(unlockState.ownedPresets || [...STARTER_PRESETS]);
       // Tracks presets unlocked this session but not yet imported — refunded on cancel/close
       const sessionUnlocked = new Set();
 
@@ -473,8 +588,11 @@ export class PresetImporter {
         previewNoImg.style.display = 'none';
 
         // Build the image URL from the preset name (spaces become underscores)
+        // If the preset came from a custom source, use that source's public folder;
+        // otherwise fall back to the program's own ./public/ folder.
         const safeName = preset.name.replace(/[\/\\:*?"<>|\s]/g, '_');
-        const autoUrl = './public/' + safeName + '.png';
+        const publicBase = preset._sourcePublicBase || './public/';
+        const autoUrl = publicBase + safeName + '.png';
         const imageUrl = preset.imageUrl || autoUrl;
 
         previewImg.onload = () => {
@@ -522,6 +640,11 @@ export class PresetImporter {
         const importedMap = new Map(this.importedPresets.map(p => [p.name, p]));
         const availableSet = new Set(availablePresets.map(p => p.name));
 
+        // Presets from custom sources are always free — never locked
+        const customSourcePresetNames = new Set(
+          availablePresets.filter(p => p._sourcePublicBase).map(p => p.name)
+        );
+
         // Fast credit count: count checked locked presets using Maps
         const getLockedCheckedCount = () => {
           let count = 0;
@@ -530,6 +653,8 @@ export class PresetImporter {
             if (!availableSet.has(name)) return;
             if (importedMap.has(name)) return; // already imported = not locked
             if (unlockedNames.has(name)) return; // unlocked = not locked
+            if (permanentlyOwned.has(name)) return; // permanently owned = never locked
+            if (customSourcePresetNames.has(name)) return; // custom source = always free
             count++;
           });
           return count;
@@ -541,7 +666,7 @@ export class PresetImporter {
 
         filteredPresets.forEach((preset, index) => {
           const isAlreadyImported = importedMap.has(preset.name);
-          const isLocked = !isAlreadyImported && !unlockedNames.has(preset.name);
+          const isLocked = !isAlreadyImported && !unlockedNames.has(preset.name) && !permanentlyOwned.has(preset.name) && !preset._sourcePublicBase;
           const existingPreset = importedMap.get(preset.name);
 
           const msg = preset.message || '';
@@ -835,7 +960,7 @@ footerSection.innerHTML = `
         const lockedPresets = [];
         filteredForCheck.forEach(preset => {
           const isAlreadyImported = this.importedPresets.some(p => p.name === preset.name);
-          const isLocked = !isAlreadyImported && !unlockedNames.has(preset.name);
+          const isLocked = !isAlreadyImported && !unlockedNames.has(preset.name) && !permanentlyOwned.has(preset.name) && !preset._sourcePublicBase;
           if (isLocked) lockedPresets.push(preset);
         });
         const currentCredits = loadUnlockState().credits || 0;
@@ -861,7 +986,7 @@ footerSection.innerHTML = `
           const filteredPresets = this.getFilteredPresets(availablePresets);
           filteredPresets.forEach(preset => {
             const isAlreadyImported = this.importedPresets.some(p => p.name === preset.name);
-            const isNowLocked = !isAlreadyImported && !unlockedNames.has(preset.name);
+            const isNowLocked = !isAlreadyImported && !unlockedNames.has(preset.name) && !permanentlyOwned.has(preset.name) && !preset._sourcePublicBase;
             if (!isNowLocked) {
               this.checkboxStates.set(preset.name, true);
             }
@@ -922,9 +1047,18 @@ footerSection.innerHTML = `
 
         // Credits were already spent when the user clicked each preset.
         // Mark imported presets as owned so closeModal does not refund them.
+        // Also permanently record ownership — these presets are free to re-import forever.
+        const _ownState = loadUnlockState();
+        if (!_ownState.ownedPresets) _ownState.ownedPresets = [...STARTER_PRESETS];
+        let _ownershipChanged = false;
         checkedPresets.forEach(preset => {
           sessionUnlocked.delete(preset.name);
+          if (!_ownState.ownedPresets.includes(preset.name)) {
+            _ownState.ownedPresets.push(preset.name);
+            _ownershipChanged = true;
+          }
         });
+        if (_ownershipChanged) saveUnlockState(_ownState);
 
         setTimeout(() => {
           closeModal();

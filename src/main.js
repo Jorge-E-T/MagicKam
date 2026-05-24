@@ -1,5 +1,5 @@
 import { presetStorage } from './storage.js';
-import { presetImporter, earnCredit, unlockAllPresets, getCredits, presetsAreDifferent } from './preset-import.js';
+import { presetImporter, earnCredit, unlockAllPresets, getCredits, presetsAreDifferent, getCustomPresetSources, saveCustomPresetSources, getDefaultPresetEnabled, saveDefaultPresetEnabled } from './preset-import.js';
 
 // Accent-insensitive search helper — strips diacritics so "cafe" finds "café"
 // NFC → NFD decomposes accented chars; removing \u0300-\u036F strips the accent marks.
@@ -309,6 +309,8 @@ let isImportResolutionSubmenuOpen = false;
 let currentImportResolutionIndex_Menu = 0;
 let isTutorialSubmenuOpen = false;
 let isPresetBuilderSubmenuOpen = false;
+let isPresetFileSettingsOpen = false;
+let _editingSourceIndex = -1;
 let editingPresetBuilderIndex = -1;
 let singleOptionCounter = 0;
 let optionGroupCounter = 0;
@@ -3805,32 +3807,33 @@ async function checkForPresetsUpdates() {
   try {
     const jsonPresets = await presetImporter.loadPresetsFromFile();
     const importedPresets = presetImporter.getImportedPresets();
-    
+
     if (importedPresets.length === 0) return;
-    
-    let hasUpdates = false;
+
+    let newCount = 0;
+    let updatedCount = 0;
     const importedNames = new Set(importedPresets.map(p => p.name));
-    
-    // Check for updated or new presets
+
     for (const jsonPreset of jsonPresets) {
       const existing = importedPresets.find(p => p.name === jsonPreset.name);
-      if (!existing || presetsAreDifferent(existing, jsonPreset)) {
-        hasUpdates = true;
-        break;
+      if (!existing) {
+        newCount++;
+      } else if (presetsAreDifferent(existing, jsonPreset)) {
+        updatedCount++;
       }
     }
-    
-    if (hasUpdates) {
-      // Add NEW badge to button in settings
-      const statusElement = document.getElementById('updates-status');
-      if (statusElement) {
-        statusElement.textContent = '🔴 Updates available';
-        statusElement.style.color = '#FF5722';
-        statusElement.style.fontWeight = 'bold';
-      }
-      
-      // Store that updates are available
+
+    if (newCount > 0 || updatedCount > 0) {
       window.hasPresetsUpdates = true;
+      const hintEl = document.getElementById('import-presets-hint');
+      if (hintEl) {
+        const parts = [];
+        if (newCount > 0) parts.push(`${newCount} new`);
+        if (updatedCount > 0) parts.push(`${updatedCount} updated`);
+        hintEl.textContent = `🔴 ${parts.join(' and ')} preset${(newCount + updatedCount) !== 1 ? 's' : ''} available`;
+        hintEl.style.color = '#FF5722';
+        hintEl.style.fontWeight = 'bold';
+      }
     }
   } catch (error) {
     console.log('Could not check for updates:', error);
@@ -3845,27 +3848,35 @@ async function recheckForUpdates() {
     const jsonPresets = await presetImporter.loadPresetsFromFile();
     const importedPresets = presetImporter.getImportedPresets();
 
-    let stillHasUpdates = false;
+    let newCount = 0;
+    let updatedCount = 0;
+    const importedNames = new Set(importedPresets.map(p => p.name));
+
     for (const jsonPreset of jsonPresets) {
       const existing = importedPresets.find(p => p.name === jsonPreset.name);
-      if (!existing || presetsAreDifferent(existing, jsonPreset)) {
-        stillHasUpdates = true;
-        break;
+      if (!existing) {
+        newCount++;
+      } else if (presetsAreDifferent(existing, jsonPreset)) {
+        updatedCount++;
       }
     }
 
+    const stillHasUpdates = newCount > 0 || updatedCount > 0;
     window.hasPresetsUpdates = stillHasUpdates;
 
-    const statusElement = document.getElementById('updates-status');
-    if (statusElement) {
+    const hintEl = document.getElementById('import-presets-hint');
+    if (hintEl) {
       if (stillHasUpdates) {
-        statusElement.textContent = '🔴 Updates available';
-        statusElement.style.color = '#FF5722';
-        statusElement.style.fontWeight = 'bold';
+        const parts = [];
+        if (newCount > 0) parts.push(`${newCount} new`);
+        if (updatedCount > 0) parts.push(`${updatedCount} updated`);
+        hintEl.textContent = `🔴 ${parts.join(' and ')} preset${(newCount + updatedCount) !== 1 ? 's' : ''} available`;
+        hintEl.style.color = '#FF5722';
+        hintEl.style.fontWeight = 'bold';
       } else {
-        statusElement.textContent = 'Check for Updates';
-        statusElement.style.color = '';
-        statusElement.style.fontWeight = '';
+        hintEl.textContent = 'Load from our Library';
+        hintEl.style.color = '';
+        hintEl.style.fontWeight = '';
       }
     }
   } catch (error) {
@@ -6833,7 +6844,8 @@ const TOUR_STEPS = [
   { section: 'Settings', title: '📥 Import Presets (Starting Style)', body: 'You begin with two unlocked presets-Caricature and Impressionism.  Import them from the Import Presets section to capture photos and begin the fun journey of unlocking your imported artistic library.' },
   { section: 'Settings', title: '📥 Import Presets (Import Art)', body: 'Browse our external library in Settings. Check individual unlocked styles or use the All checkmark to select all  presets to import (assuming you have the credits).' },
   { section: 'Settings', title: '📥 Import Presets (Unlocking Presets)', body: 'Imported styles first appear locked. To unlock one, you need a credit. Take a photo or reprompt in the gallery once with any preset you already own to get one credit. You only get one credit per unique preset!' },
-  { section: 'Settings', title: '🔄 Check for Updates', body: 'Checks for new or modified presets in the library. Any updates are flagged so you can re-import changed/updated presets that you own. If you do not import updated presets, the preset will not be updated. New presets appear locked.' },
+  { section: 'Settings', title: '📥 Import Presets (New/Updated Presets)', body: 'Button indicates if there are any new/updated presets. Any updates are flagged so you can re-import changed/updated presets that you own. If you do not import updated presets, the preset will not be updated. New presets appear locked.' },
+  { section: 'Settings', title: '📂 Preset File Settings', body: ' Add custom preset sources from any GitHub repository using that repository\'s raw JSON file URL. The built-in preset library is always the default. No credits required for Custom sources. Place preview images in a public folder next to the presets JSON file in the custom repository.' },
   { section: 'Settings', title: '⚙️ Button Settings', body: 'Includes the settings for the main camera screen carousel and the Gallery Image Viewer screen carousel buttons. You may select different colors for buttons and text in the main camera and gallery image viewer screens. You may also select opacity (default solid) and set how many taps to hide/reveal the buttons.' },
   { section: 'Settings', title: '📖 Tutorial', body: 'Last section in the settings. This area includes this audio tour. It also includes an indexed tutorial with a search engine. Type to search or click on the search field and press the side button to speak the query.' },
   { section: 'Tips and Advanced', title: '🏷️ Category Searching', body: 'Every preset has categories. When a preset is highlighted in the Visible Presets menu, its categories appear at the bottom. Tap a category to filter all presets in that group.' },
@@ -9668,6 +9680,184 @@ function hideSettingsSubmenu() {
     document.getElementById('settings-submenu').style.display = 'none';
     showUnifiedMenu();
   }, 30);
+}
+
+// Show Preset File Settings submenu
+function clearPresetSourceEditMode() {
+  _editingSourceIndex = -1;
+  const nameInput = document.getElementById('new-preset-source-name');
+  const urlInput = document.getElementById('new-preset-source-url');
+  const addBtn = document.getElementById('add-preset-source-btn');
+  const formLabel = document.getElementById('add-source-form-label');
+  if (nameInput) nameInput.value = '';
+  if (urlInput) urlInput.value = '';
+  if (addBtn) { addBtn.textContent = '+ Add Source'; addBtn.style.background = '#FE5F00'; }
+  if (formLabel) formLabel.textContent = 'Add Custom Source';
+}
+
+function renderCustomPresetSourcesList() {
+  const listEl = document.getElementById('custom-preset-sources-list');
+  const noMsg = document.getElementById('no-custom-sources-msg');
+  if (!listEl) return;
+
+  const sources = getCustomPresetSources();
+  const hasEnabledCustom = sources.some(s => s.enabled);
+  const defaultOn = getDefaultPresetEnabled();
+
+  // Remove previously rendered rows (keep the no-sources message node)
+  Array.from(listEl.querySelectorAll('.custom-source-row, .default-source-row')).forEach(el => el.remove());
+
+  // --- Default source row (always first) ---
+  const defaultRow = document.createElement('div');
+  defaultRow.className = 'default-source-row';
+  defaultRow.style.cssText = 'display:flex; align-items:center; gap:6px; background:#222; border:1px solid #444; border-radius:4px; padding:8px 10px; margin-bottom:4px;';
+
+  if (hasEnabledCustom) {
+    // Show a toggle — user can turn default off if a custom source is active
+    defaultRow.innerHTML = `
+      <div style="flex:1; min-width:0;">
+        <div style="font-size:12px; font-weight:bold; color:#fff;">📁 presets.json</div>
+        <div style="font-size:10px; color:#888;">Built-in library</div>
+      </div>
+      <button id="toggle-default-source-btn" class="preset-source-action-btn"
+        style="background:${defaultOn ? '#4CAF50' : '#666'}; color:#fff;">
+        ${defaultOn ? 'ON' : 'OFF'}
+      </button>
+    `;
+  } else {
+    // No active custom sources — default is locked ON
+    defaultRow.innerHTML = `
+      <div style="flex:1; min-width:0;">
+        <div style="font-size:12px; font-weight:bold; color:#fff;">📁 presets.json</div>
+        <div style="font-size:10px; color:#888;">Built-in library — always active</div>
+      </div>
+      <span style="font-size:10px; color:#4CAF50; font-weight:bold; flex-shrink:0; padding:0 2px;">ON</span>
+    `;
+  }
+  listEl.insertBefore(defaultRow, listEl.firstChild);
+
+  const toggleDefaultBtn = document.getElementById('toggle-default-source-btn');
+  if (toggleDefaultBtn) {
+    toggleDefaultBtn.addEventListener('click', () => {
+      saveDefaultPresetEnabled(!getDefaultPresetEnabled());
+      renderCustomPresetSourcesList();
+      updatePresetFileSettingsHint();
+    });
+  }
+
+  // --- Custom source rows ---
+  if (sources.length === 0) {
+    if (noMsg) noMsg.style.display = 'block';
+  } else {
+    if (noMsg) noMsg.style.display = 'none';
+    sources.forEach((source, index) => {
+      const row = document.createElement('div');
+      row.className = 'custom-source-row';
+      row.style.cssText = 'display:flex; align-items:center; gap:6px; background:#222; border:1px solid #444; border-radius:4px; padding:8px 10px; margin-top:6px;';
+      row.innerHTML = `
+        <div style="flex:1; min-width:0; overflow:hidden;">
+          <div style="font-size:12px; font-weight:bold; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${source.name || 'Custom Source'}</div>
+          <div style="font-size:10px; color:#888; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${source.url}</div>
+        </div>
+        <button data-idx="${index}" class="toggle-source-btn preset-source-action-btn"
+          style="background:${source.enabled ? '#4CAF50' : '#666'}; color:#fff;">${source.enabled ? 'ON' : 'OFF'}</button>
+        <button data-idx="${index}" class="edit-source-btn preset-source-action-btn"
+          style="background:#1a5fa8; color:#fff;">EDIT</button>
+        <button data-idx="${index}" class="delete-source-btn preset-source-action-btn"
+          style="background:#8B0000; color:#fff;">✕</button>
+      `;
+      listEl.appendChild(row);
+    });
+
+    listEl.querySelectorAll('.toggle-source-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx);
+        const srcs = getCustomPresetSources();
+        srcs[idx].enabled = !srcs[idx].enabled;
+        saveCustomPresetSources(srcs);
+        // If no custom sources remain enabled and default is off, re-enable default
+        if (!srcs.some(s => s.enabled) && !getDefaultPresetEnabled()) {
+          saveDefaultPresetEnabled(true);
+        }
+        renderCustomPresetSourcesList();
+        updatePresetFileSettingsHint();
+      });
+    });
+
+    listEl.querySelectorAll('.edit-source-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx);
+        const srcs = getCustomPresetSources();
+        const source = srcs[idx];
+        const nameInput = document.getElementById('new-preset-source-name');
+        const urlInput = document.getElementById('new-preset-source-url');
+        const addBtn = document.getElementById('add-preset-source-btn');
+        const formLabel = document.getElementById('add-source-form-label');
+        if (nameInput) nameInput.value = source.name || '';
+        if (urlInput) urlInput.value = source.url || '';
+        if (addBtn) { addBtn.textContent = 'Save Changes'; addBtn.style.background = '#1a5fa8'; }
+        if (formLabel) formLabel.textContent = 'Edit Source';
+        _editingSourceIndex = idx;
+        // Scroll the form into view
+        const submenuList = document.querySelector('#preset-file-settings-submenu .submenu-list');
+        if (submenuList) setTimeout(() => { submenuList.scrollTop = submenuList.scrollHeight; }, 50);
+      });
+    });
+
+    listEl.querySelectorAll('.delete-source-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const idx = parseInt(btn.dataset.idx);
+        const srcs = getCustomPresetSources();
+        const name = srcs[idx].name || 'this source';
+        const confirmed = await customConfirm(`Remove "${name}"?`, { yesText: 'Remove', danger: true });
+        if (confirmed) {
+          srcs.splice(idx, 1);
+          saveCustomPresetSources(srcs);
+          // If no custom sources remain enabled and default is off, re-enable default
+          if (!srcs.some(s => s.enabled) && !getDefaultPresetEnabled()) {
+            saveDefaultPresetEnabled(true);
+          }
+          if (_editingSourceIndex === idx) clearPresetSourceEditMode();
+          renderCustomPresetSourcesList();
+          updatePresetFileSettingsHint();
+        }
+      });
+    });
+  }
+}
+
+function updatePresetFileSettingsHint() {
+  const hintEl = document.getElementById('preset-file-settings-hint');
+  if (!hintEl) return;
+  const sources = getCustomPresetSources();
+  const enabledCustomCount = sources.filter(s => s.enabled).length;
+  const defaultOn = getDefaultPresetEnabled();
+  if (enabledCustomCount === 0) {
+    hintEl.textContent = 'Default Source';
+  } else if (defaultOn) {
+    hintEl.textContent = `Default + ${enabledCustomCount} custom`;
+  } else {
+    hintEl.textContent = `${enabledCustomCount} custom (default off)`;
+  }
+}
+
+function showPresetFileSettingsSubmenu() {
+  document.getElementById('settings-submenu').style.display = 'none';
+  const submenu = document.getElementById('preset-file-settings-submenu');
+  submenu.style.display = 'flex';
+  isPresetFileSettingsOpen = true;
+  isSettingsSubmenuOpen = false;
+  clearPresetSourceEditMode();
+  renderCustomPresetSourcesList();
+  updatePresetFileSettingsHint();
+}
+
+function hidePresetFileSettingsSubmenu() {
+  document.getElementById('preset-file-settings-submenu').style.display = 'none';
+  isPresetFileSettingsOpen = false;
+  showSettingsSubmenu();
+  // Refresh the Import Presets hint to reflect any source changes
+  recheckForUpdates();
 }
 
 // Show Timer Settings submenu
@@ -13215,15 +13405,74 @@ const result = await presetImporter.import();
             stylesCountElement.textContent = visibleCount;
           }
 
-          // Re-check accurately how many updates remain after import
-          await recheckForUpdates();
+          // Refresh the camera footer and center indicator immediately
+                       updatePresetDisplay();
+
+                      // Re-check accurately how many updates remain after import
+                     await recheckForUpdates();
           
-          alert(result.message);
-        } else if (result.message !== 'cancelled' && result.message !== 'No presets selected') {
-          alert('Import failed: ' + result.message);
-        }
+                     alert(result.message);
+                  } else if (result.message !== 'cancelled' && result.message !== 'No presets selected') {
+                     alert('Import failed: ' + result.message);
+                  }
       } catch (error) {
         alert('Import error: ' + error.message);
+      }
+    });
+  }
+
+  // Preset File Settings button
+  const presetFileSettingsBtn = document.getElementById('preset-file-settings-button');
+  if (presetFileSettingsBtn) {
+    presetFileSettingsBtn.addEventListener('click', showPresetFileSettingsSubmenu);
+  }
+
+  const presetFileSettingsBackBtn = document.getElementById('preset-file-settings-back');
+  if (presetFileSettingsBackBtn) {
+    presetFileSettingsBackBtn.addEventListener('click', hidePresetFileSettingsSubmenu);
+  }
+
+  const addPresetSourceBtn = document.getElementById('add-preset-source-btn');
+  if (addPresetSourceBtn) {
+    addPresetSourceBtn.addEventListener('click', async () => {
+      const nameInput = document.getElementById('new-preset-source-name');
+      const urlInput = document.getElementById('new-preset-source-url');
+      const name = (nameInput.value || '').trim();
+      const url = (urlInput.value || '').trim();
+
+      if (!url) {
+        await customAlert('Please enter a URL.');
+        return;
+      }
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        await customAlert('URL must start with http:// or https://');
+        return;
+      }
+
+      const srcs = getCustomPresetSources();
+
+      if (_editingSourceIndex >= 0) {
+        // ---- SAVE EDIT MODE ----
+        srcs[_editingSourceIndex].name = name || 'Custom Source';
+        srcs[_editingSourceIndex].url = url;
+        saveCustomPresetSources(srcs);
+        clearPresetSourceEditMode();
+        renderCustomPresetSourcesList();
+        updatePresetFileSettingsHint();
+        await customAlert('Source updated!');
+      } else {
+        // ---- ADD NEW MODE ----
+        if (srcs.some(s => s.url === url)) {
+          await customAlert('This URL has already been added.');
+          return;
+        }
+        srcs.push({ name: name || 'Custom Source', url, enabled: true });
+        saveCustomPresetSources(srcs);
+        nameInput.value = '';
+        urlInput.value = '';
+        renderCustomPresetSourcesList();
+        updatePresetFileSettingsHint();
+        await customAlert('Source added! It will be included next time you tap Import Presets.');
       }
     });
   }
@@ -13601,102 +13850,6 @@ const result = await presetImporter.import();
   if (galleryImportBtn) {
     galleryImportBtn.addEventListener('click', () => {
       openQRScannerModal();
-    });
-  }
-
-  // Check for updates button handler
-  const checkUpdatesBtn = document.getElementById('check-updates-button');
-  if (checkUpdatesBtn) {
-    checkUpdatesBtn.addEventListener('click', async () => {
-      try {
-        showLoadingOverlay('Checking for updates...');
-        // Load presets from JSON (uses cached copy if already loaded this session)
-        const jsonPresets = await presetImporter.loadPresetsFromFile();
-        hideLoadingOverlay();
-        const importedPresets = presetImporter.getImportedPresets();
-        
-        if (importedPresets.length === 0) {
-          alert('No presets imported yet. Use "Import Presets" first.');
-          return;
-        }
-        
-        // Check for updates and new presets
-        let updatedCount = 0;
-        let newCount = 0;
-        
-        const importedNames = new Set(importedPresets.map(p => p.name));
-        
-        jsonPresets.forEach(jsonPreset => {
-          if (importedNames.has(jsonPreset.name)) {
-            // Check if content is different (updated)
-            const existing = importedPresets.find(p => p.name === jsonPreset.name);
-            if (existing && presetsAreDifferent(existing, jsonPreset)) {
-              updatedCount++;
-            }
-          } else {
-            // New preset
-            newCount++;
-          }
-        });
-        
-        if (updatedCount === 0 && newCount === 0) {
-          alert('✅ All presets are up to date!');
-          return;
-        }
-        
-        // Show update prompt
-        const updateMsg = [];
-        if (updatedCount > 0) updateMsg.push(`${updatedCount} updated preset(s)`);
-        if (newCount > 0) updateMsg.push(`${newCount} new preset(s)`);
-        
-        const shouldUpdate = await confirm(
-          `Found ${updateMsg.join(' and ')} available.\n\n` +
-          `Would you like to import updates now?`
-        );
-        
-        if (shouldUpdate) {
-          showLoadingOverlay('Loading presets...');
-          // Wait one frame so the browser actually paints the spinner before the heavy work starts
-          await new Promise(resolve => setTimeout(resolve, 30));
-          // Trigger import with all presets selected
-const result = await presetImporter.import();
-          
-          if (result.success) {
-            // Save preset names that existed BEFORE import (to detect truly new presets)
-            const presetsBeforeImport = new Set(CAMERA_PRESETS.map(p => p.name));
-            
-            // Reload presets
-            CAMERA_PRESETS = await mergePresetsWithStorage();
-            _stylesDataVersion++;
-            
-            // Clean up visible presets after reloading and add only NEW presets
-            const validPresetNames = new Set(CAMERA_PRESETS.map(p => p.name));
-            
-            // Keep existing visible presets that are still valid
-            visiblePresets = visiblePresets.filter(name => validPresetNames.has(name));
-            
-            // Add ONLY truly NEW presets (ones that didn't exist before import) as visible by default
-            CAMERA_PRESETS.forEach(preset => {
-              if (!presetsBeforeImport.has(preset.name) && !_visiblePresetsSet.has(preset.name)) {
-                visiblePresets.push(preset.name);
-              }
-            });
-            
-            saveVisiblePresets();
-            
-            // Update menu
-            populateStylesList();
-            updateVisiblePresetsDisplay();
-            
-            // Re-check accurately how many updates remain after import
-            await recheckForUpdates();
-            
-            alert(result.message);
-          }
-        }
-      } catch (error) {
-        alert('Error checking for updates: ' + error.message);
-      }
     });
   }
   
