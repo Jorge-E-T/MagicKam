@@ -3648,6 +3648,16 @@ button:disabled {
     outline-offset: -3px;
 }
 
+.gallery-item.nav-highlight {
+    outline: 3px solid #FE5F00;
+    outline-offset: -3px;
+}
+
+.nav-highlight-top {
+    outline: 3px solid #FFD700;
+    outline-offset: 2px;
+}
+
 /* Progress Overlay */
 .batch-progress-overlay {
     position: fixed;
@@ -4224,6 +4234,22 @@ button:disabled {
   border: 1px solid #FE5F00;
 }
 
+/* Image Metadata Tooltip — shown on gallery image long-press */
+.img-meta-tooltip {
+    position: fixed;
+    background: rgba(0, 0, 0, 0.90);
+    color: #fff;
+    border: 1px solid #FE5F00;
+    border-radius: 2vw;
+    padding: 2vw 3vw;
+    font-size: 3.5vw;
+    line-height: 1.8;
+    z-index: 9999;
+    pointer-events: none;
+    white-space: nowrap;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+}
+
 .gallery-status-message.error {
   background: rgba(220, 38, 38, 0.95);
   border-color: #ff6b6b;
@@ -4442,6 +4468,71 @@ button:disabled {
     color: #000;
 }
 
+/* ===== EDITOR BUTTON CAROUSEL ===== */
+/* Matches viewer-carousel style — always visible, no hide toggle */
+.editor-btn-carousel {
+    width: 20vw;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.editor-btn-carousel-track {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5vw;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 1vw 0;
+    height: 100%;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.editor-btn-carousel-track::-webkit-scrollbar {
+    display: none;
+}
+
+.editor-carousel-btn {
+    width: 14vw;
+    height: 14vw;
+    min-width: 44px;
+    min-height: 44px;
+    flex-shrink: 0;
+    border-radius: 2vw;
+    background: rgba(30, 30, 30, 0.92);
+    color: #FE5F00;
+    border: 2px solid #FE5F00;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 5vw;
+    cursor: pointer;
+    padding: 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.editor-carousel-btn:active {
+    background-color: #FE5F00;
+    color: #000;
+}
+
+.editor-carousel-btn.active {
+    background-color: #FE5F00;
+    color: #000;
+}
+
+.editor-carousel-label {
+    font-size: 2.5vw;
+    line-height: 1;
+    color: #ffffff;
+    margin-top: 1vw;
+    display: block;
+}
+/* ===== END EDITOR BUTTON CAROUSEL ===== */
+
 /* Bottom Controls removed since buttons are on the right */
 .editor-bottom-controls {
     display: none;
@@ -4568,6 +4659,9 @@ button:disabled {
   text-transform: uppercase;
   letter-spacing: 0.3px;
   min-width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .custom-alert-btn-primary {
@@ -5807,29 +5901,31 @@ button, .touchable {
    PRESET FILE SETTINGS — source row buttons
    ═══════════════════════════════════ */
 
-/* ON/OFF, EDIT, ✕ — same height as .close-button, width = text only */
-.preset-source-action-btn {
-    height: 8vw;
-    min-height: 32px;
-    padding: 0 2vw;
-    border-radius: 1vw;
-    border: none;
-    font-size: 3vw;
+/* ON / OFF / EDIT — plain clickable text, no button styling */
+.preset-source-text-action {
+    font-size: 3.2vw;
     font-weight: bold;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
     white-space: nowrap;
+    flex-shrink: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    line-height: 1;
 }
 
-/* + Add Source / Save Changes — same height as .close-button, full width */
+/* Footer row: holds + Add Source and Convert GitHub to Raw side by side */
+.preset-source-footer-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    align-items: stretch;
+}
+
+/* + Add Source / Save Changes button */
 .preset-source-add-btn {
+    flex: 1;
     height: 8vw;
     min-height: 32px;
-    width: 100%;
-    margin-top: 8px;
     border-radius: 1vw;
     border: none;
     font-size: 4vw;
@@ -5840,4 +5936,109 @@ button, .touchable {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+/* Convert GitHub to Raw button */
+.preset-source-convert-btn {
+    height: 8vw;
+    min-height: 32px;
+    padding: 0 2.5vw;
+    border-radius: 1vw;
+    border: 2px solid #666;
+    font-size: 2.8vw;
+    font-weight: bold;
+    cursor: pointer;
+    background: transparent;
+    color: #aaa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.preset-source-convert-btn:hover {
+    border-color: #FE5F00;
+    color: #FE5F00;
+}
+
+/* ═══════════════════════════════════
+   PRESET FILE SETTINGS — tabs
+   ═══════════════════════════════════ */
+
+.pfs-tab-bar {
+    display: flex;
+    background: #000;
+    border-bottom: 1px solid #333;
+    flex-shrink: 0;
+}
+
+.pfs-tab {
+    flex: 1;
+    padding: 3vw 2vw;
+    font-size: 4vw;
+    background: #111;
+    color: #aaa;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-align: center;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.pfs-tab.active {
+    color: #FE5F00;
+    border-bottom-color: #FE5F00;
+    background: #1a1a1a;
+}
+
+.pfs-tab-panel {
+    display: none;
+}
+
+.pfs-tab-panel.active {
+    display: block;
+}
+
+/* Preview image grid inside the Preview Images tab */
+.pv-img-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    margin-top: 6px;
+}
+
+.pv-img-cell {
+    position: relative;
+    padding-bottom: 100%;
+    background: #222;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.pv-img-cell img {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+}
+
+.pv-img-delete {
+    position: absolute;
+    top: 3px; right: 3px;
+    width: 20px; height: 20px;
+    background: rgba(0, 0, 0, 0.72);
+    color: #fff;
+    font-size: 14px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    line-height: 1;
+    z-index: 2;
 }

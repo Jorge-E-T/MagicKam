@@ -310,6 +310,9 @@ let currentImportResolutionIndex_Menu = 0;
 let isTutorialSubmenuOpen = false;
 let isPresetBuilderSubmenuOpen = false;
 let isPresetFileSettingsOpen = false;
+let isRestoreSubmenuOpen = false;
+let restoreActiveTab = 'presets';
+let currentRestoreIndex = 0;
 let _editingSourceIndex = -1;
 let editingPresetBuilderIndex = -1;
 let singleOptionCounter = 0;
@@ -322,10 +325,14 @@ let currentTutorialGlossaryIndex = 0;
 
 // Gallery variables - IndexedDB
 const DB_NAME = 'R1CameraGallery';
-const DB_VERSION = 1;
+const DB_VERSION = 3;
 const STORE_NAME = 'images';
 let db = null;
 let galleryImages = [];
+let _galleryHighlightIndex = 0;
+let _galleryTopNavIndex = -1;
+let _galleryBottomNavIndex = -1;
+let previewGalleryImages = [];
 const GALLERY_SORT_ORDER_KEY = 'r1_gallery_sort_order';
 let currentViewerImageIndex = -1;
 let viewerZoom = 1;
@@ -406,6 +413,7 @@ let qrDetectionInterval = null;
 let lastDetectedQR = null;
 let qrDetectionActive = false;
 const QR_DETECTION_INTERVAL = 500; // Check every 500ms
+let qrScannerMode = 'gallery'; // 'gallery', 'preset-source', or 'preview-image'
 
 // Preset Builder templates
 const PRESET_TEMPLATES = {
@@ -538,6 +546,10 @@ let isSyncing = false;
 // Scroll debouncing variables
 let scrollTimeout = null;
 let lastScrollTime = 0;
+
+// Manual options modal state flag
+let manualOptionsModalVisible = false;
+
 const SCROLL_DEBOUNCE_MS = 500;
 const QUEUE_STORAGE_KEY = 'r1_camera_queue';
 
@@ -572,29 +584,46 @@ let _presetPreviewLabel = null;
 let _presetPreviewNoImg = null;
 let _styleListLongPressTimer = null;
 
+// ── Custom preview image edit state ──
+let _previewEditMode = false;
+let _previewEditPreset = null;
+let _previewEditGalleryWasOpen = false;
+let _previewEditSelectionOverlay = null;
+let _previewEditGalleryBanner = null;
+
+const CUSTOM_PREVIEW_KEY_PREFIX = 'r1_custom_preview_';
+
+function getCustomPreviewImage(presetName) {
+  try { return localStorage.getItem(CUSTOM_PREVIEW_KEY_PREFIX + presetName) || null; } catch(e) { return null; }
+}
+function saveCustomPreviewImage(presetName, dataUrl) {
+  try { localStorage.setItem(CUSTOM_PREVIEW_KEY_PREFIX + presetName, dataUrl); } catch(e) { console.error('Could not save custom preview:', e); }
+}
+function clearCustomPreviewImage(presetName) {
+  try { localStorage.removeItem(CUSTOM_PREVIEW_KEY_PREFIX + presetName); } catch(e) {}
+}
+
 function _ensurePresetPreviewOverlay() {
   if (_presetPreviewOverlay) return;
 
   _presetPreviewOverlay = document.createElement('div');
   _presetPreviewOverlay.style.cssText = 'display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.88); z-index:99999; align-items:center; justify-content:center; flex-direction:column; pointer-events:all;';
 
+  // × close button — top right
   const closeBtn = document.createElement('div');
   closeBtn.textContent = '×';
   closeBtn.style.cssText = 'position:absolute; top:10px; right:18px; color:#fff; font-size:28px; cursor:pointer; pointer-events:all; line-height:1;';
-  closeBtn.addEventListener('touchstart', (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-  });
-  closeBtn.addEventListener('touchend', (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    hidePresetImagePreview();
-  });
-  closeBtn.addEventListener('mousedown', (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    hidePresetImagePreview();
-  });
+  closeBtn.addEventListener('touchstart', (e) => { e.stopPropagation(); e.preventDefault(); });
+  closeBtn.addEventListener('touchend', (e) => { e.stopPropagation(); e.preventDefault(); hidePresetImagePreview(); });
+  closeBtn.addEventListener('mousedown', (e) => { e.stopPropagation(); e.preventDefault(); hidePresetImagePreview(); });
+
+  // + edit button — top left
+  const editBtn = document.createElement('div');
+  editBtn.textContent = '+';
+  editBtn.style.cssText = 'position:absolute; top:10px; left:18px; color:#fff; font-size:22px; font-weight:bold; cursor:pointer; pointer-events:all; background:rgba(254,95,0,0.85); border-radius:50%; width:34px; height:34px; display:flex; align-items:center; justify-content:center; line-height:1; user-select:none;';
+  editBtn.addEventListener('touchstart', (e) => { e.stopPropagation(); e.preventDefault(); });
+  editBtn.addEventListener('touchend', (e) => { e.stopPropagation(); e.preventDefault(); _openGalleryForPreviewEdit(); });
+  editBtn.addEventListener('mousedown', (e) => { e.stopPropagation(); e.preventDefault(); _openGalleryForPreviewEdit(); });
 
   const _presetPreviewImgWrapper = document.createElement('div');
   _presetPreviewImgWrapper.style.cssText = 'width:92vw; height:72vh; display:flex; align-items:center; justify-content:center;';
@@ -608,6 +637,7 @@ function _ensurePresetPreviewOverlay() {
   _presetPreviewNoImg.style.cssText = 'color:#aaa; font-size:13px; display:none; margin-top:20px;';
   _presetPreviewNoImg.textContent = 'No sample image available';
 
+  _presetPreviewOverlay.appendChild(editBtn);
   _presetPreviewOverlay.appendChild(closeBtn);
   _presetPreviewImgWrapper.appendChild(_presetPreviewImg);
   _presetPreviewOverlay.appendChild(_presetPreviewImgWrapper);
@@ -618,22 +648,23 @@ function _ensurePresetPreviewOverlay() {
 
 function showPresetImagePreview(preset) {
   _ensurePresetPreviewOverlay();
+  _previewEditPreset = preset;
   _presetPreviewLabel.textContent = preset.name;
   _presetPreviewImg.style.display = 'none';
   _presetPreviewNoImg.style.display = 'none';
 
-  const safeName = preset.name.replace(/[\/\\:*?"<>|\s]/g, '_');
-  const autoUrl = './public/' + safeName + '.png';
-  const imageUrl = preset.imageUrl || autoUrl;
+  // Custom preview from gallery takes priority over the default public folder image
+  const customImg = getCustomPreviewImage(preset.name);
+  let imageUrl;
+  if (customImg) {
+    imageUrl = customImg;
+  } else {
+    const safeName = preset.name.replace(/[\/\\:*?"<>|\s]/g, '_');
+    imageUrl = preset.imageUrl || ('./public/' + safeName + '.png');
+  }
 
-  _presetPreviewImg.onload = () => {
-    _presetPreviewImg.style.display = 'block';
-    _presetPreviewNoImg.style.display = 'none';
-  };
-  _presetPreviewImg.onerror = () => {
-    _presetPreviewImg.style.display = 'none';
-    _presetPreviewNoImg.style.display = 'block';
-  };
+  _presetPreviewImg.onload = () => { _presetPreviewImg.style.display = 'block'; _presetPreviewNoImg.style.display = 'none'; };
+  _presetPreviewImg.onerror = () => { _presetPreviewImg.style.display = 'none'; _presetPreviewNoImg.style.display = 'block'; };
   _presetPreviewImg.src = imageUrl;
   _presetPreviewOverlay.style.display = 'flex';
 }
@@ -676,6 +707,226 @@ function _handleStyleListLongPressStart(e) {
 function _handleStyleListLongPressEnd() {
   clearTimeout(_styleListLongPressTimer);
   _styleListLongPressTimer = null;
+}
+
+function _openGalleryForPreviewEdit() {
+  if (!_previewEditPreset) return;
+  _previewEditMode = true;
+
+  // Hide preset preview overlay — we return to it after the user picks an image
+  _presetPreviewOverlay.style.display = 'none';
+
+  // Load preview gallery images from IndexedDB if not already loaded, then show picker
+  if (previewGalleryImages && previewGalleryImages.length > 0) {
+    _showPreviewImagePickerOverlay();
+  } else {
+    loadPreviewGallery().then(() => _showPreviewImagePickerOverlay()).catch(() => _showPreviewImagePickerOverlay());
+  }
+}
+
+function _showPreviewEditGalleryBanner() {
+  if (_previewEditGalleryBanner) { _previewEditGalleryBanner.remove(); _previewEditGalleryBanner = null; }
+  const galleryModal = document.getElementById('gallery-modal');
+  if (!galleryModal || !_previewEditPreset) return;
+
+  _previewEditGalleryBanner = document.createElement('div');
+  _previewEditGalleryBanner.style.cssText = 'position:sticky; top:0; left:0; right:0; z-index:9999; background:rgba(254,95,0,0.95); color:#fff; padding:10px 14px; font-size:12px; font-weight:bold; letter-spacing:0.3px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;';
+  _previewEditGalleryBanner.innerHTML = `<span>Tap an image to set as preview for <strong>${_previewEditPreset.name}</strong></span><span id="_pvt-cancel-gallery" style="font-size:22px; cursor:pointer; padding:0 4px; line-height:1;">×</span>`;
+  galleryModal.insertBefore(_previewEditGalleryBanner, galleryModal.firstChild);
+
+  const cancelBtn = document.getElementById('_pvt-cancel-gallery');
+  if (cancelBtn) {
+    const doCancel = (e) => { e.stopPropagation(); e.preventDefault(); _exitPreviewEditMode(true); };
+    cancelBtn.addEventListener('touchend', doCancel);
+    cancelBtn.addEventListener('mousedown', doCancel);
+  }
+}
+
+function _showPreviewImagePickerOverlay() {
+  // Remove any leftover picker from a previous session
+  const existing = document.getElementById('_preview-img-picker');
+  if (existing) existing.remove();
+
+  const picker = document.createElement('div');
+  picker.id = '_preview-img-picker';
+  picker.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:#111; z-index:999998; display:flex; flex-direction:column; pointer-events:all;';
+
+  // ── Top header row: Default button (left) + X button (right) ──
+  const header = document.createElement('div');
+  header.style.cssText = 'display:flex; align-items:center; justify-content:space-between; padding:6px 10px; background:rgba(254,95,0,0.95); flex-shrink:0; box-sizing:border-box;';
+
+  // Default (revert) button — top left
+  const defaultBtn = document.createElement('div');
+  defaultBtn.textContent = '↩';
+  defaultBtn.title = 'Revert to default';
+  defaultBtn.style.cssText = 'width:32px; height:32px; min-width:32px; min-height:32px; color:#fff; font-size:18px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; border:2px solid rgba(255,255,255,0.5); border-radius:5px; box-sizing:border-box; user-select:none;';
+  const doDefault = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    picker.remove();
+    _revertPreviewToDefault();
+  };
+  defaultBtn.addEventListener('touchend', doDefault);
+  defaultBtn.addEventListener('mousedown', doDefault);
+
+  // X cancel button — top right
+  const cancelX = document.createElement('div');
+  cancelX.textContent = '×';
+  cancelX.style.cssText = 'width:32px; height:32px; min-width:32px; min-height:32px; color:#fff; font-size:22px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; border:2px solid rgba(255,255,255,0.5); border-radius:5px; box-sizing:border-box; line-height:1; user-select:none;';
+  const doCancel = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    picker.remove();
+    _previewEditMode = false;
+    const p = _previewEditPreset;
+    _previewEditPreset = null;
+    if (p) showPresetImagePreview(p);
+  };
+  cancelX.addEventListener('touchend', doCancel);
+  cancelX.addEventListener('mousedown', doCancel);
+
+  header.appendChild(defaultBtn);
+  header.appendChild(cancelX);
+
+  // ── Slim banner: "Pick preview for: [preset]" ──
+  const banner = document.createElement('div');
+  banner.style.cssText = 'background:rgba(200,75,0,0.92); color:#fff; font-size:11px; font-weight:bold; text-align:center; padding:3px 10px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; box-sizing:border-box; letter-spacing:0.3px;';
+  banner.textContent = 'Pick preview for: ' + (_previewEditPreset ? _previewEditPreset.name : '');
+
+  // ── Scrollable image grid ──
+  const grid = document.createElement('div');
+  grid.style.cssText = 'flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; display:grid; grid-template-columns:repeat(3,1fr); gap:2px; padding:2px; align-content:start; box-sizing:border-box;';
+
+  // Scroll wheel support for R1 device scroll wheel
+  grid.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    grid.scrollTop += e.deltaY;
+  }, { passive: false });
+
+  if (previewGalleryImages && previewGalleryImages.length > 0) {
+    const sorted = [...previewGalleryImages].sort((a, b) => b.timestamp - a.timestamp);
+    sorted.forEach(img => {
+      const cell = document.createElement('div');
+      cell.style.cssText = 'position:relative; padding-bottom:100%; overflow:hidden; cursor:pointer; background:#222;';
+      const imgEl = document.createElement('img');
+      imgEl.src = img.imageBase64;
+      imgEl.style.cssText = 'position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover;';
+      imgEl.loading = 'lazy';
+      cell.appendChild(imgEl);
+
+      // Touch scroll sensitivity fix: only select if finger barely moved
+      let _touchStartY = 0;
+      let _touchMoved = false;
+      cell.addEventListener('touchstart', (e) => {
+        _touchStartY = e.touches[0].clientY;
+        _touchMoved = false;
+      }, { passive: true });
+      cell.addEventListener('touchmove', (e) => {
+        if (Math.abs(e.touches[0].clientY - _touchStartY) > 8) {
+          _touchMoved = true;
+        }
+      }, { passive: true });
+      cell.addEventListener('touchend', (e) => {
+        if (_touchMoved) return; // user was scrolling, do not select
+        e.stopPropagation();
+        e.preventDefault();
+        picker.remove();
+        _handlePreviewEditImageSelect(img.imageBase64);
+      });
+      cell.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        picker.remove();
+        _handlePreviewEditImageSelect(img.imageBase64);
+      });
+      grid.appendChild(cell);
+    });
+  } else {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'grid-column:1/-1; color:#888; text-align:center; padding:40px 16px; font-size:12px; line-height:1.6;';
+    empty.textContent = 'No preview images yet. Go to Preset File Settings → Preview Images tab to import some via QR code.';
+    grid.appendChild(empty);
+  }
+
+  picker.appendChild(header);
+  picker.appendChild(banner);
+  picker.appendChild(grid);
+  document.body.appendChild(picker);
+}
+
+function _handlePreviewEditImageSelect(imageBase64) {
+  if (_previewEditSelectionOverlay) { _previewEditSelectionOverlay.remove(); _previewEditSelectionOverlay = null; }
+
+  _previewEditSelectionOverlay = document.createElement('div');
+  _previewEditSelectionOverlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.93); z-index:999999; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:all;';
+
+  const previewImg = document.createElement('img');
+  previewImg.src = imageBase64;
+  previewImg.style.cssText = 'width:88vw; max-height:58vh; object-fit:contain; border-radius:10px; border:2px solid #555; margin-bottom:14px;';
+
+  const label = document.createElement('div');
+  label.textContent = `Set as preview for: ${_previewEditPreset ? _previewEditPreset.name : ''}`;
+  label.style.cssText = 'color:#aaa; font-size:11px; margin-bottom:22px; text-align:center; padding:0 20px;';
+
+  const btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex; gap:28px; align-items:center; justify-content:center;';
+
+  const labelRow = document.createElement('div');
+  labelRow.style.cssText = 'display:flex; gap:28px; align-items:center; justify-content:center; margin-top:8px;';
+
+  const makeBtn = (symbol, bg, labelText, handler) => {
+    const btn = document.createElement('div');
+    btn.textContent = symbol;
+    btn.style.cssText = `width:36px; height:36px; background:${bg}; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; color:#fff; cursor:pointer; user-select:none;`;
+    const doAction = (e) => { e.preventDefault(); e.stopPropagation(); handler(); };
+    btn.addEventListener('touchend', doAction);
+    btn.addEventListener('mousedown', doAction);
+    const lbl = document.createElement('div');
+    lbl.textContent = labelText;
+    lbl.style.cssText = 'width:36px; text-align:center; color:#888; font-size:10px; letter-spacing:0.3px;';
+    btnRow.appendChild(btn);
+    labelRow.appendChild(lbl);
+  };
+
+  makeBtn('✓', '#4CAF50', 'Use',    () => _confirmPreviewEdit(imageBase64));
+  makeBtn('×', '#cc3333', 'Cancel', () => _cancelPreviewEdit());
+
+  _previewEditSelectionOverlay.appendChild(previewImg);
+  _previewEditSelectionOverlay.appendChild(label);
+  _previewEditSelectionOverlay.appendChild(btnRow);
+  _previewEditSelectionOverlay.appendChild(labelRow);
+  document.body.appendChild(_previewEditSelectionOverlay);
+}
+
+function _confirmPreviewEdit(imageBase64) {
+  if (_previewEditPreset) saveCustomPreviewImage(_previewEditPreset.name, imageBase64);
+  _exitPreviewEditMode(true);
+}
+
+function _cancelPreviewEdit() {
+  _exitPreviewEditMode(true);
+}
+
+function _revertPreviewToDefault() {
+  if (_previewEditPreset) clearCustomPreviewImage(_previewEditPreset.name);
+  _exitPreviewEditMode(true);
+}
+
+function _exitPreviewEditMode(showPreview) {
+  if (_previewEditSelectionOverlay) { _previewEditSelectionOverlay.remove(); _previewEditSelectionOverlay = null; }
+  if (_previewEditGalleryBanner)    { _previewEditGalleryBanner.remove();    _previewEditGalleryBanner = null; }
+
+  // Also remove the standalone picker overlay if it somehow survived
+  const picker = document.getElementById('_preview-img-picker');
+  if (picker) picker.remove();
+
+  const presetToShow = _previewEditPreset;
+  _previewEditMode   = false;
+  _previewEditPreset = null;
+
+  if (showPreview && presetToShow) {
+    showPresetImagePreview(presetToShow);
+  }
 }
 
 // ===== END PRESET SAMPLE IMAGE LONG-PRESS PREVIEW =====
@@ -738,6 +989,18 @@ function initDB() {
         const objectStore = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
         objectStore.createIndex('timestamp', 'timestamp', { unique: false });
         console.log('Object store created');
+      }
+
+      // Create preview images store if it doesn't exist
+      if (!db.objectStoreNames.contains('preview_images')) {
+        const pvStore = db.createObjectStore('preview_images', { keyPath: 'id' });
+        pvStore.createIndex('timestamp', 'timestamp', { unique: false });
+      }
+
+      // Create deleted images store for trash/restore functionality
+      if (!db.objectStoreNames.contains('deleted_images')) {
+        const delStore = db.createObjectStore('deleted_images', { keyPath: 'id' });
+        delStore.createIndex('deletedAt', 'deletedAt', { unique: false });
       }
     };
   });
@@ -823,6 +1086,46 @@ async function loadGallery() {
   }
 }
 
+// ── Preview Gallery DB functions (separate from main gallery) ──
+async function loadPreviewGallery() {
+  try {
+    if (!db) await initDB();
+    const transaction = db.transaction(['preview_images'], 'readonly');
+    const objectStore = transaction.objectStore('preview_images');
+    const request = objectStore.getAll();
+    return new Promise((resolve) => {
+      request.onsuccess = () => {
+        previewGalleryImages = request.result || [];
+        previewGalleryImages.sort((a, b) => b.timestamp - a.timestamp);
+        resolve();
+      };
+      request.onerror = () => { previewGalleryImages = []; resolve(); };
+    });
+  } catch (e) { previewGalleryImages = []; }
+}
+
+async function savePreviewImageToDB(imageItem) {
+  if (!db) await initDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['preview_images'], 'readwrite');
+    const objectStore = transaction.objectStore('preview_images');
+    const request = objectStore.put(imageItem);
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function deletePreviewImageFromDB(id) {
+  if (!db) await initDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['preview_images'], 'readwrite');
+    const objectStore = transaction.objectStore('preview_images');
+    const request = objectStore.delete(id);
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}
+
 // Save single image to IndexedDB
 async function saveImageToDB(imageItem) {
   try {
@@ -877,6 +1180,118 @@ async function deleteImageFromDB(imageId) {
   }
 }
 
+// ===== TRASH / SOFT DELETE SYSTEM =====
+
+const DELETED_PRESETS_TRASH_KEY = 'r1_deleted_presets_trash';
+
+async function softDeleteImage(imageId) {
+  try {
+    if (!db) await initDB();
+    let imageItem = galleryImages.find(function(img) { return img.id === imageId; });
+    if (!imageItem) {
+      imageItem = await new Promise(function(resolve) {
+        var tx = db.transaction([STORE_NAME], 'readonly');
+        var store = tx.objectStore(STORE_NAME);
+        var req = store.get(imageId);
+        req.onsuccess = function() { resolve(req.result || null); };
+        req.onerror = function() { resolve(null); };
+      });
+    }
+    if (imageItem) {
+      var deletedItem = Object.assign({}, imageItem, { deletedAt: Date.now() });
+      await new Promise(function(resolve, reject) {
+        var tx = db.transaction(['deleted_images'], 'readwrite');
+        var store = tx.objectStore('deleted_images');
+        var req = store.put(deletedItem);
+        req.onsuccess = function() { resolve(); };
+        req.onerror = function() { reject(req.error); };
+      });
+    }
+    await deleteImageFromDB(imageId);
+  } catch (err) {
+    console.error('softDeleteImage error:', err);
+    await deleteImageFromDB(imageId);
+  }
+}
+
+async function getDeletedImages() {
+  try {
+    if (!db) await initDB();
+    return new Promise(function(resolve) {
+      var tx = db.transaction(['deleted_images'], 'readonly');
+      var store = tx.objectStore('deleted_images');
+      var req = store.getAll();
+      req.onsuccess = function() { resolve(req.result || []); };
+      req.onerror = function() { resolve([]); };
+    });
+  } catch (err) {
+    console.error('getDeletedImages error:', err);
+    return [];
+  }
+}
+
+async function restoreImageFromTrash(imageId) {
+  try {
+    if (!db) await initDB();
+    var item = await new Promise(function(resolve) {
+      var tx = db.transaction(['deleted_images'], 'readonly');
+      var store = tx.objectStore('deleted_images');
+      var req = store.get(imageId);
+      req.onsuccess = function() { resolve(req.result || null); };
+      req.onerror = function() { resolve(null); };
+    });
+    if (!item) return;
+    var restoredItem = Object.assign({}, item);
+    delete restoredItem.deletedAt;
+    await saveImageToDB(restoredItem);
+    await permanentlyDeleteImageFromTrash(imageId);
+    galleryImages.unshift(restoredItem);
+  } catch (err) {
+    console.error('restoreImageFromTrash error:', err);
+  }
+}
+
+async function permanentlyDeleteImageFromTrash(imageId) {
+  try {
+    if (!db) await initDB();
+    return new Promise(function(resolve, reject) {
+      var tx = db.transaction(['deleted_images'], 'readwrite');
+      var store = tx.objectStore('deleted_images');
+      var req = store.delete(imageId);
+      req.onsuccess = function() { resolve(); };
+      req.onerror = function() { reject(req.error); };
+    });
+  } catch (err) {
+    console.error('permanentlyDeleteImageFromTrash error:', err);
+  }
+}
+
+function getDeletedPresets() {
+  try {
+    var raw = localStorage.getItem(DELETED_PRESETS_TRASH_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) { return []; }
+}
+
+function saveToPresetTrash(preset) {
+  try {
+    var deleted = getDeletedPresets();
+    var idx = deleted.findIndex(function(p) { return p.name === preset.name; });
+    var entry = Object.assign({}, preset, { deletedAt: Date.now() });
+    if (idx >= 0) { deleted[idx] = entry; } else { deleted.push(entry); }
+    localStorage.setItem(DELETED_PRESETS_TRASH_KEY, JSON.stringify(deleted));
+  } catch (e) { console.error('saveToPresetTrash error:', e); }
+}
+
+function removeFromPresetTrash(presetName) {
+  try {
+    var updated = getDeletedPresets().filter(function(p) { return p.name !== presetName; });
+    localStorage.setItem(DELETED_PRESETS_TRASH_KEY, JSON.stringify(updated));
+  } catch (e) { console.error('removeFromPresetTrash error:', e); }
+}
+
+// ===== END TRASH SYSTEM =====
+
 // Get image count from IndexedDB
 async function getImageCount() {
   try {
@@ -908,7 +1323,8 @@ async function addToGallery(imageBase64) {
   const galleryItem = {
     id: Date.now().toString() + '-' + Math.random().toString(36).substr(2, 9),
     imageBase64: imageBase64,
-    timestamp: Date.now()
+    timestamp: Date.now(),
+    resolution: (canvas && canvas.width && canvas.height) ? canvas.width + 'x' + canvas.height : null
   };
   
   // Add to memory array
@@ -919,6 +1335,54 @@ async function addToGallery(imageBase64) {
   
   console.log(`Image added. Total: ${galleryImages.length}`);
 }
+
+// ===== IMAGE METADATA OVERLAY =====
+
+function showImageMetadata(item, clientX, clientY) {
+  hideImageMetadata(); // remove any stale tooltip first
+
+  const tooltip = document.createElement('div');
+  tooltip.id = 'img-meta-tooltip';
+  tooltip.className = 'img-meta-tooltip';
+
+  const date = new Date(item.timestamp);
+  const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  const res = item.resolution || 'Unknown';
+
+  tooltip.innerHTML =
+    '<div>\uD83D\uDCC5 ' + dateStr + '</div>' +
+    '<div>\uD83D\uDD50 ' + timeStr + '</div>' +
+    '<div>\uD83D\uDCD0 ' + res + '</div>';
+
+  document.body.appendChild(tooltip);
+
+  // Position after render so offsetWidth/Height are available
+  requestAnimationFrame(function() {
+    var tw = tooltip.offsetWidth;
+    var th = tooltip.offsetHeight;
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+
+    var left = clientX + 14;
+    var top  = clientY - th - 14;
+
+    if (left + tw > vw - 8) left = clientX - tw - 14;
+    if (left < 8)            left = 8;
+    if (top < 8)             top  = clientY + 14;
+    if (top + th > vh - 8)  top  = vh - th - 8;
+
+    tooltip.style.left = left + 'px';
+    tooltip.style.top  = top  + 'px';
+  });
+}
+
+function hideImageMetadata() {
+  var existing = document.getElementById('img-meta-tooltip');
+  if (existing) existing.remove();
+}
+
+// ===== END IMAGE METADATA OVERLAY =====
 
 function filterGalleryByDate(images) {
   if (!galleryStartDate && !galleryEndDate) {
@@ -1173,12 +1637,15 @@ async function showGallery(renderOnly = false) {
         img.loading = 'lazy';
         imgContainer.appendChild(img);
 
-        // Long press on image in batch mode = show move-to-folder modal
+        // Long press handling — batch mode: move-to-folder; normal mode: metadata overlay
         let imgPressTimer = null;
+        let _longPressFired = false;
         if (isBatchMode) {
           imgContainer.addEventListener('touchstart', () => {
+            _longPressFired = false;
             imgPressTimer = setTimeout(() => {
               imgPressTimer = null;
+              _longPressFired = true;
               if (!selectedBatchImages.has(item.id)) {
                 toggleBatchImageSelection(item.id);
               }
@@ -1191,11 +1658,38 @@ async function showGallery(renderOnly = false) {
           imgContainer.addEventListener('touchmove', () => {
             if (imgPressTimer) { clearTimeout(imgPressTimer); imgPressTimer = null; }
           });
+        } else {
+          // Normal (non-batch) mode: long-press shows metadata
+          imgContainer.addEventListener('touchstart', (e) => {
+            _longPressFired = false;
+            const t = e.touches[0];
+            imgPressTimer = setTimeout(() => {
+              imgPressTimer = null;
+              _longPressFired = true;
+              showImageMetadata(item, t.clientX, t.clientY);
+            }, 600);
+          }, { passive: true });
+          imgContainer.addEventListener('touchend', () => {
+            if (imgPressTimer) { clearTimeout(imgPressTimer); imgPressTimer = null; }
+            if (_longPressFired) {
+              // Keep tooltip visible for 2 seconds after the user lifts their finger
+              setTimeout(() => { hideImageMetadata(); _longPressFired = false; }, 2000);
+            }
+          });
+          imgContainer.addEventListener('touchmove', () => {
+            if (imgPressTimer) { clearTimeout(imgPressTimer); imgPressTimer = null; }
+            hideImageMetadata();
+            _longPressFired = false;
+          });
         }
 
         imgContainer.onclick = () => {
+          // Suppress click if a long-press just fired (tooltip is showing)
+          if (_longPressFired) { return; }
           if (isBatchMode) {
             toggleBatchImageSelection(item.id);
+          } else if (_previewEditMode) {
+            _handlePreviewEditImageSelect(item.imageBase64);
           } else {
             const originalIndex = galleryImages.findIndex(i => i.id === item.id);
             openImageViewer(originalIndex);
@@ -1208,6 +1702,12 @@ async function showGallery(renderOnly = false) {
 
     grid.innerHTML = '';
     grid.appendChild(fragment);
+    _galleryHighlightIndex = 0;
+    _galleryTopNavIndex = -1;
+    _galleryBottomNavIndex = -1;
+    _clearGalleryTopNavHighlight();
+    _clearGalleryBottomNavHighlight();
+    _applyGalleryHighlight(false);
 
     if (totalPages > 1) {
       pagination.style.display = 'flex';
@@ -1224,8 +1724,11 @@ async function showGallery(renderOnly = false) {
 
 async function hideGallery() {
   document.getElementById('gallery-modal').style.display = 'none';
+  window._carouselGuardUntil = Infinity;
   currentGalleryPage = 1;
   await reinitializeCamera(); // Re-initialize fully so camera switch works after gallery
+  window._carouselGuardUntil = 0;
+  if (window._showCamCarousels) window._showCamCarousels();
   
   // Restore status element display (in case it was hidden by upload function)
   if (statusElement) {
@@ -1393,11 +1896,11 @@ async function deleteViewerImage() {
     return;
   }
   
-  if (await confirm('Delete this image from gallery?')) {
+  if (await confirm('Move this image to trash? It can be restored from Settings \u2192 Restore Deleted Items.')) {
     const imageToDelete = galleryImages[currentViewerImageIndex];
     
     // Remove from IndexedDB
-    await deleteImageFromDB(imageToDelete.id);
+    await softDeleteImage(imageToDelete.id);
     
     // Remove from memory array
     galleryImages.splice(currentViewerImageIndex, 1);
@@ -1765,24 +2268,169 @@ function scrollPresetBuilderDown() {
   }
 }
 
+function _applyGalleryHighlight(scrollIntoView) {
+  const items = Array.from(document.querySelectorAll('#gallery-grid .gallery-item'));
+  items.forEach((item, i) => item.classList.toggle('nav-highlight', i === _galleryHighlightIndex));
+  if (scrollIntoView) {
+    const target = items[_galleryHighlightIndex];
+    if (target) target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+}
+
+function _getGalleryTopNavItems() {
+  const result = [];
+  const closeBtn = document.getElementById('close-gallery');
+  const startBtn = document.getElementById('gallery-start-date-btn');
+  const endBtn = document.getElementById('gallery-end-date-btn');
+  const sortBtn = document.getElementById('gallery-sort-btn');
+  const breadcrumb = document.getElementById('gallery-folder-breadcrumb');
+  const backBtn = (breadcrumb && breadcrumb.style.display !== 'none')
+    ? breadcrumb.querySelector('.gallery-folder-breadcrumb-back')
+    : null;
+  if (closeBtn) result.push(closeBtn);
+  if (startBtn) result.push(startBtn);
+  if (endBtn) result.push(endBtn);
+  if (sortBtn) result.push(sortBtn);
+  if (backBtn) result.push(backBtn);
+  return result;
+}
+
+function _applyGalleryTopNavHighlight(index) {
+  const topItems = _getGalleryTopNavItems();
+  topItems.forEach((btn, i) => btn.classList.toggle('nav-highlight-top', i === index));
+}
+
+function _clearGalleryTopNavHighlight() {
+  _applyGalleryTopNavHighlight(-1);
+}
+
+function _getGalleryBottomNavItems() {
+  const result = [];
+  const prevBtn = document.getElementById('prev-page');
+  const nextBtn = document.getElementById('next-page');
+  const pagination = document.getElementById('gallery-pagination');
+  if (!pagination || pagination.style.display === 'none') return result;
+  if (prevBtn && !prevBtn.disabled) result.push(prevBtn);
+  if (nextBtn && !nextBtn.disabled) result.push(nextBtn);
+  return result;
+}
+
+function _applyGalleryBottomNavHighlight(index) {
+  const bottomItems = _getGalleryBottomNavItems();
+  bottomItems.forEach((btn, i) => btn.classList.toggle('nav-highlight-top', i === index));
+}
+
+function _clearGalleryBottomNavHighlight() {
+  _applyGalleryBottomNavHighlight(-1);
+}
+
 function scrollGalleryUp() {
   const modal = document.getElementById('gallery-modal');
   if (!modal || modal.style.display !== 'flex') return;
-  
-  const container = modal.querySelector('.gallery-scroll-container');
-  if (container) {
-    container.scrollTop = Math.max(0, container.scrollTop - 80);
+
+  // If we are in the bottom pagination nav, move left or exit back to image grid
+  if (_galleryBottomNavIndex >= 0) {
+    if (_galleryBottomNavIndex > 0) {
+      _galleryBottomNavIndex--;
+      _applyGalleryBottomNavHighlight(_galleryBottomNavIndex);
+    } else {
+      // Exit bottom nav, return to last image in grid
+      _clearGalleryBottomNavHighlight();
+      _galleryBottomNavIndex = -1;
+      const items = document.querySelectorAll('#gallery-grid .gallery-item');
+      if (items.length) {
+        _galleryHighlightIndex = items.length - 1;
+        _applyGalleryHighlight(true);
+      }
+    }
+    return;
+  }
+
+  if (_galleryTopNavIndex >= 0) {
+    // Already in top nav — move to the previous (higher) button, stop at 0
+    if (_galleryTopNavIndex > 0) _galleryTopNavIndex--;
+    _applyGalleryTopNavHighlight(_galleryTopNavIndex);
+    // Scroll the controls bar into view so the buttons are visible
+    const controls = document.querySelector('.gallery-controls');
+    if (controls) controls.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    return;
+  }
+
+  const items = document.querySelectorAll('#gallery-grid .gallery-item');
+  if (!items.length) return;
+
+  if (_galleryHighlightIndex === 0) {
+    // At the first image — enter top nav at the bottommost button
+    const topItems = _getGalleryTopNavItems();
+    if (topItems.length > 0) {
+      items.forEach(el => el.classList.remove('nav-highlight'));
+      _galleryTopNavIndex = topItems.length - 1;
+      _applyGalleryTopNavHighlight(_galleryTopNavIndex);
+      // Scroll the controls bar into view so the buttons are visible
+      const controls = document.querySelector('.gallery-controls');
+      if (controls) controls.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  } else {
+    _galleryHighlightIndex--;
+    _applyGalleryHighlight(true);
   }
 }
 
 function scrollGalleryDown() {
   const modal = document.getElementById('gallery-modal');
   if (!modal || modal.style.display !== 'flex') return;
-  
-  const container = modal.querySelector('.gallery-scroll-container');
-  if (container) {
-    container.scrollTop = Math.min(container.scrollHeight - container.clientHeight, container.scrollTop + 80);
+
+  // If we are in the bottom pagination nav, move right or stay at end
+  if (_galleryBottomNavIndex >= 0) {
+    const bottomItems = _getGalleryBottomNavItems();
+    if (_galleryBottomNavIndex < bottomItems.length - 1) {
+      _galleryBottomNavIndex++;
+      _applyGalleryBottomNavHighlight(_galleryBottomNavIndex);
+    }
+    // Scroll pagination into view
+    const pagination = document.getElementById('gallery-pagination');
+    if (pagination) pagination.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    return;
   }
+
+  if (_galleryTopNavIndex >= 0) {
+    // In top nav — move to the next (lower) button
+    const topItems = _getGalleryTopNavItems();
+    if (_galleryTopNavIndex < topItems.length - 1) {
+      _galleryTopNavIndex++;
+      _applyGalleryTopNavHighlight(_galleryTopNavIndex);
+    } else {
+      // Exit top nav, return to image grid at item 0
+      _clearGalleryTopNavHighlight();
+      _galleryTopNavIndex = -1;
+      const items = document.querySelectorAll('#gallery-grid .gallery-item');
+      if (items.length) {
+        _galleryHighlightIndex = 0;
+        _applyGalleryHighlight(true);
+      }
+    }
+    return;
+  }
+
+  const items = document.querySelectorAll('#gallery-grid .gallery-item');
+  if (!items.length) return;
+
+  if (_galleryHighlightIndex >= items.length - 1) {
+    // At the last image — try to enter bottom pagination nav
+    const bottomItems = _getGalleryBottomNavItems();
+    if (bottomItems.length > 0) {
+      items.forEach(el => el.classList.remove('nav-highlight'));
+      _galleryBottomNavIndex = 0;
+      _applyGalleryBottomNavHighlight(_galleryBottomNavIndex);
+      // Scroll pagination into view
+      const pagination = document.getElementById('gallery-pagination');
+      if (pagination) pagination.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    return;
+  }
+
+  _galleryHighlightIndex = Math.min(items.length - 1, _galleryHighlightIndex + 1);
+  _applyGalleryHighlight(true);
 }
 
 function scrollViewerUp() {
@@ -2114,7 +2762,7 @@ async function submitMagicTransform() {
     let processed = 0;
     for (const preset of galleryMultiPresets) {
       try {
-        const manualSelection = galleryMultiManualSelections[preset.name] || null;
+        const manualSelection = galleryMultiManualSelections[preset.name] ?? null;
         const finalPrompt = getFinalPrompt(preset, manualSelection);
         if (typeof PluginMessageHandler !== 'undefined') {
           const multiPayload = { pluginId: 'com.r1.pixelart', imageBase64: resizedImageBase64 };
@@ -2594,7 +3242,7 @@ async function finalizeCameraLiveCombine(photo1Base64, photo2Base64, presetOverr
       const presetsToApply = [...cameraSelectedPresets];
       for (let i = 0; i < presetsToApply.length; i++) {
         const p = presetsToApply[i];
-        const manualSelection = cameraMultiManualSelections[p.name] || null;
+        const manualSelection = cameraMultiManualSelections[p.name] ?? null;
 
         // Apply combine preamble for multi-preset (not voice mode)
         window.isCombinedMode = true;
@@ -2993,7 +3641,7 @@ async function batchDeleteImages() {
   if (selectedBatchImages.size === 0) return;
   
   const count = selectedBatchImages.size;
-  const confirmed = await confirm(`Are you sure you want to delete ${count} selected image${count > 1 ? 's' : ''}? This cannot be undone.`);
+  const confirmed = await confirm(`Move ${count} selected image${count > 1 ? 's' : ''} to trash? They can be restored from Settings \u2192 Restore Deleted Items.`);
   
   if (!confirmed) return;
   
@@ -3021,7 +3669,7 @@ async function batchDeleteImages() {
   
   for (const imageId of imagesToDelete) {
     try {
-      await deleteImageFromDB(imageId);
+      await softDeleteImage(imageId);
       deleted++;
       document.getElementById('batch-current').textContent = deleted;
       document.getElementById('batch-progress-fill').style.width = `${(deleted / count) * 100}%`;
@@ -3328,7 +3976,7 @@ async function applyMultiplePresets() {
 
   for (const preset of presetsToApply) {
     try {
-      const manualSelection = galleryMultiManualSelections[preset.name] || null;
+      const manualSelection = galleryMultiManualSelections[preset.name] ?? null;
       const finalPrompt = getFinalPrompt(preset, manualSelection);
       
       if (typeof PluginMessageHandler !== 'undefined') {
@@ -4509,6 +5157,224 @@ function handleViewerPromptTap() {
   }
 }
 
+// ===== RESTORE DELETED ITEMS SUBMENU =====
+
+function showRestoreSubmenu() {
+  document.getElementById('settings-submenu').style.display = 'none';
+  isSettingsSubmenuOpen = false;
+  document.getElementById('restore-deleted-submenu').style.display = 'flex';
+  isRestoreSubmenuOpen = true;
+  restoreActiveTab = 'presets';
+  currentRestoreIndex = 0;
+  switchRestoreTab('presets');
+}
+
+function hideRestoreSubmenu() {
+  document.getElementById('restore-deleted-submenu').style.display = 'none';
+  isRestoreSubmenuOpen = false;
+  showSettingsSubmenu();
+}
+
+function switchRestoreTab(tab) {
+  restoreActiveTab = tab;
+  currentRestoreIndex = 0;
+  document.getElementById('restore-tab-presets').classList.toggle('active', tab === 'presets');
+  document.getElementById('restore-tab-images').classList.toggle('active', tab === 'images');
+  document.getElementById('restore-panel-presets').style.display = tab === 'presets' ? 'block' : 'none';
+  document.getElementById('restore-panel-images').style.display  = tab === 'images'  ? 'block' : 'none';
+  if (tab === 'presets') {
+    populateDeletedPresetsList();
+    setTimeout(updateRestoreSelection, 50);
+  } else {
+    populateDeletedImagesList().then(function() {
+      setTimeout(updateRestoreSelection, 50);
+    });
+  }
+}
+
+function populateDeletedPresetsList() {
+  var list = document.getElementById('restore-presets-list');
+  if (!list) return;
+  var deleted = getDeletedPresets();
+  list.innerHTML = '';
+  if (deleted.length === 0) {
+    list.innerHTML = '<div style="padding:4vw;color:#666;font-size:3.5vw;text-align:center;">No deleted presets</div>';
+    return;
+  }
+  deleted.sort(function(a, b) { return b.deletedAt - a.deletedAt; });
+  deleted.forEach(function(preset) {
+    var item = document.createElement('label');
+    item.className = 'restore-preset-item';
+    item.style.cssText = 'display:flex;align-items:center;padding:3vw 2vw;border-bottom:1px solid #222;gap:3vw;cursor:pointer;transition:background 0.1s;';
+    var cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.dataset.name = preset.name;
+    cb.style.cssText = 'width:5vw;height:5vw;min-width:22px;min-height:22px;accent-color:#FE5F00;flex-shrink:0;cursor:pointer;';
+    var nameSpan = document.createElement('span');
+    nameSpan.textContent = preset.name;
+    nameSpan.style.cssText = 'font-size:4vw;color:#fff;flex:1;word-break:break-word;';
+    item.appendChild(cb);
+    item.appendChild(nameSpan);
+    list.appendChild(item);
+  });
+}
+
+async function populateDeletedImagesList() {
+  var grid = document.getElementById('restore-images-grid');
+  if (!grid) return;
+  grid.innerHTML = '<div style="grid-column:1/-1;padding:4vw;color:#888;font-size:3.5vw;text-align:center;">Loading...</div>';
+  var deleted = await getDeletedImages();
+  grid.innerHTML = '';
+  if (deleted.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;padding:4vw;color:#666;font-size:3.5vw;text-align:center;">No deleted images</div>';
+    return;
+  }
+  deleted.sort(function(a, b) { return b.deletedAt - a.deletedAt; });
+  deleted.forEach(function(img) {
+    var cell = document.createElement('div');
+    cell.className = 'restore-image-item';
+    cell.style.cssText = 'position:relative;padding-bottom:100%;background:#222;border-radius:2vw;overflow:hidden;';
+    var imgEl = document.createElement('img');
+    imgEl.src = img.imageBase64;
+    imgEl.loading = 'lazy';
+    imgEl.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;pointer-events:none;';
+    var cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.dataset.id = img.id;
+    cb.style.cssText = 'position:absolute;top:5px;left:5px;width:5vw;height:5vw;min-width:20px;min-height:20px;accent-color:#FE5F00;z-index:2;cursor:pointer;';
+    cell.appendChild(imgEl);
+    cell.appendChild(cb);
+    grid.appendChild(cell);
+  });
+}
+
+function getRestoreItems() {
+  if (restoreActiveTab === 'presets') {
+    return Array.from(document.querySelectorAll('#restore-presets-list .restore-preset-item'));
+  } else {
+    return Array.from(document.querySelectorAll('#restore-images-grid .restore-image-item'));
+  }
+}
+
+function updateRestoreSelection() {
+  var items = getRestoreItems();
+  // Remove highlight from all items
+  items.forEach(function(item) {
+    item.style.outline = '';
+    item.style.outlineOffset = '';
+    item.style.background = '';
+  });
+  if (items.length === 0) return;
+  currentRestoreIndex = Math.max(0, Math.min(currentRestoreIndex, items.length - 1));
+  var current = items[currentRestoreIndex];
+  if (current) {
+    current.style.outline = '3px solid #FE5F00';
+    current.style.outlineOffset = '-2px';
+    if (restoreActiveTab === 'presets') {
+      current.style.background = 'rgba(254,95,0,0.12)';
+    }
+    current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+function scrollRestoreUp() {
+  if (!isRestoreSubmenuOpen) return;
+  var items = getRestoreItems();
+  if (items.length === 0) return;
+  currentRestoreIndex = Math.max(0, currentRestoreIndex - 1);
+  updateRestoreSelection();
+}
+
+function scrollRestoreDown() {
+  if (!isRestoreSubmenuOpen) return;
+  var items = getRestoreItems();
+  if (items.length === 0) return;
+  currentRestoreIndex = Math.min(items.length - 1, currentRestoreIndex + 1);
+  updateRestoreSelection();
+}
+
+function restoreSelectAll() {
+  var items = getRestoreItems();
+  if (items.length === 0) return;
+  var allChecked = items.every(function(item) {
+    var cb = item.querySelector('input[type="checkbox"]');
+    return cb && cb.checked;
+  });
+  items.forEach(function(item) {
+    var cb = item.querySelector('input[type="checkbox"]');
+    if (cb) cb.checked = !allChecked;
+  });
+}
+
+async function restoreSelected() {
+  if (restoreActiveTab === 'presets') {
+    var list = document.getElementById('restore-presets-list');
+    var checked = Array.from(list.querySelectorAll('input[type="checkbox"]:checked'));
+    if (checked.length === 0) { await customAlert('No presets selected.'); return; }
+    if (!await customConfirm('Restore ' + checked.length + ' preset(s) back to your preset list?')) return;
+    var allDeleted = getDeletedPresets();
+    for (var i = 0; i < checked.length; i++) {
+      var name = checked[i].dataset.name;
+      var preset = allDeleted.find(function(p) { return p.name === name; });
+      if (!preset) continue;
+      var cleanPreset = Object.assign({}, preset);
+      delete cleanPreset.deletedAt;
+      await presetStorage.saveNewPreset(cleanPreset);
+      if (!CAMERA_PRESETS.some(function(p) { return p.name === name; })) {
+        CAMERA_PRESETS.push(cleanPreset);
+      }
+      if (!visiblePresets.includes(name)) {
+        visiblePresets.push(name);
+        _visiblePresetsSet.add(name);
+      }
+      removeFromPresetTrash(name);
+    }
+    saveVisiblePresets();
+    saveStyles();
+    _stylesDataVersion++;
+    populateDeletedPresetsList();
+    setTimeout(updateRestoreSelection, 50);
+    await customAlert('Preset(s) restored successfully!');
+  } else {
+    var grid = document.getElementById('restore-images-grid');
+    var checked = Array.from(grid.querySelectorAll('input[type="checkbox"]:checked'));
+    if (checked.length === 0) { await customAlert('No images selected.'); return; }
+    if (!await customConfirm('Restore ' + checked.length + ' image(s) back to the gallery?')) return;
+    for (var j = 0; j < checked.length; j++) {
+      await restoreImageFromTrash(checked[j].dataset.id);
+    }
+    await populateDeletedImagesList();
+    setTimeout(updateRestoreSelection, 50);
+    await customAlert('Image(s) restored successfully!');
+  }
+}
+
+async function permanentlyDeleteSelected() {
+  if (restoreActiveTab === 'presets') {
+    var list = document.getElementById('restore-presets-list');
+    var checked = Array.from(list.querySelectorAll('input[type="checkbox"]:checked'));
+    if (checked.length === 0) { await customAlert('No presets selected.'); return; }
+    if (!await customConfirm('Permanently delete ' + checked.length + ' preset(s)? This cannot be undone.', { danger: true, yesText: 'Delete', noText: 'Cancel' })) return;
+    checked.forEach(function(cb) { removeFromPresetTrash(cb.dataset.name); });
+    populateDeletedPresetsList();
+    setTimeout(updateRestoreSelection, 50);
+    await customAlert('Preset(s) permanently deleted.');
+  } else {
+    var grid = document.getElementById('restore-images-grid');
+    var checked = Array.from(grid.querySelectorAll('input[type="checkbox"]:checked'));
+    if (checked.length === 0) { await customAlert('No images selected.'); return; }
+    if (!await customConfirm('Permanently delete ' + checked.length + ' image(s)? This cannot be undone.', { danger: true, yesText: 'Delete', noText: 'Cancel' })) return;
+    for (var k = 0; k < checked.length; k++) {
+      await permanentlyDeleteImageFromTrash(checked[k].dataset.id);
+    }
+    await populateDeletedImagesList();
+    setTimeout(updateRestoreSelection, 50);
+    await customAlert('Image(s) permanently deleted.');
+  }
+}
+
+// ===== END RESTORE DELETED ITEMS SUBMENU =====
+
 // Show Preset Builder submenu
 function showPresetBuilderSubmenu() {
   document.getElementById('settings-submenu').style.display = 'none';
@@ -5402,6 +6268,9 @@ async function deleteCustomPreset() {
     return;
   }
   
+  // Save to trash before removing so it can be restored later
+  saveToPresetTrash(CAMERA_PRESETS[editingPresetBuilderIndex]);
+
   // Remove from CAMERA_PRESETS
   CAMERA_PRESETS.splice(editingPresetBuilderIndex, 1);
   
@@ -5930,7 +6799,7 @@ function buildCombinedLayerPrompt(layerPresets, manualSelections = {}) {
 
   // 3. Primary preset options — manual selection if available, otherwise random
   if (primaryPreset.randomizeOptions) {
-    const primaryManual = manualSelections[primaryPreset.name] || null;
+    const primaryManual = manualSelections[primaryPreset.name] ?? null;
     if (primaryManual !== null) {
       finalPrompt += '\n\n' + buildSelectedOptionsText(primaryPreset, primaryManual);
     } else {
@@ -5948,7 +6817,7 @@ function buildCombinedLayerPrompt(layerPresets, manualSelections = {}) {
       finalPrompt += `\nLayer ${index + 1}:\n${layerText}\n`;
       // Add layer options — manual selection if available, otherwise random
       if (preset.randomizeOptions) {
-        const layerManual = manualSelections[preset.name] || null;
+        const layerManual = manualSelections[preset.name] ?? null;
         if (layerManual !== null) {
           finalPrompt += buildSelectedOptionsText(preset, layerManual) + '\n';
         } else {
@@ -5976,10 +6845,12 @@ function buildCombinedLayerPrompt(layerPresets, manualSelections = {}) {
 
   // 7. Aspect ratio
   if (selectedAspectRatio === '1:1') {
-    finalPrompt += '\n\nUse a square aspect ratio.';
+    finalPrompt += '\n\nOutput this image with a perfect 1:1 square aspect ratio. All content, subjects, and visual elements must be fully contained within the square frame. Do not add any borders, bars, or empty padding around the image. Nothing may extend beyond the square boundary.';
   } else if (selectedAspectRatio === '16:9') {
-    finalPrompt += '\n\nUse a square aspect ratio, but pad the image with black bars at top and bottom to simulate a 16:9 aspect ratio.';
+    finalPrompt += '\n\nOutput this image with a 16:9 widescreen aspect ratio by placing solid black bars at the top and bottom only. All image content, subjects, and visual elements must be fully contained within the central widescreen area between the black bars. No subject, object, or any visual element may overlap with, extend into, or appear within the black bar regions under any circumstances. The black bars must remain completely solid black with absolutely nothing visible within them.';
   }
+
+  console.log('COMBINED LAYER PROMPT:', finalPrompt);
 
   console.log('COMBINED LAYER PROMPT:', finalPrompt);
   return finalPrompt;
@@ -6432,18 +7303,98 @@ async function showManualOptionsModal(preset, sections) {
       const firstRadio = list.querySelector(`input[name="manual-option-section-${sectionIndex}"]`);
       if (firstRadio) firstRadio.checked = true;
     });
+
+    // ── Arrow navigation setup ──
+    // Build a flat array of all radios in DOM order
+    const allRadios = Array.from(list.querySelectorAll('input[type="radio"]'));
+
+    // Map each flat radio index → its section index (for group jumping)
+    const radioSectionMap = [];
+    sections.forEach((section, sectionIndex) => {
+      section.options.forEach(() => radioSectionMap.push(sectionIndex));
+    });
+
+    // First flat index of each section (for double-click group jump)
+    const sectionStartIndices = [];
+    let _runningIdx = 0;
+    sections.forEach((section) => {
+      sectionStartIndices.push(_runningIdx);
+      _runningIdx += section.options.length;
+    });
+
+    let _navIdx = 0; // tracks the currently arrow-navigated option
+
+    const navToIndex = (idx) => {
+      if (idx < 0) idx = 0;
+      if (idx >= allRadios.length) idx = allRadios.length - 1;
+      _navIdx = idx;
+      allRadios[idx].checked = true;
+      allRadios[idx].closest('.style-item')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    };
+
+    // Keep _navIdx in sync when user taps an option directly
+    allRadios.forEach((radio, idx) => {
+      radio.addEventListener('change', () => { _navIdx = idx; });
+    });
+
+    // Double-click detection timers
+    let _upClickTimer = null;
+    let _downClickTimer = null;
+    const DBLCLICK_MS = 280;
+
+    const navUpBtn  = document.getElementById('manual-options-nav-up');
+    const navDownBtn = document.getElementById('manual-options-nav-down');
+
+    const handleNavUp = () => {
+      if (_upClickTimer) {
+        // Double click — jump to first option of previous section
+        clearTimeout(_upClickTimer);
+        _upClickTimer = null;
+        const prevSection = radioSectionMap[_navIdx] - 1;
+        navToIndex(prevSection >= 0 ? sectionStartIndices[prevSection] : 0);
+      } else {
+        _upClickTimer = setTimeout(() => {
+          _upClickTimer = null;
+          navToIndex(_navIdx - 1); // single click — previous option
+        }, DBLCLICK_MS);
+      }
+    };
+
+    const handleNavDown = () => {
+      if (_downClickTimer) {
+        // Double click — jump to first option of next section
+        clearTimeout(_downClickTimer);
+        _downClickTimer = null;
+        const nextSection = radioSectionMap[_navIdx] + 1;
+        navToIndex(nextSection < sections.length ? sectionStartIndices[nextSection] : allRadios.length - 1);
+      } else {
+        _downClickTimer = setTimeout(() => {
+          _downClickTimer = null;
+          navToIndex(_navIdx + 1); // single click — next option
+        }, DBLCLICK_MS);
+      }
+    };
+
+    if (navUpBtn)   navUpBtn.onclick   = handleNavUp;
+    if (navDownBtn) navDownBtn.onclick = handleNavDown;
     
     modal.style.display = 'flex';
-    
+    manualOptionsModalVisible = true;
+
     const closeBtn = document.getElementById('close-manual-options');
     const cancelBtn = document.getElementById('cancel-manual-options');
     const confirmBtn = document.getElementById('confirm-manual-options');
     
     const cleanup = () => {
-      modal.style.display = 'none';
+        modal.style.display = 'none';
+        manualOptionsModalVisible = false;
       if (closeBtn) closeBtn.onclick = null;
       if (cancelBtn) cancelBtn.onclick = null;
       if (confirmBtn) confirmBtn.onclick = null;
+      if (navUpBtn) navUpBtn.onclick = null;
+      if (navDownBtn) navDownBtn.onclick = null;
+      if (_upClickTimer)   { clearTimeout(_upClickTimer);   _upClickTimer   = null; }
+      if (_downClickTimer) { clearTimeout(_downClickTimer); _downClickTimer = null; }
     };
     
     const handleClose = () => {
@@ -6828,12 +7779,13 @@ const TOUR_STEPS = [
   { section: 'Gallery', title: '🎠 Right Carousel', body: 'The right side carousel has three buttons — ✏️ EDIT which opens the image editor, 📤 EXPORT which uploads to gofile.io, and 📑 LAYER which combines presets to single image. Single click (default) screen to hide the buttons. This may be adjusted in settings' },
   { section: 'Gallery', title: '⬇️ Bottom Bar Buttons', body: 'Four buttons on the bottom of image viewer. PROMPT opens editor. LOAD opens preset selector. MULTI opens multi-preset selector. MAGIC transforms image using the loaded preset, or randomly if nothing is loaded.' },
   { section: 'Gallery', title: '📤 Export to gofile.io', body: 'Tapping EXPORT in the right carousel. You get a QR code with a link that expires after 24 hours. Most useful in No Magic Mode.' },
-  { section: 'Image Editor', title: '✏️ Opening the Editor', body: 'While viewing any photo, the image viewer carousel contains the EDIT button. Tap it. The editor opens with crop, rotate, sharpen, auto-correct, and brightness and contrast controls.' },
+  { section: 'Image Editor', title: '✏️ Opening the Editor', body: 'While viewing any photo, the image viewer contains the EDIT button. Tap it. The editor opens the image with a right-side carousel containing the crop, rotate, sharpen, auto-correct, color filters (vivid, warm, cool, Black and White (B&W) and Fade), and brightness and contrast control sliders.' },
   { section: 'Image Editor', title: '✂️ Crop Tool', body: 'Tap Crop to activate. Two orange corner markers appear. Drag them to frame your desired area. Tap Crop again to apply.' },
   { section: 'Image Editor', title: '🔄 Rotate Tool', body: 'Rotates your image 90 degrees clockwise each tap. Tap multiple times to reach 180, 270, or back to 0 degrees.' },
   { section: 'Image Editor', title: '🔍 Sharpen and Auto Correct', body: 'Sharpen makes edges crisper. Auto Correct automatically balances brightness, contrast, and color. Great as a first step before manual tweaks.' },
+  { section: 'Image Editor', title: '🎨 Color Filters', body: 'Five one-tap filters sit below Auto Correct in the carousel. Vivid boosts saturation and contrast for punchy colors. Warm lifts reds and yellows for a golden feel. Cool shifts the image toward blue tones for a clean, airy look. B and W converts to professional black and white. Fade compresses contrast for a soft, matte, faded-film aesthetic.' },
   { section: 'Image Editor', title: '☀️ Brightness and Contrast Sliders', body: 'At the top of the editor, drag the sliders to adjust brightness and contrast anywhere from negative 100 to positive 100 in real time.' },
-  { section: 'Image Editor', title: '↶ Undo and Save', body: 'Undo steps back through your edit history one step at a time. Saving an edited image creates a new image in your gallery. Close exits without saving.' },
+  { section: 'Image Editor', title: '↶ Undo and Save', body: 'Undo steps back through your edit history one step at a time. Saving an edited image creates a new image in your gallery. Close (x) exits without saving.' },
   { section: 'Settings', title: '▣ Resolution', body: 'Choose from VGA 640 by 480 up to HD 3264 by 2448. Lower resolutions are recommended if you want images to appear in the magic gallery and you want to save space in your r1 device. Camera program slows if a high resolution is chosen.' },
   { section: 'Settings', title: '📐 Aspect Ratio', body: 'Choose 1 to 1 square or 16 to 9 letterbox. Leave both unchecked for neither. Default is neither. We highly recommend choosing an aspect ratio to display the full image, preventing accidental cropping.' },
   { section: 'Settings', title: '📝 Master Prompt', body: 'Appends custom text to every AI transformation. Enable it first, then type your additions. Adding a name and occasion lets presets like Happy Holidays and Love Actually personalize automatically. Can also be toggled from the MASTER button inside the image viewer or on the main camera screen.' },
@@ -6841,11 +7793,19 @@ const TOUR_STEPS = [
   { section: 'Settings', title: '🔨 Preset Builder', body: 'Build your own custom AI presets. Choose a template, add chips for quality and style, enable random options with single or multi-selection groups, add critical rules, then save. Also accessible directly from the main menu plus (+) button.' },
   { section: 'Settings', title: '🚫 No Magic Mode', body: 'Disables AI processing and works as a regular camera. Photos save only to the plugin gallery, not to the rabbit hole or magic gallery.' },
   { section: 'Settings', title: '🎛️ Manually Select Options Mode', body: 'When enabled and you choose a preset with options, a popup asks you to pick which option to use rather than a randomized option. Can also be toggled from the OPTIONS button inside the image viewer or on the main camera screen.' },
+  { section: 'Settings', title: '🗑️ Restore Deleted Items', body: 'Use this setting to restore custom or modified presets that were previously deleted from the main menu and images that were deleted from the gallery.  This will not restore presets that were deleted using the Reset Database.' },
   { section: 'Settings', title: '📥 Import Presets (Starting Style)', body: 'You begin with two unlocked presets-Caricature and Impressionism.  Import them from the Import Presets section to capture photos and begin the fun journey of unlocking your imported artistic library.' },
   { section: 'Settings', title: '📥 Import Presets (Import Art)', body: 'Browse our external library in Settings. Check individual unlocked styles or use the All checkmark to select all  presets to import (assuming you have the credits).' },
-  { section: 'Settings', title: '📥 Import Presets (Unlocking Presets)', body: 'Imported styles first appear locked. To unlock one, you need a credit. Take a photo or reprompt in the gallery once with any preset you already own to get one credit. You only get one credit per unique preset!' },
   { section: 'Settings', title: '📥 Import Presets (New/Updated Presets)', body: 'Button indicates if there are any new/updated presets. Any updates are flagged so you can re-import changed/updated presets that you own. If you do not import updated presets, the preset will not be updated. New presets appear locked.' },
-  { section: 'Settings', title: '📂 Preset File Settings', body: ' Add custom preset sources from any GitHub repository using that repository\'s raw JSON file URL. The built-in preset library is always the default. No credits required for Custom sources. Place preview images in a public folder next to the presets JSON file in the custom repository.' },
+  { section: 'Settings', title: '📥 Import Presets (Unlock)', body: 'Imported styles first appear locked. To unlock one, you need a credit. Take a photo with any preset you own, or reprompt a gallery image, to earn one credit. Each unique preset earns one credit — no repeats. Use credits to unlock new presets from the import list. Check regularly for newly added styles.' },
+  { section: 'Settings', title: '📂 Preset File Settings (Overview)', body: 'An advanced feature located directly below Import Presets in Settings. It has two tabs: Preset Sources for loading custom preset collections, and Preview Images for importing your own preset thumbnail images. No credits are required for any custom source presets.' },
+  { section: 'Settings', title: '📂 Preset File Settings (Source Repository)', body: 'Tap the Preset Sources tab and scroll to Add Custom Source. Enter name, type the raw URL to your JSON preset file. For GitHub, open the file and tap the Raw button to get the correct URL (or use the Convert GitHub to Raw button in program). Tap Add Source.' },
+  { section: 'Settings', title: '📂 Preset File Settings (Source QR Code)', body: 'Upload JSON preset file to catbox.moe, copy direct link, generate QR code at qr-code-generator.com. Tap Preset Sources tab, scroll to Import Source via QR Code, press Scan. Scan code. The modal closes filling the text field with URL. Name it. Tap Add Source.' },
+  { section: 'Settings', title: '📂 Preset File Settings (Importing Preview Images)', body: 'Tap the Preview Images tab. Upload your image to catbox.moe, get the direct link, generate a QR code, then press Scan QR Code to Import Preview Images. Scan the code. Image saves to your preview gallery. Recommended import size 160x160 pixels.' },
+  { section: 'Settings', title: '📂 Preset File Settings (Correct Format)', body: 'Custom JSON files must be a preset matching the built-in format. To include preview images in a repository, create folder named public at same level as JSON file. Name image to match preset name, replace spaces and special characters with underscores. Save as PNG.' },
+  { section: 'Settings', title: '📂 Preset File Settings (External Builder)', body: 'The custom JSON file must be a valid preset array matching the built-in format. We recommend using the Magic Kamera front end Preset builder at - https://jorge-e-t.github.io/MKPresetBuilder/' },
+  { section: 'Settings', title: '📂 Preset File Settings (Managing Sources)', body: 'Each source has an ON and OFF toggle and EDIT button. The built-in library toggle appears when one custom source is active. Turning off custom sources re-enables the default. Use EDIT to change name or URL without deleting. The X button removes source entirely.' },
+  { section: 'Settings', title: '📂 Preset File Settings (Managing Preview Images)', body: 'Hard press preset in a preset list outside of the Import section to preview. Tap orange plus button to pick replacement image from your preview gallery. To revert to the original or remove a custom image, tap the top left undo arrow button.' },
   { section: 'Settings', title: '⚙️ Button Settings', body: 'Includes the settings for the main camera screen carousel and the Gallery Image Viewer screen carousel buttons. You may select different colors for buttons and text in the main camera and gallery image viewer screens. You may also select opacity (default solid) and set how many taps to hide/reveal the buttons.' },
   { section: 'Settings', title: '📖 Tutorial', body: 'Last section in the settings. This area includes this audio tour. It also includes an indexed tutorial with a search engine. Type to search or click on the search field and press the side button to speak the query.' },
   { section: 'Tips and Advanced', title: '🏷️ Category Searching', body: 'Every preset has categories. When a preset is highlighted in the Visible Presets menu, its categories appear at the bottom. Tap a category to filter all presets in that group.' },
@@ -6854,7 +7814,9 @@ const TOUR_STEPS = [
   { section: 'Tips and Advanced', title: '📶 Offline Queue', body: 'If you take photos and the program goes offline - no worries - photos queue automatically and may be synced to the rabbit hole once your connection returns. The queue count shows on the screen.' },
   { section: 'Tips and Advanced', title: '🔁 Reset Database', body: 'The nuclear option in Settings. Wipes all custom presets and settings. Only imported presets from the library remain. Use only if something is seriously broken.' },
   { section: 'Tips and Advanced', title: '💀 Content Filter Error', body: 'If you go into your rabbit hole and you receive a content filter image error, this happens because AI is quirky. The beauty of Magic Kamera is you can reprompt. Keep trying until successful.' },
-  { section: 'Tips and Advanced', title: '↑↓ Jump Navigation', body: 'In areas with presets, clicking the up/down arrows once moves one page. Double-clicking jumps to the next or previous letter of the alphabet within that section (favorites and non-favorites are navigated separately). Triple-clicking jumps all the way to the top or bottom of the list.' },
+  { section: 'Tips and Advanced', title: '↑↓ Jump Navigation (Presets)', body: 'Areas with presets, clicking the up/down arrows once moves one page. Double-clicking jumps to next or previous letter of alphabet within that section (favorites and non-favorites are navigated separately). Triple-clicking jumps all the way to top or bottom of list.' },
+  { section: 'Tips and Advanced', title: '↑↓ Jump Navigation (Options)', body: 'In the select options modal (When options are enabled), single clicking the up/down arrows move to the next option and double clicking jumps to the next options group.' },
+  { section: 'Tips and Advanced', title: '↑↓ Jump Navigation (Settings)', body: 'In the settings submenu, clicking the up/down arrows once moves one setting. Double-clicking jumps all the way to the top or bottom of the list.' },
   { section: 'Troubleshooting', title: '❌ Camera Access Denied', body: 'This error will appear at the bottom of your main camera screen if you do not have any active presets, either imported or made with the preset builder.' },
   { section: 'Done!', title: '🎉 Tour Complete!', body: 'That\'s Magic Kamera. Now go make magic! This tour or the text tutorial in this menu is here if you need a refresher. If you come across The One Ron G, The One Hashtag Cyber or The One Rabbit Jesus, tell them you enjoy this program.' },
 ];
@@ -8406,7 +9368,7 @@ addToGallery(dataUrl);
     const presetsToApply = [...cameraSelectedPresets];
     for (let i = 0; i < presetsToApply.length; i++) {
       const preset = presetsToApply[i];
-      const manualSelection = cameraMultiManualSelections[preset.name] || null;
+      const manualSelection = cameraMultiManualSelections[preset.name] ?? null;
       const queueItem = {
         id: Date.now().toString() + '-mp' + i,
         imageBase64: dataUrl,
@@ -8580,7 +9542,7 @@ async function syncQueuedPhotos() {
       
       if (typeof PluginMessageHandler !== 'undefined' && !noMagicMode) {
         if (item.isCombined) window.isCombinedMode = true;
-        const syncedPrompt = getFinalPrompt(item.preset, item.manualSelection || null);
+        const syncedPrompt = getFinalPrompt(item.preset, item.manualSelection ?? null);
         if (item.isCombined) window.isCombinedMode = false;
         const syncPayload = {
           pluginId: 'com.r1.pixelart',
@@ -8760,9 +9722,70 @@ window.addEventListener('sideClick', () => {
     return;
   }
 
-  // Block side button when the gallery thumbnail screen is open
+  // Gallery — side button opens or checks the highlighted item
   const galleryModalOpen = document.getElementById('gallery-modal')?.style.display === 'flex';
-  if (galleryModalOpen) return;
+  if (galleryModalOpen) {
+    // Bottom pagination nav (Prev/Next page buttons)
+    if (_galleryBottomNavIndex >= 0) {
+      const bottomItems = _getGalleryBottomNavItems();
+      const btn = bottomItems[_galleryBottomNavIndex];
+      if (btn) btn.click();
+      return;
+    }
+    if (_galleryTopNavIndex >= 0) {
+      const topItems = _getGalleryTopNavItems();
+      const btn = topItems[_galleryTopNavIndex];
+      if (btn) btn.click();
+      return;
+    }
+    const items = Array.from(document.querySelectorAll('#gallery-grid .gallery-item'));
+    const highlighted = items[_galleryHighlightIndex];
+    if (highlighted) {
+      const imageId = highlighted.dataset.imageId;
+      const folderId = highlighted.dataset.folderId;
+      if (isBatchMode) {
+        // In select mode: toggle the checkbox on the highlighted item
+        if (imageId) toggleBatchImageSelection(imageId);
+      } else if (folderId) {
+        // Open the highlighted folder
+        openFolderView(folderId);
+      } else if (imageId) {
+        // Open the highlighted image in the viewer
+        const originalIndex = galleryImages.findIndex(i => i.id === imageId);
+        if (originalIndex >= 0) openImageViewer(originalIndex);
+      }
+    }
+    return;
+  }
+
+  // When the manual options modal is open, side button clicks the confirm/send button
+  // NOTE: this must be checked BEFORE imageViewerOpen — the image viewer stays flex behind the modal
+  if (manualOptionsModalVisible) {
+    const confirmBtn = document.getElementById('confirm-manual-options');
+    if (confirmBtn) confirmBtn.click();
+    return;
+  }
+
+  // When the image viewer is open, side button triggers the magic button instead of taking a photo
+  const imageViewerOpen = document.getElementById('image-viewer')?.style.display === 'flex';
+  if (imageViewerOpen) {
+    const magicBtn = document.getElementById('magic-button');
+    if (magicBtn) magicBtn.click();
+    return;
+  }
+
+  // Restore Deleted Items submenu - side button toggles checkbox on highlighted item
+  if (isRestoreSubmenuOpen) {
+    var restoreItems = getRestoreItems();
+    if (restoreItems.length > 0 && currentRestoreIndex < restoreItems.length) {
+      var currentRestoreItem = restoreItems[currentRestoreIndex];
+      if (currentRestoreItem) {
+        var restoreCb = currentRestoreItem.querySelector('input[type="checkbox"]');
+        if (restoreCb) restoreCb.click();
+      }
+    }
+    return;
+  }
 
   // Settings submenu - select current item
   if (isSettingsSubmenuOpen) {
@@ -8947,6 +9970,13 @@ window.addEventListener('sideClick', () => {
 // Scroll wheel handler for preset cycling and menu navigation
 window.addEventListener('scrollUp', () => {
   console.log('Scroll wheel: up');
+
+  // Manual options modal
+    if (document.getElementById('manual-options-modal')?.style.display === 'flex') {
+        const scrollContainer = document.querySelector('#manual-options-modal .styles-menu-scroll-container');
+        if (scrollContainer) scrollContainer.scrollTop = Math.max(0, scrollContainer.scrollTop - 80);
+        return;
+    }
   
   // Style Editor
   if (document.getElementById('style-editor').style.display === 'flex') {
@@ -9026,6 +10056,12 @@ window.addEventListener('scrollUp', () => {
     return;
   }
   
+  // Restore Deleted Items submenu
+  if (isRestoreSubmenuOpen) {
+    scrollRestoreUp();
+    return;
+  }
+
   // Settings submenu - CHECK AFTER all other submenus
   if (isSettingsSubmenuOpen) {
     scrollSettingsUp();
@@ -9106,6 +10142,13 @@ window.addEventListener('scrollUp', () => {
 window.addEventListener('scrollDown', () => {
   console.log('Scroll wheel: down');
 
+// Manual options modal
+    if (document.getElementById('manual-options-modal')?.style.display === 'flex') {
+        const scrollContainer = document.querySelector('#manual-options-modal .styles-menu-scroll-container');
+        if (scrollContainer) scrollContainer.scrollTop = Math.min(scrollContainer.scrollHeight - scrollContainer.clientHeight, scrollContainer.scrollTop + 80);
+        return;
+    }
+
   // Style Editor
   if (document.getElementById('style-editor').style.display === 'flex') {
       scrollEditorDown();
@@ -9184,6 +10227,12 @@ window.addEventListener('scrollDown', () => {
     return;
   }
   
+  // Restore Deleted Items submenu
+  if (isRestoreSubmenuOpen) {
+    scrollRestoreDown();
+    return;
+  }
+
   // Settings submenu - CHECK AFTER all other submenus
   if (isSettingsSubmenuOpen) {
     scrollSettingsDown();
@@ -9603,7 +10652,10 @@ async function hideUnifiedMenu() {
   }
   
   document.getElementById('unified-menu').style.display = 'none';
+  window._carouselGuardUntil = Infinity;
   await resumeCamera();
+  window._carouselGuardUntil = 0;
+  if (window._showCamCarousels) window._showCamCarousels();
   
   // Re-show the style reveal footer
   if (noMagicMode) {
@@ -9704,34 +10756,32 @@ function renderCustomPresetSourcesList() {
   const hasEnabledCustom = sources.some(s => s.enabled);
   const defaultOn = getDefaultPresetEnabled();
 
-  // Remove previously rendered rows (keep the no-sources message node)
+  // Remove previously rendered rows
   Array.from(listEl.querySelectorAll('.custom-source-row, .default-source-row')).forEach(el => el.remove());
 
   // --- Default source row (always first) ---
   const defaultRow = document.createElement('div');
   defaultRow.className = 'default-source-row';
-  defaultRow.style.cssText = 'display:flex; align-items:center; gap:6px; background:#222; border:1px solid #444; border-radius:4px; padding:8px 10px; margin-bottom:4px;';
+  defaultRow.style.cssText = 'display:flex; align-items:center; background:#222; border:1px solid #444; border-radius:4px; padding:8px 10px; margin-bottom:4px;';
 
   if (hasEnabledCustom) {
-    // Show a toggle — user can turn default off if a custom source is active
+    // Show clickable ON/OFF text — user can turn default off when a custom source is active
     defaultRow.innerHTML = `
       <div style="flex:1; min-width:0;">
         <div style="font-size:12px; font-weight:bold; color:#fff;">📁 presets.json</div>
         <div style="font-size:10px; color:#888;">Built-in library</div>
       </div>
-      <button id="toggle-default-source-btn" class="preset-source-action-btn"
-        style="background:${defaultOn ? '#4CAF50' : '#666'}; color:#fff;">
-        ${defaultOn ? 'ON' : 'OFF'}
-      </button>
+      <span id="toggle-default-source-btn" class="preset-source-text-action"
+        style="color:${defaultOn ? '#4CAF50' : '#666'};">${defaultOn ? 'ON' : 'OFF'}</span>
     `;
   } else {
-    // No active custom sources — default is locked ON
+    // No active custom sources — default locked ON, just show the text
     defaultRow.innerHTML = `
       <div style="flex:1; min-width:0;">
         <div style="font-size:12px; font-weight:bold; color:#fff;">📁 presets.json</div>
         <div style="font-size:10px; color:#888;">Built-in library — always active</div>
       </div>
-      <span style="font-size:10px; color:#4CAF50; font-weight:bold; flex-shrink:0; padding:0 2px;">ON</span>
+      <span class="preset-source-text-action" style="color:#4CAF50;">ON</span>
     `;
   }
   listEl.insertBefore(defaultRow, listEl.firstChild);
@@ -9753,29 +10803,28 @@ function renderCustomPresetSourcesList() {
     sources.forEach((source, index) => {
       const row = document.createElement('div');
       row.className = 'custom-source-row';
-      row.style.cssText = 'display:flex; align-items:center; gap:6px; background:#222; border:1px solid #444; border-radius:4px; padding:8px 10px; margin-top:6px;';
+      row.style.cssText = 'display:flex; align-items:center; background:#222; border:1px solid #444; border-radius:4px; padding:8px 10px; margin-top:6px;';
       row.innerHTML = `
         <div style="flex:1; min-width:0; overflow:hidden;">
           <div style="font-size:12px; font-weight:bold; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${source.name || 'Custom Source'}</div>
           <div style="font-size:10px; color:#888; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${source.url}</div>
         </div>
-        <button data-idx="${index}" class="toggle-source-btn preset-source-action-btn"
-          style="background:${source.enabled ? '#4CAF50' : '#666'}; color:#fff;">${source.enabled ? 'ON' : 'OFF'}</button>
-        <button data-idx="${index}" class="edit-source-btn preset-source-action-btn"
-          style="background:#1a5fa8; color:#fff;">EDIT</button>
-        <button data-idx="${index}" class="delete-source-btn preset-source-action-btn"
-          style="background:#8B0000; color:#fff;">✕</button>
+        <span data-idx="${index}" class="toggle-source-btn preset-source-text-action"
+          style="color:${source.enabled ? '#4CAF50' : '#666'};">${source.enabled ? 'ON' : 'OFF'}</span>
+        <span data-idx="${index}" class="edit-source-btn preset-source-text-action"
+          style="color:#888; margin-left:8px;">EDIT</span>
+        <span data-idx="${index}" class="delete-source-btn preset-source-text-action"
+          style="color:#cc3333; margin-left:20px;">DELETE</span>
       `;
       listEl.appendChild(row);
     });
 
-    listEl.querySelectorAll('.toggle-source-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const idx = parseInt(btn.dataset.idx);
+    listEl.querySelectorAll('.toggle-source-btn').forEach(el => {
+      el.addEventListener('click', () => {
+        const idx = parseInt(el.dataset.idx);
         const srcs = getCustomPresetSources();
         srcs[idx].enabled = !srcs[idx].enabled;
         saveCustomPresetSources(srcs);
-        // If no custom sources remain enabled and default is off, re-enable default
         if (!srcs.some(s => s.enabled) && !getDefaultPresetEnabled()) {
           saveDefaultPresetEnabled(true);
         }
@@ -9784,9 +10833,9 @@ function renderCustomPresetSourcesList() {
       });
     });
 
-    listEl.querySelectorAll('.edit-source-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const idx = parseInt(btn.dataset.idx);
+    listEl.querySelectorAll('.edit-source-btn').forEach(el => {
+      el.addEventListener('click', () => {
+        const idx = parseInt(el.dataset.idx);
         const srcs = getCustomPresetSources();
         const source = srcs[idx];
         const nameInput = document.getElementById('new-preset-source-name');
@@ -9798,7 +10847,6 @@ function renderCustomPresetSourcesList() {
         if (addBtn) { addBtn.textContent = 'Save Changes'; addBtn.style.background = '#1a5fa8'; }
         if (formLabel) formLabel.textContent = 'Edit Source';
         _editingSourceIndex = idx;
-        // Scroll the form into view
         const submenuList = document.querySelector('#preset-file-settings-submenu .submenu-list');
         if (submenuList) setTimeout(() => { submenuList.scrollTop = submenuList.scrollHeight; }, 50);
       });
@@ -9813,7 +10861,6 @@ function renderCustomPresetSourcesList() {
         if (confirmed) {
           srcs.splice(idx, 1);
           saveCustomPresetSources(srcs);
-          // If no custom sources remain enabled and default is off, re-enable default
           if (!srcs.some(s => s.enabled) && !getDefaultPresetEnabled()) {
             saveDefaultPresetEnabled(true);
           }
@@ -9841,6 +10888,53 @@ function updatePresetFileSettingsHint() {
   }
 }
 
+function renderPreviewGallery() {
+  const container = document.getElementById('preview-image-gallery');
+  if (!container) return;
+  const noMsg = document.getElementById('no-preview-images-msg');
+  const existingGrid = container.querySelector('.pv-img-grid');
+  if (existingGrid) existingGrid.remove();
+
+  if (!previewGalleryImages || previewGalleryImages.length === 0) {
+    if (noMsg) noMsg.style.display = 'block';
+    return;
+  }
+  if (noMsg) noMsg.style.display = 'none';
+
+  const grid = document.createElement('div');
+  grid.className = 'pv-img-grid';
+
+  previewGalleryImages.forEach(img => {
+    const cell = document.createElement('div');
+    cell.className = 'pv-img-cell';
+
+    const imgEl = document.createElement('img');
+    imgEl.src = img.imageBase64;
+    imgEl.loading = 'lazy';
+
+    const delBtn = document.createElement('div');
+    delBtn.className = 'pv-img-delete';
+    delBtn.textContent = '×';
+    const doDelete = async (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const confirmed = await customConfirm('Remove this preview image?', { yesText: 'Remove', danger: true });
+      if (!confirmed) return;
+      await deletePreviewImageFromDB(img.id);
+      previewGalleryImages = previewGalleryImages.filter(i => i.id !== img.id);
+      renderPreviewGallery();
+    };
+    delBtn.addEventListener('touchend', doDelete);
+    delBtn.addEventListener('mousedown', doDelete);
+
+    cell.appendChild(imgEl);
+    cell.appendChild(delBtn);
+    grid.appendChild(cell);
+  });
+
+  container.appendChild(grid);
+}
+
 function showPresetFileSettingsSubmenu() {
   document.getElementById('settings-submenu').style.display = 'none';
   const submenu = document.getElementById('preset-file-settings-submenu');
@@ -9850,6 +10944,42 @@ function showPresetFileSettingsSubmenu() {
   clearPresetSourceEditMode();
   renderCustomPresetSourcesList();
   updatePresetFileSettingsHint();
+
+  // Wire up tab switching (the _pfsTabWired flag prevents double-binding)
+  const tabSources   = document.getElementById('pfs-tab-sources');
+  const tabPreviews  = document.getElementById('pfs-tab-previews');
+  const panelSources  = document.getElementById('pfs-panel-sources');
+  const panelPreviews = document.getElementById('pfs-panel-previews');
+
+  if (tabSources && !tabSources._pfsTabWired) {
+    tabSources._pfsTabWired = true;
+    const activate = (e) => {
+      e.preventDefault();
+      tabSources.classList.add('active');    tabPreviews.classList.remove('active');
+      panelSources.classList.add('active');  panelPreviews.classList.remove('active');
+    };
+    tabSources.addEventListener('touchend', activate);
+    tabSources.addEventListener('mousedown', activate);
+  }
+
+  if (tabPreviews && !tabPreviews._pfsTabWired) {
+    tabPreviews._pfsTabWired = true;
+    const activate = (e) => {
+      e.preventDefault();
+      tabPreviews.classList.add('active');    tabSources.classList.remove('active');
+      panelPreviews.classList.add('active');  panelSources.classList.remove('active');
+      // Load and render the preview gallery whenever this tab is opened
+      loadPreviewGallery().then(() => renderPreviewGallery()).catch(() => renderPreviewGallery());
+    };
+    tabPreviews.addEventListener('touchend', activate);
+    tabPreviews.addEventListener('mousedown', activate);
+  }
+
+  // Always open on the Preset Sources tab
+  if (tabSources)   tabSources.classList.add('active');
+  if (tabPreviews)  tabPreviews.classList.remove('active');
+  if (panelSources)  panelSources.classList.add('active');
+  if (panelPreviews) panelPreviews.classList.remove('active');
 }
 
 function hidePresetFileSettingsSubmenu() {
@@ -10557,9 +11687,9 @@ function getFinalPrompt(preset, manualSelection = null) {
   
   // Add aspect ratio override at the very end
   if (selectedAspectRatio === '1:1') {
-    finalPrompt += '\n\nUse a square aspect ratio.';
+    finalPrompt += '\n\nOutput this image with a perfect 1:1 square aspect ratio. All content, subjects, and visual elements must be fully contained within the square frame. Do not add any borders, bars, or empty padding around the image. Nothing may extend beyond the square boundary.';
   } else if (selectedAspectRatio === '16:9') {
-    finalPrompt += '\n\nUse a square aspect ratio, but pad the image with black bars at top and bottom to simulate a 16:9 aspect ratio.';
+    finalPrompt += '\n\nOutput this image with a 16:9 widescreen aspect ratio by placing solid black bars at the top and bottom only. All image content, subjects, and visual elements must be fully contained within the central widescreen area between the black bars. No subject, object, or any visual element may overlap with, extend into, or appear within the black bar regions under any circumstances. The black bars must remain completely solid black with absolutely nothing visible within them.';
   }
   
   const trimmed = finalPrompt.trim();
@@ -11154,7 +12284,8 @@ async function deleteStyle() {
         // Mark factory preset as deleted
         await presetStorage.saveDeletion(presetName);
       } else {
-        // Remove user-created preset
+        // User-created preset: save to trash so it can be restored, then remove
+        saveToPresetTrash(CAMERA_PRESETS[editingStyleIndex]);
         await presetStorage.removeModification(presetName);
       }
       
@@ -13146,7 +14277,8 @@ async function saveEditedImage() {
   const newImageData = {
     id: Date.now().toString() + '-' + Math.random().toString(36).substr(2, 9),
     imageBase64: editedBase64,
-    timestamp: Date.now()
+    timestamp: Date.now(),
+    resolution: finalCanvas.width + 'x' + finalCanvas.height
   };
   
   // Add to gallery
@@ -13179,6 +14311,100 @@ function closeImageEditor() {
   document.getElementById('crop-button').classList.remove('active');
 }
 
+// ===== CSS FILTER FUNCTIONS (pure canvas — no API call needed) =====
+
+// Helper: commit the current canvas state as a new editorCurrentImage and re-render.
+// Called at the end of every filter function, identical to the pattern in autoCorrect/sharpenImage.
+function refreshEditorImage() {
+  var newImg = new Image();
+  newImg.onload = function() {
+    editorCurrentImage = newImg;
+    renderEditorImage();
+  };
+  newImg.src = editorCanvas.toDataURL('image/jpeg', 0.95);
+}
+
+// Vivid — boost saturation and add a touch of contrast
+function applyFilterVivid() {
+  saveToHistory();
+  var imageData = editorCtx.getImageData(0, 0, editorCanvas.width, editorCanvas.height);
+  var data = imageData.data;
+  for (var i = 0; i < data.length; i += 4) {
+    var r = data[i], g = data[i+1], b = data[i+2];
+    var gray = 0.2989*r + 0.5870*g + 0.1140*b;
+    var sat = 1.6;
+    r = gray + sat*(r-gray);
+    g = gray + sat*(g-gray);
+    b = gray + sat*(b-gray);
+    var con = 1.1;
+    r = ((r/255-0.5)*con+0.5)*255;
+    g = ((g/255-0.5)*con+0.5)*255;
+    b = ((b/255-0.5)*con+0.5)*255;
+    data[i]   = Math.max(0, Math.min(255, r));
+    data[i+1] = Math.max(0, Math.min(255, g));
+    data[i+2] = Math.max(0, Math.min(255, b));
+  }
+  editorCtx.putImageData(imageData, 0, 0);
+  refreshEditorImage();
+}
+
+// Warm — lift reds and yellows, pull back blues
+function applyFilterWarm() {
+  saveToHistory();
+  var imageData = editorCtx.getImageData(0, 0, editorCanvas.width, editorCanvas.height);
+  var data = imageData.data;
+  for (var i = 0; i < data.length; i += 4) {
+    data[i]   = Math.min(255, data[i]   + 30);
+    data[i+1] = Math.min(255, data[i+1] + 10);
+    data[i+2] = Math.max(0,   data[i+2] - 30);
+  }
+  editorCtx.putImageData(imageData, 0, 0);
+  refreshEditorImage();
+}
+
+// Cool — lift blues, pull back reds for a cold, clean look
+function applyFilterCool() {
+  saveToHistory();
+  var imageData = editorCtx.getImageData(0, 0, editorCanvas.width, editorCanvas.height);
+  var data = imageData.data;
+  for (var i = 0; i < data.length; i += 4) {
+    data[i]   = Math.max(0,   data[i]   - 20);
+    data[i+1] = Math.min(255, data[i+1] + 10);
+    data[i+2] = Math.min(255, data[i+2] + 30);
+  }
+  editorCtx.putImageData(imageData, 0, 0);
+  refreshEditorImage();
+}
+
+// B&W — convert to luminosity-weighted grayscale
+function applyFilterBW() {
+  saveToHistory();
+  var imageData = editorCtx.getImageData(0, 0, editorCanvas.width, editorCanvas.height);
+  var data = imageData.data;
+  for (var i = 0; i < data.length; i += 4) {
+    var gray = Math.round(0.2989*data[i] + 0.5870*data[i+1] + 0.1140*data[i+2]);
+    data[i] = data[i+1] = data[i+2] = gray;
+  }
+  editorCtx.putImageData(imageData, 0, 0);
+  refreshEditorImage();
+}
+
+// Fade — compress contrast toward middle gray for a matte, faded-film look
+function applyFilterFade() {
+  saveToHistory();
+  var imageData = editorCtx.getImageData(0, 0, editorCanvas.width, editorCanvas.height);
+  var data = imageData.data;
+  for (var i = 0; i < data.length; i += 4) {
+    data[i]   = Math.max(0, Math.min(255, data[i]   * 0.70 + 50));
+    data[i+1] = Math.max(0, Math.min(255, data[i+1] * 0.70 + 50));
+    data[i+2] = Math.max(0, Math.min(255, data[i+2] * 0.70 + 50));
+  }
+  editorCtx.putImageData(imageData, 0, 0);
+  refreshEditorImage();
+}
+
+// ===== END CSS FILTER FUNCTIONS =====
+
 // Event listeners for image editor
 document.getElementById('edit-viewer-image')?.addEventListener('click', openImageEditor);
 document.getElementById('close-image-editor')?.addEventListener('click', closeImageEditor);
@@ -13187,6 +14413,11 @@ document.getElementById('sharpen-button')?.addEventListener('click', sharpenImag
 document.getElementById('autocorrect-button')?.addEventListener('click', autoCorrect);
 document.getElementById('undo-edit-button')?.addEventListener('click', undoEdit);
 document.getElementById('save-edit-button')?.addEventListener('click', saveEditedImage);
+document.getElementById('filter-vivid-button')?.addEventListener('click', applyFilterVivid);
+document.getElementById('filter-warm-button')?.addEventListener('click', applyFilterWarm);
+document.getElementById('filter-cool-button')?.addEventListener('click', applyFilterCool);
+document.getElementById('filter-bw-button')?.addEventListener('click', applyFilterBW);
+document.getElementById('filter-fade-button')?.addEventListener('click', applyFilterFade);
 
 // Crop button toggles crop mode, then applies crop on second click
 let cropClickCount = 0;
@@ -13355,6 +14586,35 @@ document.addEventListener('touchend', () => {
   if (tutorialBtn) {
     tutorialBtn.addEventListener('click', showTutorialSubmenu);
   }
+
+  var restoreDeletedBtn = document.getElementById('restore-deleted-button');
+  if (restoreDeletedBtn) {
+    restoreDeletedBtn.addEventListener('click', showRestoreSubmenu);
+  }
+  var restoreDeletedBack = document.getElementById('restore-deleted-back');
+  if (restoreDeletedBack) {
+    restoreDeletedBack.addEventListener('click', hideRestoreSubmenu);
+  }
+  var restoreTabPresetsEl = document.getElementById('restore-tab-presets');
+  if (restoreTabPresetsEl) {
+    restoreTabPresetsEl.addEventListener('click', function() { switchRestoreTab('presets'); });
+  }
+  var restoreTabImagesEl = document.getElementById('restore-tab-images');
+  if (restoreTabImagesEl) {
+    restoreTabImagesEl.addEventListener('click', function() { switchRestoreTab('images'); });
+  }
+  var restoreSelectAllEl = document.getElementById('restore-select-all-btn');
+  if (restoreSelectAllEl) {
+    restoreSelectAllEl.addEventListener('click', restoreSelectAll);
+  }
+  var restoreRestoreEl = document.getElementById('restore-restore-btn');
+  if (restoreRestoreEl) {
+    restoreRestoreEl.addEventListener('click', restoreSelected);
+  }
+  var restoreDeleteEl = document.getElementById('restore-delete-btn');
+  if (restoreDeleteEl) {
+    restoreDeleteEl.addEventListener('click', permanentlyDeleteSelected);
+  }
   
   const tutorialBackBtn = document.getElementById('tutorial-back');
   if (tutorialBackBtn) {
@@ -13432,6 +14692,20 @@ const result = await presetImporter.import();
     presetFileSettingsBackBtn.addEventListener('click', hidePresetFileSettingsSubmenu);
   }
 
+  const importPresetSourceQRBtn = document.getElementById('import-preset-source-qr-btn');
+  if (importPresetSourceQRBtn) {
+    importPresetSourceQRBtn.addEventListener('click', () => {
+      openPresetSourceQRScanner();
+    });
+  }
+
+  const importPreviewImageQRBtn = document.getElementById('import-preview-image-qr-btn');
+  if (importPreviewImageQRBtn) {
+    importPreviewImageQRBtn.addEventListener('click', () => {
+      openPreviewImageQRScanner();
+    });
+  }
+
   const addPresetSourceBtn = document.getElementById('add-preset-source-btn');
   if (addPresetSourceBtn) {
     addPresetSourceBtn.addEventListener('click', async () => {
@@ -13459,7 +14733,7 @@ const result = await presetImporter.import();
         clearPresetSourceEditMode();
         renderCustomPresetSourcesList();
         updatePresetFileSettingsHint();
-        await customAlert('Source updated!');
+        await customAlert('Source updated. Open Import Presets to load from it.');
       } else {
         // ---- ADD NEW MODE ----
         if (srcs.some(s => s.url === url)) {
@@ -13472,8 +14746,37 @@ const result = await presetImporter.import();
         urlInput.value = '';
         renderCustomPresetSourcesList();
         updatePresetFileSettingsHint();
-        await customAlert('Source added! It will be included next time you tap Import Presets.');
+        await customAlert('Source saved. Open Import Presets to load from it. If the source fails to load, you will see a message there.');
       }
+    });
+  }
+
+  // Convert GitHub to Raw button
+  const convertGithubUrlBtn = document.getElementById('convert-github-url-btn');
+  if (convertGithubUrlBtn) {
+    convertGithubUrlBtn.addEventListener('click', async () => {
+      const urlInput = document.getElementById('new-preset-source-url');
+      const url = (urlInput.value || '').trim();
+
+      if (!url) {
+        await customAlert('Enter a URL in the field above first.');
+        return;
+      }
+      if (url.includes('raw.githubusercontent.com')) {
+        await customAlert('This URL is already in raw GitHub format. No conversion needed.');
+        return;
+      }
+      if (!url.includes('github.com')) {
+        await customAlert('This is not a GitHub URL. No conversion needed.');
+        return;
+      }
+      // Convert github.com web UI URL to raw.githubusercontent.com content URL
+      const rawUrl = url
+        .replace(/^https?:\/\/(www\.)?github\.com\//, 'https://raw.githubusercontent.com/')
+        .replace('/tree/', '/')
+        .replace('/blob/', '/');
+      urlInput.value = rawUrl;
+      await customAlert(`Converted to raw format:\n${rawUrl}`);
     });
   }
 
@@ -13849,6 +15152,7 @@ const result = await presetImporter.import();
   const galleryImportBtn = document.getElementById('gallery-import-button');
   if (galleryImportBtn) {
     galleryImportBtn.addEventListener('click', () => {
+      qrScannerMode = 'gallery';
       openQRScannerModal();
     });
   }
@@ -14594,6 +15898,176 @@ function closeQrModal() {
 }
 
 // Open QR Scanner Modal
+function openPresetSourceQRScanner() {
+  qrScannerMode = 'preset-source';
+  const titleEl = document.querySelector('#qr-scanner-modal .qr-scanner-header h4');
+  if (titleEl) titleEl.textContent = 'Scan QR Code — Preset JSON Source';
+  openQRScannerModal();
+}
+
+function openPreviewImageQRScanner() {
+  qrScannerMode = 'preview-image';
+  const titleEl = document.querySelector('#qr-scanner-modal .qr-scanner-header h4');
+  if (titleEl) titleEl.textContent = 'Scan QR Code — Preview Image';
+  openQRScannerModal();
+}
+
+async function importPreviewImageFromQR(url) {
+  // Reset scanner mode back to default
+  qrScannerMode = 'gallery';
+  const titleEl = document.querySelector('#qr-scanner-modal .qr-scanner-header h4');
+  if (titleEl) titleEl.textContent = 'Scan QR Code to Import';
+
+  closeQRScannerModal();
+  if (!url || !url.trim()) return;
+
+  showLoadingOverlay('Downloading preview image...');
+  try {
+    const imageUrl = url.trim();
+    const proxies = [
+      '',
+      'https://wsrv.nl/?url=',
+      'https://corsproxy.io/?',
+      'https://api.allorigins.win/raw?url=',
+      'https://api.codetabs.com/v1/proxy?quest='
+    ];
+
+    let response = null;
+    for (let i = 0; i < proxies.length; i++) {
+      try {
+        const fetchUrl = proxies[i] ? proxies[i] + encodeURIComponent(imageUrl) : imageUrl;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 20000);
+        const res = await fetch(fetchUrl, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (res.ok) { response = res; break; }
+      } catch (e) { continue; }
+    }
+
+    if (!response || !response.ok) throw new Error('All download methods failed. Check the URL and try again.');
+
+    let blob = await response.blob();
+    const isImageType = blob.type.startsWith('image/');
+    const isOctetStream = blob.type === 'application/octet-stream' || blob.type === '';
+    if (blob.type && !isImageType && !isOctetStream) throw new Error('Not an image file: ' + blob.type);
+
+    // Resize to a reasonable preview size
+    blob = await resizeAndCompressImage(blob, 800, 800, 0.85);
+
+    const base64Data = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error('FileReader error'));
+      reader.readAsDataURL(blob);
+    });
+
+    hideLoadingOverlay();
+
+    const imageData = {
+      id: Date.now().toString() + '-' + Math.random().toString(36).substr(2, 9),
+      imageBase64: base64Data,
+      timestamp: Date.now()
+    };
+
+    await savePreviewImageToDB(imageData);
+    previewGalleryImages.unshift(imageData);
+    renderPreviewGallery();
+
+    const hintEl = document.getElementById('preview-image-import-hint');
+    if (hintEl) {
+      hintEl.textContent = '✓ Preview image imported successfully!';
+      hintEl.style.display = 'block';
+      setTimeout(() => { hintEl.style.display = 'none'; }, 4000);
+    }
+
+  } catch (err) {
+    hideLoadingOverlay();
+    await customAlert('Failed to import preview image: ' + err.message);
+  }
+}
+
+async function importPresetSourceFromQR(url) {
+  // Reset modal title back to gallery default for future use
+  qrScannerMode = 'gallery';
+  const titleEl = document.querySelector('#qr-scanner-modal .qr-scanner-header h4');
+  if (titleEl) titleEl.textContent = 'Scan QR Code to Import';
+
+  closeQRScannerModal();
+
+  if (!url || !url.trim()) return;
+
+  // Immediately fetch and validate the scanned URL before doing anything else
+  showLoadingOverlay('Validating preset source...');
+  try {
+    const response = await fetch(url.trim());
+    if (!response.ok) {
+      hideLoadingOverlay();
+      await customAlert('Could not reach the scanned URL. Make sure the file is publicly accessible and try again.');
+      return;
+    }
+
+    let data;
+    try {
+      data = await response.json();
+    } catch (parseErr) {
+      hideLoadingOverlay();
+      await customAlert('The scanned URL does not point to a valid JSON file. Only JSON preset files may be added as sources.');
+      return;
+    }
+
+    if (!Array.isArray(data) || data.length === 0) {
+      hideLoadingOverlay();
+      await customAlert('The scanned file is not a valid preset source. It must be a JSON array containing at least one preset.');
+      return;
+    }
+
+    const validPresets = data.filter(p => p.name && p.message);
+    if (validPresets.length === 0) {
+      hideLoadingOverlay();
+      await customAlert('The scanned JSON file does not contain any valid presets. Each preset must have at least a name and a message field.');
+      return;
+    }
+
+    hideLoadingOverlay();
+
+    // Validation passed — derive a display name from the filename in the URL
+    let derivedName = '';
+    try {
+      const parts = url.split('/');
+      const filename = parts[parts.length - 1];
+      derivedName = filename
+        .replace(/\.json$/i, '')
+        .replace(/[-_]/g, ' ')
+        .trim()
+        .split(' ')
+        .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ');
+    } catch (e) {}
+
+    // Populate the existing Add Custom Source form inputs
+    const nameInput = document.getElementById('new-preset-source-name');
+    const urlInput  = document.getElementById('new-preset-source-url');
+    if (nameInput) nameInput.value = derivedName || 'Custom Presets';
+    if (urlInput)  urlInput.value  = url.trim();
+
+    // Scroll the submenu list down so the form is visible
+    const submenuList = document.querySelector('#preset-file-settings-submenu .submenu-list');
+    if (submenuList) setTimeout(() => { submenuList.scrollTop = submenuList.scrollHeight; }, 100);
+
+    // Show the inline hint confirming the scan and validation
+    const hintEl = document.getElementById('preset-source-qr-hint');
+    if (hintEl) {
+      hintEl.textContent = `✓ Valid preset source confirmed — ${validPresets.length} preset${validPresets.length !== 1 ? 's' : ''} found. Edit the name if needed, then tap + Add Source.`;
+      hintEl.style.display = 'block';
+      setTimeout(() => { hintEl.style.display = 'none'; }, 8000);
+    }
+
+  } catch (err) {
+    hideLoadingOverlay();
+    await customAlert('Failed to validate the scanned URL: ' + err.message);
+  }
+}
+
 function openQRScannerModal() {
   const scannerModal = document.getElementById('qr-scanner-modal');
   const scannerVideo = document.getElementById('qr-scanner-video');
@@ -14786,7 +16260,17 @@ function detectQRCode() {
         
         // Auto-import when QR code is detected
         setTimeout(() => {
-          importFromQRCode();
+          if (qrScannerMode === 'preset-source') {
+            const scannedUrl = lastDetectedQR;
+            lastDetectedQR = null;
+            importPresetSourceFromQR(scannedUrl);
+          } else if (qrScannerMode === 'preview-image') {
+            const scannedUrl = lastDetectedQR;
+            lastDetectedQR = null;
+            importPreviewImageFromQR(scannedUrl);
+          } else {
+            importFromQRCode();
+          }
         }, 500);
       }
     } else {
@@ -15382,6 +16866,7 @@ console.log('AI Camera Styles app initialized!');
 
   document.addEventListener('touchend', (e) => {
     if (!isOnMainCameraScreen()) return;
+    if (window._carouselGuardUntil && Date.now() < window._carouselGuardUntil) return;
     if (e.changedTouches.length !== 1) return;
 
     const s = window._camBtnSettings;

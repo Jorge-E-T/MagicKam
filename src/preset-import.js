@@ -24,6 +24,10 @@ const IMPORT_STORE_NAME = 'imported_presets';
 const CUSTOM_PRESET_SOURCES_KEY = 'mk_custom_preset_sources';
 const DEFAULT_PRESET_ENABLED_KEY = 'mk_default_preset_enabled';
 
+// Tracks any sources that failed during the most recent loadPresetsFromFile() call
+let _lastLoadFailures = [];
+export function getLastLoadFailures() { return [..._lastLoadFailures]; }
+
 export function getCustomPresetSources() {
   try {
     const raw = localStorage.getItem(CUSTOM_PRESET_SOURCES_KEY);
@@ -309,6 +313,7 @@ export class PresetImporter {
       }
 
       // --- Load custom sources (user-added) ---
+      _lastLoadFailures = [];
       const customSources = getCustomPresetSources();
       for (const source of customSources) {
         if (!source.enabled) continue;
@@ -316,30 +321,40 @@ export class PresetImporter {
           const resp = await fetch(source.url);
           if (!resp.ok) {
             console.warn(`Custom preset source "${source.name}" returned ${resp.status}`);
+            _lastLoadFailures.push({ name: source.name, reason: `Server returned error ${resp.status}. Check the URL is correct.` });
             continue;
           }
-          const customPresets = await resp.json();
+          let customPresets;
+          try {
+            customPresets = await resp.json();
+          } catch (jsonErr) {
+            console.warn(`Custom preset source "${source.name}" is not valid JSON`);
+            _lastLoadFailures.push({ name: source.name, reason: 'File is not valid JSON. Make sure you are using the Raw file URL from GitHub.' });
+            continue;
+          }
           if (!Array.isArray(customPresets)) {
             console.warn(`Custom preset source "${source.name}" did not return an array`);
+            _lastLoadFailures.push({ name: source.name, reason: 'File is not a preset array. It must contain a JSON array of preset objects.' });
             continue;
           }
-          // Derive the folder that sits next to this source's presets.json
-          // e.g. https://raw.githubusercontent.com/user/repo/main/presets.json
-          //   -> https://raw.githubusercontent.com/user/repo/main/public/
+          const validPresets = customPresets.filter(p => p.name && Array.isArray(p.category));
+          if (validPresets.length === 0) {
+            console.warn(`Custom preset source "${source.name}" had no valid presets`);
+            _lastLoadFailures.push({ name: source.name, reason: 'No valid presets found. Each preset must have a name and a category field.' });
+            continue;
+          }
+          // Derive the public folder sitting next to this source's JSON file
           const sourcePublicBase = source.url.substring(0, source.url.lastIndexOf('/') + 1) + 'public/';
 
-          customPresets
-            .filter(p => p.name && Array.isArray(p.category))
-            .forEach(p => {
-              if (!seenNames.has(p.name)) {
-                seenNames.add(p.name);
-                // Only tag with _sourcePublicBase if the preset doesn't already
-                // supply its own explicit imageUrl
-                allPresets.push(p.imageUrl ? p : { ...p, _sourcePublicBase: sourcePublicBase });
-              }
-            });
+          validPresets.forEach(p => {
+            if (!seenNames.has(p.name)) {
+              seenNames.add(p.name);
+              allPresets.push(p.imageUrl ? p : { ...p, _sourcePublicBase: sourcePublicBase });
+            }
+          });
         } catch (e) {
           console.warn(`Failed to load custom preset source "${source.name}":`, e);
+          _lastLoadFailures.push({ name: source.name, reason: 'Could not be reached. Check your connection and verify the URL is public.' });
         }
       }
 
@@ -520,6 +535,16 @@ export class PresetImporter {
         </div>
         <div id="import-lock-message" style="display:none; background:#8B0000; color:#fff; font-size:11px; padding:5px 10px; margin-top:3px; border-radius:3px; text-align:center;"></div>
       `;
+
+      // Warning banner for any sources that failed to load — shown at top of scroll area
+      const loadFailures = getLastLoadFailures();
+      if (loadFailures.length > 0) {
+        const warningBanner = document.createElement('div');
+        warningBanner.style.cssText = 'background:#5a2d00; border:1px solid #FE5F00; border-radius:4px; padding:8px 12px; margin:6px 0 4px 0; font-size:11px; color:#fff; line-height:1.6;';
+        const failLines = loadFailures.map(f => `• <strong>${f.name}</strong>: ${f.reason}`).join('<br>');
+        warningBanner.innerHTML = `⚠️ <strong>Could not load:</strong><br>${failLines}`;
+        scrollContainer.appendChild(warningBanner);
+      }
 
       // Helper to show a message inside the import modal (avoids z-index conflicts)
       let lockMessageTimer = null;
@@ -1181,10 +1206,14 @@ footerSection.innerHTML = `
 
   async import() {
     try {
+      // Always force a fresh fetch so the latest active sources are fully reflected
+      window._cachedFactoryPresets = null;
       const availablePresets = await this.loadPresetsFromFile();
-      
+
+      // Load failures are shown as a banner inside the import modal below
+
       if (availablePresets.length === 0) {
-        return { success: false, message: 'No presets found in presets.json' };
+        return { success: false, message: 'No presets found in any active source.' };
       }
 
       const selectedPresets = await this.showPresetSelectionUI(availablePresets);
