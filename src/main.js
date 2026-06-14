@@ -212,8 +212,12 @@ const TIMER_REPEAT_INTERVALS = {
 // Master Prompt settings
 let masterPromptText = '';
 let masterPromptEnabled = false;
+let masterPromptSlots = [];
+let mpRemoveMode = false;
 const MASTER_PROMPT_STORAGE_KEY = 'r1_camera_master_prompt';
 const MASTER_PROMPT_ENABLED_KEY = 'r1_camera_master_prompt_enabled';
+const MP_SLOTS_STORAGE_KEY = 'r1_camera_mp_slots';
+const DELETED_MP_TRASH_KEY = 'r1_deleted_mp_trash';
 const ASPECT_RATIO_STORAGE_KEY = 'r1_camera_aspect_ratio';
 let selectedAspectRatio = 'none'; // 'none', '1:1', or '16:9'
 
@@ -683,9 +687,9 @@ function attachPresetLongPress(item, preset) {
     _timer = setTimeout(() => showPresetImagePreview(preset), LONG_PRESS_MS);
   }, { passive: true });
 
-  item.addEventListener('touchend', () => { clearTimeout(_timer); _timer = null; });
-  item.addEventListener('touchmove', () => { clearTimeout(_timer); _timer = null; });
-  item.addEventListener('touchcancel', () => { clearTimeout(_timer); _timer = null; });
+  item.addEventListener('touchend',   () => { clearTimeout(_timer); _timer = null; }, { passive: true });
+  item.addEventListener('touchmove',  () => { clearTimeout(_timer); _timer = null; }, { passive: true });
+  item.addEventListener('touchcancel',() => { clearTimeout(_timer); _timer = null; }, { passive: true });
 
   item.addEventListener('mousedown', () => {
     _timer = setTimeout(() => showPresetImagePreview(preset), LONG_PRESS_MS);
@@ -1726,6 +1730,20 @@ async function hideGallery() {
   document.getElementById('gallery-modal').style.display = 'none';
   window._carouselGuardUntil = Infinity;
   currentGalleryPage = 1;
+  currentFolderView = null;
+
+  // Reset select mode so re-entering the gallery always starts fresh
+  if (isBatchMode) {
+    isBatchMode = false;
+    selectedBatchImages.clear();
+    const toggleBtn = document.getElementById('batch-mode-toggle');
+    const batchControls = document.getElementById('batch-controls');
+    const batchActionBar = document.getElementById('batch-action-bar');
+    if (toggleBtn) { toggleBtn.textContent = 'Select'; toggleBtn.classList.remove('active'); }
+    if (batchControls) batchControls.style.display = 'none';
+    if (batchActionBar) batchActionBar.style.display = 'none';
+  }
+
   await reinitializeCamera(); // Re-initialize fully so camera switch works after gallery
   window._carouselGuardUntil = 0;
   if (window._showCamCarousels) window._showCamCarousels();
@@ -2031,7 +2049,7 @@ function updatePresetSelection() {
     currentItem.classList.add('preset-selected');
     
     // Scroll item into view
-    currentItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    currentItem.scrollIntoView({ behavior: window._alphaLongPressActive ? 'instant' : 'smooth', block: 'nearest' });
     
     // Show category hint with individually clickable categories
     const presetName = currentItem.querySelector('.preset-name').textContent;
@@ -2205,23 +2223,13 @@ function scrollTimerDown() {
 }
 
 function scrollMasterPromptUp() {
-  const submenu = document.getElementById('master-prompt-submenu');
-  if (!submenu || submenu.style.display !== 'flex') return;
-  
-  const container = submenu.querySelector('.submenu-list');
-  if (container) {
-    container.scrollTop = Math.max(0, container.scrollTop - 80);
-  }
+  const container = document.getElementById('mp-slots-container');
+  if (container) container.scrollTop = Math.max(0, container.scrollTop - 80);
 }
 
 function scrollMasterPromptDown() {
-  const submenu = document.getElementById('master-prompt-submenu');
-  if (!submenu || submenu.style.display !== 'flex') return;
-  
-  const container = submenu.querySelector('.submenu-list');
-  if (container) {
-    container.scrollTop = Math.min(container.scrollHeight - container.clientHeight, container.scrollTop + 80);
-  }
+  const container = document.getElementById('mp-slots-container');
+  if (container) container.scrollTop = Math.min(container.scrollHeight - container.clientHeight, container.scrollTop + 80);
 }
 
 function scrollMotionUp() {
@@ -2525,10 +2533,11 @@ function populatePresetList() {
   const list = document.getElementById('preset-list');
   list.innerHTML = '';
   
+  const _presetSearchText = presetFilterText ? stripAccents(presetFilterText.toLowerCase()) : '';
   const filtered = getVisiblePresets().filter(preset => {
     // First apply text search filter
-    if (presetFilterText) {
-      const searchText = stripAccents(presetFilterText.toLowerCase());
+    if (_presetSearchText) {
+      const searchText = _presetSearchText;
       const categoryMatch = preset.category && preset.category.some(cat => stripAccents(cat.toLowerCase()).includes(searchText));
       const optionsMatch = (
         (preset.options && preset.options.some(o => o.text && stripAccents(o.text.toLowerCase()).includes(searchText))) ||
@@ -3062,6 +3071,28 @@ async function processBatchImages(preset, imagesToProcess) {
   toggleBatchMode();
   
   alert(`Batch processing complete! ${processed} of ${total} images submitted.`);
+}
+
+async function reencodeImageVariant(base64, index) {
+  // Produces microscopically different JPEG bytes for each index
+  // while keeping the image visually identical.
+  // This prevents the backend from fingerprinting repeated identical submissions.
+  if (index === 0) return base64;
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      // Each index uses a slightly different quality — visually imperceptible
+      const quality = Math.max(0.80, 0.92 - (index * 0.002));
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => resolve(base64);
+    img.src = base64;
+  });
 }
 
 // Resize a base64 image to fit within 2048px wide while maintaining 3:4 aspect ratio
@@ -3974,15 +4005,20 @@ async function applyMultiplePresets() {
   
   const resizedImageBase64 = await resizeImageForSubmission(image.imageBase64);
 
+  let presetIndex = 0;
   for (const preset of presetsToApply) {
     try {
       const manualSelection = galleryMultiManualSelections[preset.name] ?? null;
       const finalPrompt = getFinalPrompt(preset, manualSelection);
-      
+
+      // Use a unique image encoding per submission to avoid duplicate-fingerprint filtering
+      const variantImage = await reencodeImageVariant(resizedImageBase64, presetIndex);
+      presetIndex++;
+
       if (typeof PluginMessageHandler !== 'undefined') {
         const multiPayload = {
           pluginId: 'com.r1.pixelart',
-          imageBase64: resizedImageBase64
+          imageBase64: variantImage
         };
         if (finalPrompt && finalPrompt.trim()) {
           multiPayload.message = finalPrompt;
@@ -3994,7 +4030,7 @@ async function applyMultiplePresets() {
       document.getElementById('batch-current').textContent = processed;
       document.getElementById('batch-progress-fill').style.width = `${(processed / presetsToApply.length) * 100}%`;
       
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise(resolve => setTimeout(resolve, 6000));
     } catch (error) {
       console.error(`Failed to apply preset ${preset.name}:`, error);
     }
@@ -4311,23 +4347,24 @@ function selectCurrentMenuItem() {
 
 // Load saved styles
 async function loadStyles() {
-    // Initialize IndexedDB storage
-    await presetStorage.init();
-    await presetImporter.init();
+    // Initialize IndexedDB storage — run both at the same time instead of one after the other
+    await Promise.all([presetStorage.init(), presetImporter.init()]);
     
-    // Check if this is truly a first-time user
-    const importedPresets = await presetImporter.loadImportedPresets();
+    // Load imported presets and modifications at the same time instead of one after the other
+    const [importedPresets, modifications] = await Promise.all([
+        presetImporter.loadImportedPresets(),
+        presetStorage.getAllModifications()
+    ]);
     const hasImports = importedPresets.length > 0;
-    
-    // Check if there are any user modifications
-    const modifications = await presetStorage.getAllModifications();
     const hasModifications = modifications.length > 0;
     
     // Always fetch the real preset count so the tutorial display is always correct
+    // Save the result so we can reuse it later without downloading the file again
+    let _cachedFactoryPresets = null;
     try {
         showLoadingOverlay('Loading presets...');
-        const allFactoryPresets = await presetImporter.loadPresetsFromFile();
-        totalFactoryPresetCount = allFactoryPresets.length;
+        _cachedFactoryPresets = await presetImporter.loadPresetsFromFile();
+        totalFactoryPresetCount = _cachedFactoryPresets.length;
         const tutorialCountEl = document.getElementById('tutorial-preset-count');
         if (tutorialCountEl) tutorialCountEl.textContent = totalFactoryPresetCount;
     } catch (e) {
@@ -4443,17 +4480,15 @@ async function loadStyles() {
     // Update the display to show correct count on startup
     updateVisiblePresetsDisplay();
 
-    // Check for updates after loading
-    setTimeout(() => {
-        checkForPresetsUpdates();
-    }, 1000);
+    // Check for updates immediately — store as a promise the camera can wait for
+    window._presetsUpdateCheckPromise = checkForPresetsUpdates(_cachedFactoryPresets);
 }
 
 // Check for updates on startup
 
-async function checkForPresetsUpdates() {
+async function checkForPresetsUpdates(preloadedPresets) {
   try {
-    const jsonPresets = await presetImporter.loadPresetsFromFile();
+    const jsonPresets = preloadedPresets || await presetImporter.loadPresetsFromFile();
     const importedPresets = presetImporter.getImportedPresets();
 
     if (importedPresets.length === 0) return;
@@ -5180,15 +5215,20 @@ function switchRestoreTab(tab) {
   currentRestoreIndex = 0;
   document.getElementById('restore-tab-presets').classList.toggle('active', tab === 'presets');
   document.getElementById('restore-tab-images').classList.toggle('active', tab === 'images');
+  document.getElementById('restore-tab-mp').classList.toggle('active', tab === 'mp');
   document.getElementById('restore-panel-presets').style.display = tab === 'presets' ? 'block' : 'none';
   document.getElementById('restore-panel-images').style.display  = tab === 'images'  ? 'block' : 'none';
+  document.getElementById('restore-panel-mp').style.display      = tab === 'mp'      ? 'block' : 'none';
   if (tab === 'presets') {
     populateDeletedPresetsList();
     setTimeout(updateRestoreSelection, 50);
-  } else {
+  } else if (tab === 'images') {
     populateDeletedImagesList().then(function() {
       setTimeout(updateRestoreSelection, 50);
     });
+  } else {
+    populateDeletedMpList();
+    setTimeout(updateRestoreSelection, 50);
   }
 }
 
@@ -5251,8 +5291,10 @@ async function populateDeletedImagesList() {
 function getRestoreItems() {
   if (restoreActiveTab === 'presets') {
     return Array.from(document.querySelectorAll('#restore-presets-list .restore-preset-item'));
-  } else {
+  } else if (restoreActiveTab === 'images') {
     return Array.from(document.querySelectorAll('#restore-images-grid .restore-image-item'));
+  } else {
+    return Array.from(document.querySelectorAll('#restore-mp-list .restore-preset-item'));
   }
 }
 
@@ -5335,7 +5377,7 @@ async function restoreSelected() {
     populateDeletedPresetsList();
     setTimeout(updateRestoreSelection, 50);
     await customAlert('Preset(s) restored successfully!');
-  } else {
+  } else if (restoreActiveTab === 'images') {
     var grid = document.getElementById('restore-images-grid');
     var checked = Array.from(grid.querySelectorAll('input[type="checkbox"]:checked'));
     if (checked.length === 0) { await customAlert('No images selected.'); return; }
@@ -5346,6 +5388,25 @@ async function restoreSelected() {
     await populateDeletedImagesList();
     setTimeout(updateRestoreSelection, 50);
     await customAlert('Image(s) restored successfully!');
+  } else {
+    var mpList = document.getElementById('restore-mp-list');
+    var checked = Array.from(mpList.querySelectorAll('input[type="checkbox"]:checked'));
+    if (checked.length === 0) { await customAlert('No master prompts selected.'); return; }
+    if (!await customConfirm('Restore ' + checked.length + ' master prompt(s)?')) return;
+    var trash = getMpTrash();
+    checked.forEach(cb => {
+      var slot = trash.find(s => s.id === cb.dataset.id);
+      if (!slot) return;
+      var restored = Object.assign({}, slot);
+      delete restored.deletedAt;
+      masterPromptSlots.push(restored);
+      removeFromMpTrash(slot.id);
+    });
+    saveMasterPrompt();
+    updateMasterPromptDisplay();
+    populateDeletedMpList();
+    setTimeout(updateRestoreSelection, 50);
+    await customAlert('Master prompt(s) restored successfully!');
   }
 }
 
@@ -5359,7 +5420,7 @@ async function permanentlyDeleteSelected() {
     populateDeletedPresetsList();
     setTimeout(updateRestoreSelection, 50);
     await customAlert('Preset(s) permanently deleted.');
-  } else {
+  } else if (restoreActiveTab === 'images') {
     var grid = document.getElementById('restore-images-grid');
     var checked = Array.from(grid.querySelectorAll('input[type="checkbox"]:checked'));
     if (checked.length === 0) { await customAlert('No images selected.'); return; }
@@ -5370,6 +5431,15 @@ async function permanentlyDeleteSelected() {
     await populateDeletedImagesList();
     setTimeout(updateRestoreSelection, 50);
     await customAlert('Image(s) permanently deleted.');
+  } else {
+    var mpList = document.getElementById('restore-mp-list');
+    var checked = Array.from(mpList.querySelectorAll('input[type="checkbox"]:checked'));
+    if (checked.length === 0) { await customAlert('No master prompts selected.'); return; }
+    if (!await customConfirm('Permanently delete ' + checked.length + ' master prompt(s)? This cannot be undone.', { danger: true, yesText: 'Delete', noText: 'Cancel' })) return;
+    checked.forEach(cb => removeFromMpTrash(cb.dataset.id));
+    populateDeletedMpList();
+    setTimeout(updateRestoreSelection, 50);
+    await customAlert('Master prompt(s) permanently deleted.');
   }
 }
 
@@ -6355,10 +6425,11 @@ const allPresets = CAMERA_PRESETS.filter(p => {
   
   return isImported || isCustom;
 });
+  const _visibleSearchText = visiblePresetsFilterText ? stripAccents(visiblePresetsFilterText.toLowerCase()) : '';
   const filtered = allPresets.filter(preset => {
     // First apply text search filter
-    if (visiblePresetsFilterText) {
-      const searchText = stripAccents(visiblePresetsFilterText.toLowerCase());
+    if (_visibleSearchText) {
+      const searchText = _visibleSearchText;
       const categoryMatch = preset.category && preset.category.some(cat => stripAccents(cat.toLowerCase()).includes(searchText));
       const textMatch = stripAccents(preset.name.toLowerCase()).includes(searchText) || categoryMatch;
       if (!textMatch) return false;
@@ -6839,8 +6910,11 @@ function buildCombinedLayerPrompt(layerPresets, manualSelections = {}) {
   });
 
   // 6. Master prompt override (if enabled)
-  if (masterPromptEnabled && masterPromptText.trim()) {
-    finalPrompt += `\n\nOVERRIDE INSTRUCTIONS (these take priority over everything above - apply exactly as specified):\n${masterPromptText}`;
+  if (masterPromptEnabled) {
+    const activeTexts = masterPromptSlots.filter(s => s.active && s.text.trim()).map(s => s.text.trim());
+    if (activeTexts.length > 0) {
+      finalPrompt += `\n\nOVERRIDE INSTRUCTIONS (these take priority over everything above - apply exactly as specified):\n${activeTexts.join('\n')}`;
+    }
   }
 
   // 7. Aspect ratio
@@ -7253,7 +7327,7 @@ async function showManualOptionsModal(preset, sections) {
     
     presetNameEl.textContent = preset.name;
     list.innerHTML = '';
-    
+       
     sections.forEach((section, sectionIndex) => {
       // Section header
       const header = document.createElement('div');
@@ -7329,7 +7403,10 @@ async function showManualOptionsModal(preset, sections) {
       if (idx >= allRadios.length) idx = allRadios.length - 1;
       _navIdx = idx;
       allRadios[idx].checked = true;
-      allRadios[idx].closest('.style-item')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      allRadios[idx].closest('.style-item')?.scrollIntoView({
+        block: 'nearest',
+        behavior: window._alphaLongPressActive ? 'instant' : 'smooth'
+      });
     };
 
     // Keep _navIdx in sync when user taps an option directly
@@ -7342,8 +7419,21 @@ async function showManualOptionsModal(preset, sections) {
     let _downClickTimer = null;
     const DBLCLICK_MS = 280;
 
-    const navUpBtn  = document.getElementById('manual-options-nav-up');
-    const navDownBtn = document.getElementById('manual-options-nav-down');
+    // Use let so we can reassign after cloning
+    let navUpBtn  = document.getElementById('manual-options-nav-up');
+    let navDownBtn = document.getElementById('manual-options-nav-down');
+
+    // Clone buttons to strip any accumulated long-press listeners from prior invocations
+    if (navUpBtn) {
+      const f = navUpBtn.cloneNode(true);
+      navUpBtn.parentNode.replaceChild(f, navUpBtn);
+      navUpBtn = f;
+    }
+    if (navDownBtn) {
+      const f = navDownBtn.cloneNode(true);
+      navDownBtn.parentNode.replaceChild(f, navDownBtn);
+      navDownBtn = f;
+    }
 
     const handleNavUp = () => {
       if (_upClickTimer) {
@@ -7377,9 +7467,19 @@ async function showManualOptionsModal(preset, sections) {
 
     if (navUpBtn)   navUpBtn.onclick   = handleNavUp;
     if (navDownBtn) navDownBtn.onclick = handleNavDown;
+
+    // Long press: continuously step through options one at a time, crossing section boundaries naturally
+    if (window._addAlphaLongPress) {
+      window._addAlphaLongPress(navUpBtn,   () => navToIndex(_navIdx - 1));
+      window._addAlphaLongPress(navDownBtn, () => navToIndex(_navIdx + 1));
+    }
     
     modal.style.display = 'flex';
     manualOptionsModalVisible = true;
+    requestAnimationFrame(() => {
+        const _optScrollContainer = document.querySelector('#manual-options-modal .styles-menu-scroll-container');
+        if (_optScrollContainer) _optScrollContainer.scrollTop = 0;
+    });
 
     const closeBtn = document.getElementById('close-manual-options');
     const cancelBtn = document.getElementById('cancel-manual-options');
@@ -7783,17 +7883,17 @@ const TOUR_STEPS = [
   { section: 'Image Editor', title: '✂️ Crop Tool', body: 'Tap Crop to activate. Two orange corner markers appear. Drag them to frame your desired area. Tap Crop again to apply.' },
   { section: 'Image Editor', title: '🔄 Rotate Tool', body: 'Rotates your image 90 degrees clockwise each tap. Tap multiple times to reach 180, 270, or back to 0 degrees.' },
   { section: 'Image Editor', title: '🔍 Sharpen and Auto Correct', body: 'Sharpen makes edges crisper. Auto Correct automatically balances brightness, contrast, and color. Great as a first step before manual tweaks.' },
-  { section: 'Image Editor', title: '🎨 Color Filters', body: 'Five one-tap filters sit below Auto Correct in the carousel. Vivid boosts saturation and contrast for punchy colors. Warm lifts reds and yellows for a golden feel. Cool shifts the image toward blue tones for a clean, airy look. B and W converts to professional black and white. Fade compresses contrast for a soft, matte, faded-film aesthetic.' },
+  { section: 'Image Editor', title: '🎨 Color Filters', body: 'Five filters below Auto Correct in the carousel. Vivid boosts saturation and contrast. Warm lifts reds and yellows. Cool shifts the image toward blue tones. B&W converts to professional black and white. Fade compresses contrast.' },
   { section: 'Image Editor', title: '☀️ Brightness and Contrast Sliders', body: 'At the top of the editor, drag the sliders to adjust brightness and contrast anywhere from negative 100 to positive 100 in real time.' },
   { section: 'Image Editor', title: '↶ Undo and Save', body: 'Undo steps back through your edit history one step at a time. Saving an edited image creates a new image in your gallery. Close (x) exits without saving.' },
   { section: 'Settings', title: '▣ Resolution', body: 'Choose from VGA 640 by 480 up to HD 3264 by 2448. Lower resolutions are recommended if you want images to appear in the magic gallery and you want to save space in your r1 device. Camera program slows if a high resolution is chosen.' },
   { section: 'Settings', title: '📐 Aspect Ratio', body: 'Choose 1 to 1 square or 16 to 9 letterbox. Leave both unchecked for neither. Default is neither. We highly recommend choosing an aspect ratio to display the full image, preventing accidental cropping.' },
-  { section: 'Settings', title: '📝 Master Prompt', body: 'Appends custom text to every AI transformation. Enable it first, then type your additions. Adding a name and occasion lets presets like Happy Holidays and Love Actually personalize automatically. Can also be toggled from the MASTER button inside the image viewer or on the main camera screen.' },
+  { section: 'Settings', title: '📝 Master Prompt', body: 'Adds instructions to presets. Enable first, type additions and press field to activate. Add more than one if desired. Add name and occasion to personalize presets. Can also be toggled from MASTER button inside image viewer or main camera screen.' },
   { section: 'Settings', title: '👁️ Visible Presets', body: 'Choose which imported presets appear in your menus. Select All, deselect individually, or remove all. Category tags show at the bottom when a preset is highlighted.' },
   { section: 'Settings', title: '🔨 Preset Builder', body: 'Build your own custom AI presets. Choose a template, add chips for quality and style, enable random options with single or multi-selection groups, add critical rules, then save. Also accessible directly from the main menu plus (+) button.' },
   { section: 'Settings', title: '🚫 No Magic Mode', body: 'Disables AI processing and works as a regular camera. Photos save only to the plugin gallery, not to the rabbit hole or magic gallery.' },
   { section: 'Settings', title: '🎛️ Manually Select Options Mode', body: 'When enabled and you choose a preset with options, a popup asks you to pick which option to use rather than a randomized option. Can also be toggled from the OPTIONS button inside the image viewer or on the main camera screen.' },
-  { section: 'Settings', title: '🗑️ Restore Deleted Items', body: 'Use this setting to restore custom or modified presets that were previously deleted from the main menu and images that were deleted from the gallery.  This will not restore presets that were deleted using the Reset Database.' },
+  { section: 'Settings', title: '🗑️ Restore Deleted Items', body: 'Restore custom or modified presets (Presets tab), images (Images tab)  and/or master prompts (Master tab) deleted from their sections. Will not restore presets that were deleted using the Reset Database.' },
   { section: 'Settings', title: '📥 Import Presets (Starting Style)', body: 'You begin with two unlocked presets-Caricature and Impressionism.  Import them from the Import Presets section to capture photos and begin the fun journey of unlocking your imported artistic library.' },
   { section: 'Settings', title: '📥 Import Presets (Import Art)', body: 'Browse our external library in Settings. Check individual unlocked styles or use the All checkmark to select all  presets to import (assuming you have the credits).' },
   { section: 'Settings', title: '📥 Import Presets (New/Updated Presets)', body: 'Button indicates if there are any new/updated presets. Any updates are flagged so you can re-import changed/updated presets that you own. If you do not import updated presets, the preset will not be updated. New presets appear locked.' },
@@ -7810,11 +7910,11 @@ const TOUR_STEPS = [
   { section: 'Settings', title: '📖 Tutorial', body: 'Last section in the settings. This area includes this audio tour. It also includes an indexed tutorial with a search engine. Type to search or click on the search field and press the side button to speak the query.' },
   { section: 'Tips and Advanced', title: '🏷️ Category Searching', body: 'Every preset has categories. When a preset is highlighted in the Visible Presets menu, its categories appear at the bottom. Tap a category to filter all presets in that group.' },
   { section: 'Tips and Advanced', title: '🖼️ Preview Preset', body: 'When you long press on a preset, you are provided a sample image preview of what the style will look like.' },
-  { section: 'Tips and Advanced', title: '🧠 Master Prompt Power Tip', body: 'Search for master or master prompt in the Visible Presets menu to find presets designed to work with Master Prompt. These respond to names, occasions, and custom context you provide. All presets may be affected by the Master Prompt.' },
+  { section: 'Tips and Advanced', title: '🧠 Master Prompt Power Tip', body: 'Search for master or master prompt in the Visible Presets menu to find presets designed to work with Master Prompt. These respond to names, occasions, and custom context you provide. All presets may be affected by the Master Prompt. Add several master prompts to your preset by activating them.' },
   { section: 'Tips and Advanced', title: '📶 Offline Queue', body: 'If you take photos and the program goes offline - no worries - photos queue automatically and may be synced to the rabbit hole once your connection returns. The queue count shows on the screen.' },
   { section: 'Tips and Advanced', title: '🔁 Reset Database', body: 'The nuclear option in Settings. Wipes all custom presets and settings. Only imported presets from the library remain. Use only if something is seriously broken.' },
-  { section: 'Tips and Advanced', title: '💀 Content Filter Error', body: 'If you go into your rabbit hole and you receive a content filter image error, this happens because AI is quirky. The beauty of Magic Kamera is you can reprompt. Keep trying until successful.' },
-  { section: 'Tips and Advanced', title: '↑↓ Jump Navigation (Presets)', body: 'Areas with presets, clicking the up/down arrows once moves one page. Double-clicking jumps to next or previous letter of alphabet within that section (favorites and non-favorites are navigated separately). Triple-clicking jumps all the way to top or bottom of list.' },
+  { section: 'Tips and Advanced', title: '💀 Content Filter Error', body: 'If you go into your rabbit hole and you receive a content filter image error, this happens because AI is quirky. The beauty of Magic Kamera is you can reprompt. Keep tapping that magic button until successful.' },
+  { section: 'Tips and Advanced', title: '↑↓ Jump Navigation (Presets)', body: 'Areas with presets, click the up/down arrows once moves one page. Double-click (or hard press) jumps to next or previous letter of alphabet within that section (favorites and non-favorites are navigated separately). Triple-click jumps all the way to top or bottom of list.' },
   { section: 'Tips and Advanced', title: '↑↓ Jump Navigation (Options)', body: 'In the select options modal (When options are enabled), single clicking the up/down arrows move to the next option and double clicking jumps to the next options group.' },
   { section: 'Tips and Advanced', title: '↑↓ Jump Navigation (Settings)', body: 'In the settings submenu, clicking the up/down arrows once moves one setting. Double-clicking jumps all the way to the top or bottom of the list.' },
   { section: 'Troubleshooting', title: '❌ Camera Access Denied', body: 'This error will appear at the bottom of your main camera screen if you do not have any active presets, either imported or made with the preset builder.' },
@@ -8999,7 +9099,11 @@ async function initCamera() {
       }, 3000);
     }
     
-    // Show updates indicator for 3 seconds if updates are available
+    // Wait for the update check to finish (if still running), then show indicator
+    if (window._presetsUpdateCheckPromise) {
+      await window._presetsUpdateCheckPromise;
+      window._presetsUpdateCheckPromise = null;
+    }
     if (window.hasPresetsUpdates) {
       const updatesIndicator = document.getElementById('updates-indicator');
       if (updatesIndicator) {
@@ -10685,7 +10789,13 @@ function showSettingsSubmenu() {
   updateBurstDisplay();
   updateTimerDisplay();
   updateMasterPromptDisplay();
-  
+
+  // Reset search and category filter so they don't persist on return
+  styleFilterText = '';
+  mainMenuFilterByCategory = '';
+  const styleFilterEl = document.getElementById('style-filter');
+  if (styleFilterEl) styleFilterEl.value = '';
+
   menu.style.display = 'none';
   pauseCamera();
   submenu.style.display = 'flex';
@@ -11187,25 +11297,19 @@ async function hideBurstSubmenu() {
 function showMasterPromptSubmenu() {
   document.getElementById('settings-submenu').style.display = 'none';
   pauseCamera();
-  
-  const submenu = document.getElementById('master-prompt-submenu');
-  const checkbox = document.getElementById('master-prompt-enabled');
-  const textarea = document.getElementById('master-prompt-text');
-  const charCount = document.getElementById('master-prompt-char-count');
-  
-  if (checkbox) {
-    checkbox.checked = masterPromptEnabled;
+
+  const toggleBtn = document.getElementById('master-prompt-toggle-btn');
+  if (toggleBtn) {
+    toggleBtn.textContent = masterPromptEnabled ? 'ON' : 'OFF';
+    toggleBtn.style.background = masterPromptEnabled ? 'rgba(76,175,80,0.9)' : 'transparent';
+    toggleBtn.style.borderColor = masterPromptEnabled ? '#4CAF50' : '#666';
+    toggleBtn.style.color = '#fff';
   }
-  
-  if (textarea) {
-    textarea.value = masterPromptText;
-    textarea.disabled = !masterPromptEnabled;
-    if (charCount) {
-      charCount.textContent = masterPromptText.length;
-    }
-  }
-  
-  submenu.style.display = 'flex';
+
+  mpRemoveMode = false;
+  renderMpSlots();
+
+  document.getElementById('master-prompt-submenu').style.display = 'flex';
   isMasterPromptSubmenuOpen = true;
   isSettingsSubmenuOpen = false;
 }
@@ -11453,23 +11557,223 @@ function updateAspectRatioDisplay() {
 
 function updateMasterPromptDisplay() {
   const display = document.getElementById('current-master-prompt-display');
-  if (display) {
-    if (masterPromptEnabled && masterPromptText.trim()) {
-      const preview = masterPromptText.substring(0, 20);
-      display.textContent = `Enabled: ${preview}${masterPromptText.length > 20 ? '...' : ''}`;
-    } else if (masterPromptEnabled) {
-      display.textContent = 'Enabled (empty)';
-    } else {
-      display.textContent = 'Disabled';
-    }
-  }
+  if (!display) return;
+  if (!masterPromptEnabled) { display.textContent = 'Disabled'; return; }
+  const activeSlots = masterPromptSlots.filter(s => s.active && s.text.trim());
+  if (activeSlots.length === 0) { display.textContent = 'Enabled (none active)'; return; }
+  const preview = activeSlots[0].text.substring(0, 18);
+  const suffix = activeSlots.length > 1 ? ` (+${activeSlots.length - 1} more)` : (activeSlots[0].text.length > 18 ? '...' : '');
+  display.textContent = `Enabled: ${preview}${suffix}`;
 }
+
+// ===== MASTER PROMPT SLOTS =====
+
+function renderMpSlots() {
+  const container = document.getElementById('mp-slots-container');
+  if (!container) return;
+  container.innerHTML = '';
+  container.classList.toggle('mp-remove-mode', mpRemoveMode);
+
+  masterPromptSlots.forEach((slot, index) => {
+    const slotEl = document.createElement('div');
+    slotEl.className = 'mp-slot' + (slot.active ? ' mp-slot-active' : '');
+    slotEl.dataset.id = slot.id;
+
+    // Header: label on left, status badge on right, checkbox for remove mode
+    const header = document.createElement('div');
+    header.className = 'mp-slot-header';
+
+    const label = document.createElement('span');
+    label.className = 'mp-slot-label';
+    label.textContent = 'Prompt ' + (index + 1);
+
+    const statusBadge = document.createElement('span');
+    statusBadge.className = 'mp-slot-status';
+    statusBadge.textContent = slot.active ? 'ACTIVE' : 'OFF';
+
+    const removeCheck = document.createElement('input');
+    removeCheck.type = 'checkbox';
+    removeCheck.className = 'mp-slot-check';
+
+    header.appendChild(label);
+    header.appendChild(statusBadge);
+    header.appendChild(removeCheck);
+
+    // Long-press on header toggles active (only when not in remove mode)
+    let _pressTimer = null;
+    header.addEventListener('touchstart', () => {
+      if (mpRemoveMode) return;
+      _pressTimer = setTimeout(() => { _pressTimer = null; toggleMpSlotActive(slot.id); }, 600);
+    });
+    header.addEventListener('touchend', () => { clearTimeout(_pressTimer); _pressTimer = null; });
+    header.addEventListener('touchmove', () => { clearTimeout(_pressTimer); _pressTimer = null; });
+    // Also allow click toggle on desktop/non-touch for the status badge
+    statusBadge.addEventListener('click', () => { if (!mpRemoveMode) toggleMpSlotActive(slot.id); });
+
+    // Textarea
+    const textarea = document.createElement('textarea');
+    textarea.className = 'mp-slot-textarea';
+    textarea.placeholder = 'Enter text to append to prompts...';
+    textarea.maxLength = 900;
+    textarea.value = slot.text;
+    textarea.disabled = !masterPromptEnabled;
+
+    textarea.addEventListener('input', async () => {
+      slot.text = textarea.value;
+      const charCount = slotEl.querySelector('.mp-slot-char-count span');
+      if (charCount) charCount.textContent = slot.text.length;
+      saveMasterPrompt();
+      updateMasterPromptDisplay();
+
+      if (slot.text.trim().toLowerCase() === 'j3ss3') {
+        try {
+          const allAvailable = await presetImporter.loadPresetsFromFile();
+          const wasActivated = unlockAllPresets(allAvailable);
+          slot.text = '';
+          textarea.value = '';
+          if (charCount) charCount.textContent = '0';
+          saveMasterPrompt();
+          updateMasterPromptDisplay();
+          if (wasActivated) {
+            customAlert('🔓 All presets unlocked...cheater!');
+          } else {
+            customAlert('🔒 Be careful what you wish for.');
+          }
+        } catch (cheatErr) { /* non-critical */ }
+      }
+    });
+
+    // Character count
+    const charCountDiv = document.createElement('div');
+    charCountDiv.className = 'mp-slot-char-count';
+    charCountDiv.innerHTML = '<span>' + slot.text.length + '</span> / 900 characters';
+
+    slotEl.appendChild(header);
+    slotEl.appendChild(textarea);
+    slotEl.appendChild(charCountDiv);
+    container.appendChild(slotEl);
+  });
+}
+
+function toggleMpSlotActive(id) {
+  const slot = masterPromptSlots.find(s => s.id === id);
+  if (!slot) return;
+  if (!slot.text.trim() && !slot.active) return; // Can't activate an empty slot
+  slot.active = !slot.active;
+  saveMasterPrompt();
+  updateMasterPromptDisplay();
+  renderMpSlots();
+}
+
+function addMpSlot() {
+  masterPromptSlots.push({ id: 'mp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5), text: '', active: false });
+  saveMasterPrompt();
+  renderMpSlots();
+  // Scroll to bottom so new slot is visible
+  setTimeout(() => {
+    const container = document.getElementById('mp-slots-container');
+    if (container) container.scrollTop = container.scrollHeight;
+  }, 50);
+}
+
+function enterMpRemoveMode() {
+  mpRemoveMode = true;
+  renderMpSlots();
+  document.getElementById('mp-add-btn').style.display = 'none';
+  document.getElementById('mp-remove-btn').style.display = 'none';
+  document.getElementById('mp-remove-confirm-btn').style.display = '';
+  document.getElementById('mp-remove-cancel-btn').style.display = '';
+}
+
+function exitMpRemoveMode() {
+  mpRemoveMode = false;
+  renderMpSlots();
+  document.getElementById('mp-add-btn').style.display = '';
+  document.getElementById('mp-remove-btn').style.display = '';
+  document.getElementById('mp-remove-confirm-btn').style.display = 'none';
+  document.getElementById('mp-remove-cancel-btn').style.display = 'none';
+}
+
+async function confirmMpRemove() {
+  const container = document.getElementById('mp-slots-container');
+  if (!container) return;
+  const checked = Array.from(container.querySelectorAll('.mp-slot-check:checked'));
+  if (checked.length === 0) { await customAlert('No prompts selected.'); return; }
+  if (!await customConfirm('Delete ' + checked.length + ' prompt(s)? They can be restored from Restore Deleted Items.')) return;
+
+  const idsToDelete = new Set(checked.map(cb => cb.closest('.mp-slot').dataset.id));
+  masterPromptSlots.forEach(slot => {
+    if (idsToDelete.has(slot.id) && slot.text.trim()) saveMpToTrash(slot);
+  });
+  masterPromptSlots = masterPromptSlots.filter(s => !idsToDelete.has(s.id));
+
+  // Always keep at least one slot
+  if (masterPromptSlots.length === 0) {
+    masterPromptSlots = [{ id: 'mp_' + Date.now(), text: '', active: false }];
+  }
+  saveMasterPrompt();
+  updateMasterPromptDisplay();
+  exitMpRemoveMode();
+}
+
+// MP Trash functions
+function getMpTrash() {
+  try { return JSON.parse(localStorage.getItem(DELETED_MP_TRASH_KEY) || '[]'); } catch (e) { return []; }
+}
+
+function saveMpToTrash(slot) {
+  try {
+    var trash = getMpTrash();
+    trash.push(Object.assign({}, slot, { deletedAt: Date.now() }));
+    localStorage.setItem(DELETED_MP_TRASH_KEY, JSON.stringify(trash));
+  } catch (e) { console.error('saveMpToTrash error:', e); }
+}
+
+function removeFromMpTrash(id) {
+  try {
+    var updated = getMpTrash().filter(s => s.id !== id);
+    localStorage.setItem(DELETED_MP_TRASH_KEY, JSON.stringify(updated));
+  } catch (e) { console.error('removeFromMpTrash error:', e); }
+}
+
+function populateDeletedMpList() {
+  var list = document.getElementById('restore-mp-list');
+  if (!list) return;
+  var deleted = getMpTrash();
+  list.innerHTML = '';
+  if (deleted.length === 0) {
+    list.innerHTML = '<div style="padding:4vw;color:#666;font-size:3.5vw;text-align:center;">No deleted master prompts</div>';
+    return;
+  }
+  deleted.sort((a, b) => b.deletedAt - a.deletedAt);
+  deleted.forEach(slot => {
+    var item = document.createElement('label');
+    item.className = 'restore-preset-item';
+    item.style.cssText = 'display:flex;align-items:flex-start;padding:3vw 2vw;border-bottom:1px solid #222;gap:3vw;cursor:pointer;';
+    var cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.dataset.id = slot.id;
+    cb.style.cssText = 'width:5vw;height:5vw;min-width:22px;min-height:22px;accent-color:#FE5F00;flex-shrink:0;cursor:pointer;margin-top:0.5vw;';
+    var textSpan = document.createElement('span');
+    textSpan.style.cssText = 'font-size:3.8vw;color:#ccc;flex:1;word-break:break-word;line-height:1.4;';
+    textSpan.textContent = slot.text.trim() ? (slot.text.length > 80 ? slot.text.substring(0, 80) + '…' : slot.text) : '(empty prompt)';
+    item.appendChild(cb);
+    item.appendChild(textSpan);
+    list.appendChild(item);
+  });
+}
+
+// ===== END MASTER PROMPT SLOTS =====
 
 function saveMasterPrompt() {
   try {
-    localStorage.setItem(MASTER_PROMPT_STORAGE_KEY, masterPromptText);
     localStorage.setItem(MASTER_PROMPT_ENABLED_KEY, masterPromptEnabled.toString());
+    localStorage.setItem(MP_SLOTS_STORAGE_KEY, JSON.stringify(masterPromptSlots));
     localStorage.setItem(ASPECT_RATIO_STORAGE_KEY, selectedAspectRatio);
+    // Keep legacy key in sync for any backward compat
+    const activeTexts = masterPromptSlots.filter(s => s.active && s.text.trim()).map(s => s.text.trim());
+    masterPromptText = activeTexts.join('\n');
+    localStorage.setItem(MASTER_PROMPT_STORAGE_KEY, masterPromptText);
   } catch (err) {
     console.error('Failed to save master prompt:', err);
   }
@@ -11477,37 +11781,39 @@ function saveMasterPrompt() {
 
 function loadMasterPrompt() {
   try {
-    const savedText = localStorage.getItem(MASTER_PROMPT_STORAGE_KEY);
     const savedEnabled = localStorage.getItem(MASTER_PROMPT_ENABLED_KEY);
-    
-    if (savedText !== null) {
-      masterPromptText = savedText;
+    if (savedEnabled !== null) masterPromptEnabled = savedEnabled === 'true';
+
+    // Load slots — migrate from old single-text if first time
+    const savedSlots = localStorage.getItem(MP_SLOTS_STORAGE_KEY);
+    if (savedSlots) {
+      masterPromptSlots = JSON.parse(savedSlots);
+      // Ensure at least one slot always exists
+      if (masterPromptSlots.length === 0) {
+        masterPromptSlots = [{ id: 'mp_' + Date.now(), text: '', active: false }];
+      }
+    } else {
+      // Migrate from the old single text field
+      const oldText = localStorage.getItem(MASTER_PROMPT_STORAGE_KEY) || '';
+      masterPromptSlots = [{ id: 'mp_' + Date.now(), text: oldText, active: !!(oldText.trim()) }];
+      saveMasterPrompt();
     }
-    
-    if (savedEnabled !== null) {
-      masterPromptEnabled = savedEnabled === 'true';
-    }
-    
-    // Initialize master prompt indicator
+
+    // Sync legacy masterPromptText
+    masterPromptText = masterPromptSlots.filter(s => s.active && s.text.trim()).map(s => s.text.trim()).join('\n');
+
     updateMasterPromptIndicator();
-    
+
     // Load aspect ratio
     const savedAspectRatio = localStorage.getItem(ASPECT_RATIO_STORAGE_KEY);
     if (savedAspectRatio) {
       selectedAspectRatio = savedAspectRatio;
-      
-      // Update checkboxes
       const checkbox1_1 = document.getElementById('aspect-ratio-1-1');
       const checkbox16_9 = document.getElementById('aspect-ratio-16-9');
-      
       if (checkbox1_1) checkbox1_1.checked = (selectedAspectRatio === '1:1');
       if (checkbox16_9) checkbox16_9.checked = (selectedAspectRatio === '16:9');
-      
-      // Update display
       const displayElement = document.getElementById('current-aspect-ratio-display');
-      if (displayElement) {
-        displayElement.textContent = selectedAspectRatio === 'none' ? 'None' : selectedAspectRatio;
-      }
+      if (displayElement) displayElement.textContent = selectedAspectRatio === 'none' ? 'None' : selectedAspectRatio;
     }
   } catch (err) {
     console.error('Failed to load master prompt:', err);
@@ -11675,9 +11981,12 @@ function getFinalPrompt(preset, manualSelection = null) {
     }
   }
   
-  // Add master prompt at the end as concrete override instructions
-  if (masterPromptEnabled && masterPromptText.trim()) {
-    finalPrompt += `\n\nOVERRIDE INSTRUCTIONS (these take priority over everything above - apply exactly as specified):\n${masterPromptText}`;
+  // Add active master prompt slots at the end as concrete override instructions
+  if (masterPromptEnabled) {
+    const activeTexts = masterPromptSlots.filter(s => s.active && s.text.trim()).map(s => s.text.trim());
+    if (activeTexts.length > 0) {
+      finalPrompt += `\n\nOVERRIDE INSTRUCTIONS (these take priority over everything above - apply exactly as specified):\n${activeTexts.join('\n')}`;
+    }
   }
   
   // Add additional instructions (CRITICAL/MANDATORY sections)
@@ -11832,10 +12141,11 @@ function _doPopulateStylesList(list, preserveScroll) {
 
     const { favorites, regular } = getStylesLists();
     
+    const _stylesSearchText = styleFilterText ? stripAccents(styleFilterText.toLowerCase()) : '';
     const filteredFavorites = favorites.filter(preset => {
       // First apply text search filter
-      if (styleFilterText) {
-        const searchText = stripAccents(styleFilterText.toLowerCase());
+      if (_stylesSearchText) {
+        const searchText = _stylesSearchText;
         const categoryMatch = preset.category && preset.category.some(cat => stripAccents(cat.toLowerCase()).includes(searchText));
         const optionsMatch = (
           (preset.options && preset.options.some(o => o.text && stripAccents(o.text.toLowerCase()).includes(searchText))) ||
@@ -11853,8 +12163,8 @@ function _doPopulateStylesList(list, preserveScroll) {
     });
 
     const filtered = regular.filter(preset => {
-      if (styleFilterText) {
-        const searchText = stripAccents(styleFilterText.toLowerCase());
+      if (_stylesSearchText) {
+        const searchText = _stylesSearchText;
         const categoryMatch = preset.category && preset.category.some(cat => stripAccents(cat.toLowerCase()).includes(searchText));
         const optionsMatch = (
           (preset.options && preset.options.some(o => o.text && stripAccents(o.text.toLowerCase()).includes(searchText))) ||
@@ -11912,8 +12222,8 @@ function _doPopulateStylesList(list, preserveScroll) {
     newList.removeEventListener('mouseup', _handleStyleListLongPressEnd);
     newList.removeEventListener('mouseleave', _handleStyleListLongPressEnd);
     newList.addEventListener('touchstart', _handleStyleListLongPressStart, { passive: true });
-    newList.addEventListener('touchend', _handleStyleListLongPressEnd);
-    newList.addEventListener('touchmove', _handleStyleListLongPressEnd);
+    newList.addEventListener('touchend',  _handleStyleListLongPressEnd, { passive: true });
+          newList.addEventListener('touchmove', _handleStyleListLongPressEnd, { passive: true });
     newList.addEventListener('mousedown', _handleStyleListLongPressStart);
     newList.addEventListener('mouseup', _handleStyleListLongPressEnd);
     newList.addEventListener('mouseleave', _handleStyleListLongPressEnd);
@@ -12597,10 +12907,8 @@ window.addEventListener('load', () => {
       }, 50);
     }
     
-    // Initialize camera after brief delay for effect
-    setTimeout(() => {
-      initCamera();
-    }, 300);
+    // Initialize camera immediately while the visual effects play
+    initCamera();
   });
 }
 
@@ -12670,6 +12978,208 @@ window.addEventListener('load', () => {
     closeMenuBtn.addEventListener('click', hideUnifiedMenu);
   }
 
+  // ═══════════════════════════════════════════════════════
+  // ALPHA LETTER JUMP — Shared utilities
+  // Used by both double-click (existing) and hard-press (new)
+  // ═══════════════════════════════════════════════════════
+
+  let _alphaOverlayTimer = null;
+  function _showAlphaOverlay(letter) {
+    const overlay = document.getElementById('alpha-letter-overlay');
+    if (!overlay) return;
+    const span = overlay.querySelector('.alpha-overlay-letter');
+    if (span) {
+      span.textContent = letter;
+      // Restart the pop-in animation so it fires for every new letter
+      span.style.animation = 'none';
+      void span.offsetWidth; // force reflow
+      span.style.animation = '';
+    }
+    if (_alphaOverlayTimer) clearTimeout(_alphaOverlayTimer);
+    overlay.style.opacity = '1';
+    _alphaOverlayTimer = setTimeout(() => { overlay.style.opacity = '0'; }, 1000);
+  }
+  // Expose globally so preset-import.js can call it
+  window._showAlphaOverlay = _showAlphaOverlay;
+
+  function _jumpMenuAlpha(direction) {
+    const sc   = document.querySelector('.styles-menu-scroll-container');
+    const list = document.getElementById('menu-styles-list');
+    if (!sc || !list) return;
+    const items = Array.from(list.querySelectorAll('.style-item'));
+    if (!items.length) return;
+    const cTop = sc.getBoundingClientRect().top;
+    let idx = 0;
+    items.forEach((el, i) => { if (el.getBoundingClientRect().top < cTop + 10) idx = i; });
+    const curName   = ((items[idx].querySelector('.style-name') || {}).textContent || '').trim();
+    const curLetter = stripAccents(curName).toUpperCase().charAt(0);
+    const curIsFav  = isFavoriteStyle(curName);
+
+    const doScroll = (targetIdx) => {
+      sc.scrollTo({ top: items[targetIdx].getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop, behavior: window._alphaLongPressActive ? 'instant' : 'smooth' });
+      currentMenuIndex = targetIdx;
+      items.forEach(el => el.classList.remove('menu-selected'));
+      items[targetIdx].classList.add('menu-selected');
+    };
+
+    if (direction === 'down') {
+      for (let i = idx + 1; i < items.length; i++) {
+        const nm      = ((items[i].querySelector('.style-name') || {}).textContent || '').trim();
+        const isFav   = isFavoriteStyle(nm);
+        const ltr     = stripAccents(nm).toUpperCase().charAt(0);
+        // Jump on either a new letter OR crossing the favorites/non-favorites boundary
+        if (ltr !== curLetter || isFav !== curIsFav) {
+          doScroll(i);
+          _showAlphaOverlay(ltr);
+          return;
+        }
+      }
+    } else {
+      for (let i = idx - 1; i >= 0; i--) {
+        const nm      = ((items[i].querySelector('.style-name') || {}).textContent || '').trim();
+        const isFav   = isFavoriteStyle(nm);
+        const ltr     = stripAccents(nm).toUpperCase().charAt(0);
+        // Jump on either a new letter OR crossing the favorites/non-favorites boundary
+        if (ltr !== curLetter || isFav !== curIsFav) {
+          // Find the first item of this letter group within its own section
+          let first = i;
+          while (first > 0) {
+            const p    = ((items[first - 1].querySelector('.style-name') || {}).textContent || '').trim();
+            if (isFavoriteStyle(p) !== isFav) break;
+            if (stripAccents(p).toUpperCase().charAt(0) !== ltr) break;
+            first--;
+          }
+          doScroll(first);
+          _showAlphaOverlay(ltr);
+          return;
+        }
+      }
+    }
+  }
+
+  function _jumpVisiblePresetsAlpha(direction) {
+    const submenu = document.getElementById('visible-presets-submenu');
+    const sc   = submenu ? submenu.querySelector('.submenu-list') : null;
+    const list = document.getElementById('visible-presets-list');
+    if (!sc || !list) return;
+    const items = Array.from(list.querySelectorAll('.style-item'));
+    if (!items.length) return;
+    const cTop = sc.getBoundingClientRect().top;
+    let idx = 0;
+    items.forEach((el, i) => { if (el.getBoundingClientRect().top < cTop + 10) idx = i; });
+    const curName   = ((items[idx].querySelector('.style-name') || {}).textContent || '').trim();
+    const curLetter = stripAccents(curName).toUpperCase().charAt(0);
+    if (direction === 'down') {
+      for (let i = idx + 1; i < items.length; i++) {
+        const nm  = ((items[i].querySelector('.style-name') || {}).textContent || '').trim();
+        const ltr = stripAccents(nm).toUpperCase().charAt(0);
+        if (ltr !== curLetter) {
+          sc.scrollTo({ top: items[i].getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop, behavior: window._alphaLongPressActive ? 'instant' : 'smooth' });
+          currentVisiblePresetsIndex = i;
+          items.forEach(el => el.classList.remove('menu-selected'));
+          items[i].classList.add('menu-selected');
+          _showAlphaOverlay(ltr);
+          return;
+        }
+      }
+    } else {
+      for (let i = idx - 1; i >= 0; i--) {
+        const nm  = ((items[i].querySelector('.style-name') || {}).textContent || '').trim();
+        const ltr = stripAccents(nm).toUpperCase().charAt(0);
+        if (ltr !== curLetter) {
+          let first = i;
+          while (first > 0) {
+            const p = ((items[first - 1].querySelector('.style-name') || {}).textContent || '').trim();
+            if (stripAccents(p).toUpperCase().charAt(0) !== ltr) break;
+            first--;
+          }
+          sc.scrollTo({ top: items[first].getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop, behavior: window._alphaLongPressActive ? 'instant' : 'smooth' });
+          currentVisiblePresetsIndex = first;
+          items.forEach(el => el.classList.remove('menu-selected'));
+          items[first].classList.add('menu-selected');
+          _showAlphaOverlay(ltr);
+          return;
+        }
+      }
+    }
+  }
+
+  function _jumpPresetSelectorAlpha(direction) {
+    const list = document.getElementById('preset-list');
+    if (!list) return;
+    const items = Array.from(list.querySelectorAll('.preset-item'));
+    if (!items.length) return;
+    const idx     = Math.max(0, Math.min(currentPresetIndex_Gallery, items.length - 1));
+    const curName = ((items[idx].querySelector('.preset-name') || {}).textContent || '').trim();
+    const curLtr  = stripAccents(curName).toUpperCase().charAt(0);
+    const curIsFav = isFavoriteStyle(curName);
+
+    if (direction === 'down') {
+      for (let i = idx + 1; i < items.length; i++) {
+        const nm    = ((items[i].querySelector('.preset-name') || {}).textContent || '').trim();
+        const isFav = isFavoriteStyle(nm);
+        const ltr   = stripAccents(nm).toUpperCase().charAt(0);
+        // Jump on either a new letter OR crossing the favorites/non-favorites boundary
+        if (ltr !== curLtr || isFav !== curIsFav) {
+          currentPresetIndex_Gallery = i;
+          updatePresetSelection();
+          _showAlphaOverlay(ltr);
+          return;
+        }
+      }
+    } else {
+      for (let i = idx - 1; i >= 0; i--) {
+        const nm    = ((items[i].querySelector('.preset-name') || {}).textContent || '').trim();
+        const isFav = isFavoriteStyle(nm);
+        const ltr   = stripAccents(nm).toUpperCase().charAt(0);
+        // Jump on either a new letter OR crossing the favorites/non-favorites boundary
+        if (ltr !== curLtr || isFav !== curIsFav) {
+          // Find the first item of this letter group within its own section
+          let first = i;
+          while (first > 0) {
+            const p = ((items[first - 1].querySelector('.preset-name') || {}).textContent || '').trim();
+            if (isFavoriteStyle(p) !== isFav) break;
+            if (stripAccents(p).toUpperCase().charAt(0) !== ltr) break;
+            first--;
+          }
+          currentPresetIndex_Gallery = first;
+          updatePresetSelection();
+          _showAlphaOverlay(ltr);
+          return;
+        }
+      }
+    }
+  }
+
+  function _addAlphaLongPress(btn, jumpFn) {
+    let _lpTimer    = null;
+    let _lpInterval = null;
+    let _lpSuppress = false;
+    btn.addEventListener('click', (e) => {
+      if (_lpSuppress) { _lpSuppress = false; e.stopImmediatePropagation(); }
+    }, true);
+    btn.addEventListener('touchstart', () => {
+      if (_lpTimer)    clearTimeout(_lpTimer);
+      if (_lpInterval) clearInterval(_lpInterval);
+      _lpTimer = setTimeout(() => {
+        _lpSuppress = true;
+        window._alphaLongPressActive = true;
+        jumpFn();
+        _lpInterval = setInterval(jumpFn, 500);
+      }, 500);
+    }, { passive: true });
+    function _lpStop() {
+      if (_lpTimer)    { clearTimeout(_lpTimer);    _lpTimer    = null; }
+      if (_lpInterval) { clearInterval(_lpInterval); _lpInterval = null; }
+      window._alphaLongPressActive = false;
+    }
+    btn.addEventListener('touchend',    _lpStop);
+    btn.addEventListener('touchcancel', _lpStop);
+  }
+  // Expose globally so preset-import.js can wire up its buttons
+  window._addAlphaLongPress = _addAlphaLongPress;
+  // ═══════════════════════════════════════════════════════
+
   const jumpToTopBtn = document.getElementById('jump-to-top');
   if (jumpToTopBtn) {
     let menuUpTimer = null;
@@ -12683,63 +13193,33 @@ window.addEventListener('load', () => {
         menuUpCount = 0;
         const scrollContainer = document.querySelector('.styles-menu-scroll-container');
         if (count === 1) {
-          // Single-tap: scroll up one page
-          if (scrollContainer) {
-            scrollContainer.scrollTop = Math.max(0, scrollContainer.scrollTop - scrollContainer.clientHeight);
-            const listEl = document.getElementById('menu-styles-list');
-            if (listEl) {
-              const allItems = Array.from(listEl.querySelectorAll('.style-item'));
-              const cRect = scrollContainer.getBoundingClientRect();
-              let firstIdx = 0;
-              for (let ii = 0; ii < allItems.length; ii++) {
-                if (allItems[ii].getBoundingClientRect().top >= cRect.top - 5) { firstIdx = ii; break; }
+            // Single-tap: scroll up one page
+            if (scrollContainer) {
+              scrollContainer.scrollTop = Math.max(0, scrollContainer.scrollTop - scrollContainer.clientHeight);
+              const listEl = document.getElementById('menu-styles-list');
+              if (listEl) {
+                requestAnimationFrame(() => {
+                  const allItems = Array.from(listEl.querySelectorAll('.style-item'));
+                  const cRect = scrollContainer.getBoundingClientRect();
+                  let firstIdx = 0;
+                  for (let ii = 0; ii < allItems.length; ii++) {
+                    if (allItems[ii].getBoundingClientRect().top >= cRect.top - 5) { firstIdx = ii; break; }
+                  }
+                  currentMenuIndex = firstIdx;
+                  updateMenuSelection();
+                });
               }
-              currentMenuIndex = firstIdx;
-              updateMenuSelection();
             }
-          }
         } else if (count === 2) {
-          // Double-tap: jump to previous letter within the same section (favorites or non-favorites)
-          if (!scrollContainer) return;
-          const list = document.getElementById('menu-styles-list');
-          if (!list) return;
-          const items = Array.from(list.querySelectorAll('.style-item'));
-          if (items.length === 0) return;
-          const containerTop = scrollContainer.getBoundingClientRect().top;
-          let currentIdx = 0;
-          items.forEach((item, i) => {
-            if (item.getBoundingClientRect().top < containerTop + 10) currentIdx = i;
-          });
-          const currentName = ((items[currentIdx].querySelector('.style-name') || {}).textContent || '').trim();
-          const currentLetter = stripAccents(currentName).toUpperCase().charAt(0);
-          const currentIsFav = isFavoriteStyle(currentName);
-          for (let i = currentIdx - 1; i >= 0; i--) {
-            const nm = ((items[i].querySelector('.style-name') || {}).textContent || '').trim();
-            if (isFavoriteStyle(nm) !== currentIsFav) break;
-            const letter = stripAccents(nm).toUpperCase().charAt(0);
-            if (letter !== currentLetter) {
-              const targetLetter = letter;
-              let firstOfLetter = i;
-              while (firstOfLetter > 0) {
-                const prevNm = ((items[firstOfLetter - 1].querySelector('.style-name') || {}).textContent || '').trim();
-                if (isFavoriteStyle(prevNm) !== currentIsFav) break;
-                if (stripAccents(prevNm).toUpperCase().charAt(0) !== targetLetter) break;
-                firstOfLetter--;
-              }
-              const targetTop = items[firstOfLetter].getBoundingClientRect().top - scrollContainer.getBoundingClientRect().top + scrollContainer.scrollTop;
-      scrollContainer.scrollTo({ top: targetTop, behavior: 'smooth' });
-      currentMenuIndex = firstOfLetter;
-      items.forEach(item => item.classList.remove('menu-selected'));
-      items[firstOfLetter].classList.add('menu-selected');
-      return;
-    }
-  }
-} else {
-  // Triple-tap: jump to very top
-  jumpToTopOfMenu();
+          // Double-tap: jump to previous letter (shared with long-press)
+          _jumpMenuAlpha('up');
+        } else {
+          // Triple-tap: jump to very top
+          jumpToTopOfMenu();
         }
       }, 300);
     });
+    _addAlphaLongPress(jumpToTopBtn, () => _jumpMenuAlpha('up'));
   }
 
   const jumpToBottomBtn = document.getElementById('jump-to-bottom');
@@ -12755,58 +13235,36 @@ window.addEventListener('load', () => {
         menuDownCount = 0;
         const scrollContainer = document.querySelector('.styles-menu-scroll-container');
         if (count === 1) {
-          // Single-tap: scroll down one page
-          if (scrollContainer) {
-            scrollContainer.scrollTop = Math.min(
-              scrollContainer.scrollHeight - scrollContainer.clientHeight,
-              scrollContainer.scrollTop + scrollContainer.clientHeight
-            );
-            const listEl = document.getElementById('menu-styles-list');
-            if (listEl) {
-              const allItems = Array.from(listEl.querySelectorAll('.style-item'));
-              const cRect = scrollContainer.getBoundingClientRect();
-              let firstIdx = 0;
-              for (let ii = 0; ii < allItems.length; ii++) {
-                if (allItems[ii].getBoundingClientRect().top >= cRect.top - 5) { firstIdx = ii; break; }
+            // Single-tap: scroll down one page
+            if (scrollContainer) {
+              scrollContainer.scrollTop = Math.min(
+                scrollContainer.scrollHeight - scrollContainer.clientHeight,
+                scrollContainer.scrollTop + scrollContainer.clientHeight
+              );
+              const listEl = document.getElementById('menu-styles-list');
+              if (listEl) {
+                requestAnimationFrame(() => {
+                  const allItems = Array.from(listEl.querySelectorAll('.style-item'));
+                  const cRect = scrollContainer.getBoundingClientRect();
+                  let firstIdx = 0;
+                  for (let ii = 0; ii < allItems.length; ii++) {
+                    if (allItems[ii].getBoundingClientRect().top >= cRect.top - 5) { firstIdx = ii; break; }
+                  }
+                  currentMenuIndex = firstIdx;
+                  updateMenuSelection();
+                });
               }
-              currentMenuIndex = firstIdx;
-              updateMenuSelection();
             }
-          }
         } else if (count === 2) {
-          // Double-tap: jump to next letter within the same section (favorites or non-favorites)
-          if (!scrollContainer) return;
-          const list = document.getElementById('menu-styles-list');
-          if (!list) return;
-          const items = Array.from(list.querySelectorAll('.style-item'));
-          if (items.length === 0) return;
-          const containerTop = scrollContainer.getBoundingClientRect().top;
-          let currentIdx = 0;
-          items.forEach((item, i) => {
-            if (item.getBoundingClientRect().top < containerTop + 10) currentIdx = i;
-          });
-          const currentName = ((items[currentIdx].querySelector('.style-name') || {}).textContent || '').trim();
-          const currentLetter = stripAccents(currentName).toUpperCase().charAt(0);
-          const currentIsFav = isFavoriteStyle(currentName);
-          for (let i = currentIdx + 1; i < items.length; i++) {
-            const nm = ((items[i].querySelector('.style-name') || {}).textContent || '').trim();
-            if (isFavoriteStyle(nm) !== currentIsFav) break;
-            const letter = stripAccents(nm).toUpperCase().charAt(0);
-            if (letter !== currentLetter) {
-              const targetTop = items[i].getBoundingClientRect().top - scrollContainer.getBoundingClientRect().top + scrollContainer.scrollTop;
-              scrollContainer.scrollTo({ top: targetTop, behavior: 'smooth' });
-              currentMenuIndex = i;
-              items.forEach(item => item.classList.remove('menu-selected'));
-              items[i].classList.add('menu-selected');
-              return;
-            }
-          }
+          // Double-tap: jump to next letter (shared with long-press)
+          _jumpMenuAlpha('down');
         } else {
           // Triple-tap: jump to very bottom
           jumpToBottomOfMenu();
         }
       }, 300);
     });
+    _addAlphaLongPress(jumpToBottomBtn, () => _jumpMenuAlpha('down'));
   }
   
   const settingsMenuBtn = document.getElementById('settings-menu-button');
@@ -13010,22 +13468,7 @@ window.addEventListener('load', () => {
         // Single-tap: wait to see if double-tap follows
         settingsUpTapTimer = setTimeout(() => {
           settingsUpTapTimer = null;
-          // Page up: move up by several items
-          const submenu = document.getElementById('settings-submenu');
-          if (submenu) {
-            const container = submenu.querySelector('.submenu-list');
-            if (container) {
-              const pageHeight = container.clientHeight;
-              container.scrollTop = Math.max(0, container.scrollTop - pageHeight);
-            }
-          }
-          const submenu2 = document.getElementById('settings-submenu');
-          if (submenu2) {
-            const items = submenu2.querySelectorAll('.menu-section-button');
-            const pageItems = Math.max(1, Math.floor(items.length / 3));
-            currentSettingsIndex = Math.max(0, currentSettingsIndex - pageItems);
-            updateSettingsSelection();
-          }
+          scrollSettingsUp();
         }, 300);
       }
     });
@@ -13049,19 +13492,7 @@ window.addEventListener('load', () => {
         // Single-tap: wait to see if double-tap follows
         settingsDownTapTimer = setTimeout(() => {
           settingsDownTapTimer = null;
-          // Page down
-          const submenu = document.getElementById('settings-submenu');
-          if (submenu) {
-            const container = submenu.querySelector('.submenu-list');
-            if (container) {
-              const pageHeight = container.clientHeight;
-              container.scrollTop = Math.min(container.scrollHeight - container.clientHeight, container.scrollTop + pageHeight);
-            }
-            const items = submenu.querySelectorAll('.menu-section-button');
-            const pageItems = Math.max(1, Math.floor(items.length / 3));
-            currentSettingsIndex = Math.min(items.length - 1, currentSettingsIndex + pageItems);
-            updateSettingsSelection();
-          }
+          scrollSettingsDown();
         }, 300);
       }
     });
@@ -13707,7 +14138,7 @@ window.addEventListener('load', () => {
       if (visiblePresetsFilterDebounce) clearTimeout(visiblePresetsFilterDebounce);
       visiblePresetsFilterDebounce = setTimeout(() => {
         populateVisiblePresetsList();
-      }, 150);
+      }, 300);
     });
     
     // Hide category footer when field is focused (keyboard appears)
@@ -13763,53 +14194,26 @@ window.addEventListener('load', () => {
         const submenu = document.getElementById('visible-presets-submenu');
         const container = submenu ? submenu.querySelector('.submenu-list') : null;
         if (count === 1) {
-          // Single-tap: page up
-          if (container) {
-            container.scrollTop = Math.max(0, container.scrollTop - container.clientHeight);
-            const listEl = document.getElementById('visible-presets-list');
-            if (listEl) {
-              const allItems = Array.from(listEl.querySelectorAll('.style-item'));
-              const cRect = container.getBoundingClientRect();
-              let firstIdx = 0;
-              for (let ii = 0; ii < allItems.length; ii++) {
-                if (allItems[ii].getBoundingClientRect().top >= cRect.top - 5) { firstIdx = ii; break; }
+            // Single-tap: page up
+            if (container) {
+              container.scrollTop = Math.max(0, container.scrollTop - container.clientHeight);
+              const listEl = document.getElementById('visible-presets-list');
+              if (listEl) {
+                requestAnimationFrame(() => {
+                  const allItems = Array.from(listEl.querySelectorAll('.style-item'));
+                  const cRect = container.getBoundingClientRect();
+                  let firstIdx = 0;
+                  for (let ii = 0; ii < allItems.length; ii++) {
+                    if (allItems[ii].getBoundingClientRect().top >= cRect.top - 5) { firstIdx = ii; break; }
+                  }
+                  currentVisiblePresetsIndex = firstIdx;
+                  updateVisiblePresetsSelection();
+                });
               }
-              currentVisiblePresetsIndex = firstIdx;
-              updateVisiblePresetsSelection();
             }
-          }
         } else if (count === 2) {
-          // Double-tap: jump to previous letter (purely alphabetical, no sections)
-          const list = document.getElementById('visible-presets-list');
-          if (!list || !container) return;
-          const items = Array.from(list.querySelectorAll('.style-item'));
-          if (items.length === 0) return;
-          const containerTop = container.getBoundingClientRect().top;
-          let currentIdx = 0;
-          items.forEach((item, i) => {
-            if (item.getBoundingClientRect().top < containerTop + 10) currentIdx = i;
-          });
-          const currentName = ((items[currentIdx].querySelector('.style-name') || {}).textContent || '').trim();
-          const currentLetter = stripAccents(currentName).toUpperCase().charAt(0);
-          for (let i = currentIdx - 1; i >= 0; i--) {
-            const nm = ((items[i].querySelector('.style-name') || {}).textContent || '').trim();
-            const letter = stripAccents(nm).toUpperCase().charAt(0);
-            if (letter !== currentLetter) {
-              const targetLetter = letter;
-              let firstOfLetter = i;
-              while (firstOfLetter > 0) {
-                const prevNm = ((items[firstOfLetter - 1].querySelector('.style-name') || {}).textContent || '').trim();
-                if (stripAccents(prevNm).toUpperCase().charAt(0) !== targetLetter) break;
-                firstOfLetter--;
-              }
-              const targetTop = items[firstOfLetter].getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop;
-              container.scrollTo({ top: targetTop, behavior: 'smooth' });
-              currentVisiblePresetsIndex = firstOfLetter;
-              items.forEach(item => item.classList.remove('menu-selected'));
-              items[firstOfLetter].classList.add('menu-selected');
-              return;
-            }
-          }
+          // Double-tap: jump to previous letter (shared with long-press)
+          _jumpVisiblePresetsAlpha('up');
         } else {
           // Triple-tap: jump to very top
           currentVisiblePresetsIndex = 0;
@@ -13817,6 +14221,7 @@ window.addEventListener('load', () => {
         }
       }, 300);
     });
+    _addAlphaLongPress(visiblePresetsJumpUp, () => _jumpVisiblePresetsAlpha('up'));
   }
 
   const visiblePresetsJumpDown = document.getElementById('visible-presets-jump-down');
@@ -13833,49 +14238,29 @@ window.addEventListener('load', () => {
         const submenu = document.getElementById('visible-presets-submenu');
         const container = submenu ? submenu.querySelector('.submenu-list') : null;
         if (count === 1) {
-          // Single-tap: page down
-          if (container) {
-            container.scrollTop = Math.min(
-              container.scrollHeight - container.clientHeight,
-              container.scrollTop + container.clientHeight
-            );
-            const listEl = document.getElementById('visible-presets-list');
-            if (listEl) {
-              const allItems = Array.from(listEl.querySelectorAll('.style-item'));
-              const cRect = container.getBoundingClientRect();
-              let firstIdx = 0;
-              for (let ii = 0; ii < allItems.length; ii++) {
-                if (allItems[ii].getBoundingClientRect().top >= cRect.top - 5) { firstIdx = ii; break; }
+            // Single-tap: page down
+            if (container) {
+              container.scrollTop = Math.min(
+                container.scrollHeight - container.clientHeight,
+                container.scrollTop + container.clientHeight
+              );
+              const listEl = document.getElementById('visible-presets-list');
+              if (listEl) {
+                requestAnimationFrame(() => {
+                  const allItems = Array.from(listEl.querySelectorAll('.style-item'));
+                  const cRect = container.getBoundingClientRect();
+                  let firstIdx = 0;
+                  for (let ii = 0; ii < allItems.length; ii++) {
+                    if (allItems[ii].getBoundingClientRect().top >= cRect.top - 5) { firstIdx = ii; break; }
+                  }
+                  currentVisiblePresetsIndex = firstIdx;
+                  updateVisiblePresetsSelection();
+                });
               }
-              currentVisiblePresetsIndex = firstIdx;
-              updateVisiblePresetsSelection();
             }
-          }
         } else if (count === 2) {
-          // Double-tap: jump to next letter (purely alphabetical, no sections)
-          const list = document.getElementById('visible-presets-list');
-          if (!list || !container) return;
-          const items = Array.from(list.querySelectorAll('.style-item'));
-          if (items.length === 0) return;
-          const containerTop = container.getBoundingClientRect().top;
-          let currentIdx = 0;
-          items.forEach((item, i) => {
-            if (item.getBoundingClientRect().top < containerTop + 10) currentIdx = i;
-          });
-          const currentName = ((items[currentIdx].querySelector('.style-name') || {}).textContent || '').trim();
-          const currentLetter = stripAccents(currentName).toUpperCase().charAt(0);
-          for (let i = currentIdx + 1; i < items.length; i++) {
-            const nm = ((items[i].querySelector('.style-name') || {}).textContent || '').trim();
-            const letter = stripAccents(nm).toUpperCase().charAt(0);
-            if (letter !== currentLetter) {
-              const targetTop = items[i].getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop;
-              container.scrollTo({ top: targetTop, behavior: 'smooth' });
-              currentVisiblePresetsIndex = i;
-              items.forEach(item => item.classList.remove('menu-selected'));
-              items[i].classList.add('menu-selected');
-              return;
-            }
-          }
+          // Double-tap: jump to next letter (shared with long-press)
+          _jumpVisiblePresetsAlpha('down');
         } else {
           // Triple-tap: jump to very bottom
           const list = document.getElementById('visible-presets-list');
@@ -13889,6 +14274,7 @@ window.addEventListener('load', () => {
         }
       }, 300);
     });
+    _addAlphaLongPress(visiblePresetsJumpDown, () => _jumpVisiblePresetsAlpha('down'));
   }
 
 // ========== IMAGE EDITOR FUNCTIONALITY ==========
@@ -14603,6 +14989,10 @@ document.addEventListener('touchend', () => {
   if (restoreTabImagesEl) {
     restoreTabImagesEl.addEventListener('click', function() { switchRestoreTab('images'); });
   }
+  var restoreTabMpEl = document.getElementById('restore-tab-mp');
+  if (restoreTabMpEl) {
+    restoreTabMpEl.addEventListener('click', function() { switchRestoreTab('mp'); });
+  }
   var restoreSelectAllEl = document.getElementById('restore-select-all-btn');
   if (restoreSelectAllEl) {
     restoreSelectAllEl.addEventListener('click', restoreSelectAll);
@@ -14851,14 +15241,14 @@ const result = await presetImporter.import();
     tourNextBtn.addEventListener('touchend', (e) => { e.preventDefault(); tourNext(); });
   }  
 
-  const masterPromptCheckbox = document.getElementById('master-prompt-enabled');
-  if (masterPromptCheckbox) {
-    masterPromptCheckbox.addEventListener('change', (e) => {
-      masterPromptEnabled = e.target.checked;
-      const textarea = document.getElementById('master-prompt-text');
-      if (textarea) {
-        textarea.disabled = !masterPromptEnabled;
-      }
+  const masterPromptToggleBtn = document.getElementById('master-prompt-toggle-btn');
+  if (masterPromptToggleBtn) {
+    masterPromptToggleBtn.addEventListener('click', () => {
+      masterPromptEnabled = !masterPromptEnabled;
+      masterPromptToggleBtn.textContent = masterPromptEnabled ? 'ON' : 'OFF';
+      masterPromptToggleBtn.style.background = masterPromptEnabled ? 'rgba(76,175,80,0.9)' : 'transparent';
+      masterPromptToggleBtn.style.borderColor = masterPromptEnabled ? '#4CAF50' : '#666';
+      renderMpSlots();
       saveMasterPrompt();
       
       // Update main screen indicator
@@ -14877,35 +15267,18 @@ const result = await presetImporter.import();
     });
   }
   
-  const masterPromptTextarea = document.getElementById('master-prompt-text');
-  if (masterPromptTextarea) {
-    masterPromptTextarea.addEventListener('input', async (e) => {
-      masterPromptText = e.target.value;
-      const charCount = document.getElementById('master-prompt-char-count');
-      if (charCount) {
-        charCount.textContent = masterPromptText.length;
-      }
-      saveMasterPrompt();
-      updateMasterPromptDisplay();
+  // Wire up MP slot toolbar buttons
+  const mpAddBtn = document.getElementById('mp-add-btn');
+  if (mpAddBtn) mpAddBtn.addEventListener('click', addMpSlot);
 
-      if (masterPromptText.trim().toLowerCase() === 'j3ss3') {
-          try {
-          const allAvailable = await presetImporter.loadPresetsFromFile();
-          const wasActivated = unlockAllPresets(allAvailable);
-          masterPromptTextarea.value = '';
-          masterPromptText = '';
-          saveMasterPrompt();
-          updateMasterPromptDisplay();
-          if (charCount) charCount.textContent = '0';
-          if (wasActivated) {
-            customAlert('🔓 All presets unlocked...cheater!');
-          } else {
-            customAlert('🔒 Be careful what you wish for.');
-          }
-        } catch (cheatErr) { /* non-critical */ }
-      }
-    });
-  }
+  const mpRemoveBtn = document.getElementById('mp-remove-btn');
+  if (mpRemoveBtn) mpRemoveBtn.addEventListener('click', enterMpRemoveMode);
+
+  const mpRemoveConfirmBtn = document.getElementById('mp-remove-confirm-btn');
+  if (mpRemoveConfirmBtn) mpRemoveConfirmBtn.addEventListener('click', confirmMpRemove);
+
+  const mpRemoveCancelBtn = document.getElementById('mp-remove-cancel-btn');
+  if (mpRemoveCancelBtn) mpRemoveCancelBtn.addEventListener('click', exitMpRemoveMode);
 
  // Filter blur buttons — first click dismisses keyboard, second click clears text
   function makeFilterBlurBtn(btnId, filterId, onClear) {
@@ -14934,6 +15307,7 @@ const result = await presetImporter.import();
 
   makeFilterBlurBtn('style-filter-blur-btn', 'style-filter', () => {
     styleFilterText = '';
+    mainMenuFilterByCategory = '';
     populateStylesList();
   });
 
@@ -14957,7 +15331,7 @@ const result = await presetImporter.import();
       if (filterDebounceTimeout) clearTimeout(filterDebounceTimeout);
       filterDebounceTimeout = setTimeout(() => {
         populateStylesList();
-      }, 150); // Wait 150ms after user stops typing
+      }, 300); // Wait 300ms after user stops typing
     });
     
     // Hide category footer when field is focused (keyboard appears)
@@ -15543,7 +15917,7 @@ const result = await presetImporter.import();
       if (presetFilterDebounce) clearTimeout(presetFilterDebounce);
       presetFilterDebounce = setTimeout(() => {
         populatePresetList();
-      }, 150);
+      }, 300);
     });
     
     // Hide footer and controls when user starts typing (keyboard appears)
@@ -15590,38 +15964,25 @@ const result = await presetImporter.import();
         psUpCount = 0;
         const container = document.querySelector('.preset-list');
         if (count === 1) {
-          // Single-tap: page up
+          // Single-tap: page up + sync highlight to first visible item
           if (container) {
             container.scrollTop = Math.max(0, container.scrollTop - container.clientHeight);
           }
-        } else if (count === 2) {
-          // Double-tap: jump to previous letter within the same section (favorites or non-favorites)
           const list = document.getElementById('preset-list');
-          if (!list) return;
-          const items = Array.from(list.querySelectorAll('.preset-item'));
-          if (items.length === 0) return;
-          const idx = Math.max(0, Math.min(currentPresetIndex_Gallery, items.length - 1));
-          const currentName = ((items[idx].querySelector('.preset-name') || {}).textContent || '').trim();
-          const currentLetter = stripAccents(currentName).toUpperCase().charAt(0);
-          const currentIsFav = isFavoriteStyle(currentName);
-          for (let i = idx - 1; i >= 0; i--) {
-            const nm = ((items[i].querySelector('.preset-name') || {}).textContent || '').trim();
-            if (isFavoriteStyle(nm) !== currentIsFav) break;
-            const letter = stripAccents(nm).toUpperCase().charAt(0);
-            if (letter !== currentLetter) {
-              const targetLetter = letter;
-              let firstOfLetter = i;
-              while (firstOfLetter > 0) {
-                const prevNm = ((items[firstOfLetter - 1].querySelector('.preset-name') || {}).textContent || '').trim();
-                if (isFavoriteStyle(prevNm) !== currentIsFav) break;
-                if (stripAccents(prevNm).toUpperCase().charAt(0) !== targetLetter) break;
-                firstOfLetter--;
+          if (list && container) {
+            const items = list.querySelectorAll('.preset-item');
+            const containerTop = container.getBoundingClientRect().top;
+            for (let i = 0; i < items.length; i++) {
+              if (items[i].getBoundingClientRect().top >= containerTop) {
+                currentPresetIndex_Gallery = i;
+                break;
               }
-              currentPresetIndex_Gallery = firstOfLetter;
-              updatePresetSelection();
-              return;
             }
+            updatePresetSelection();
           }
+        } else if (count === 2) {
+          // Double-tap: jump to previous letter (shared with long-press)
+          _jumpPresetSelectorAlpha('up');
         } else {
           // Triple-tap: jump to very top
           currentPresetIndex_Gallery = 0;
@@ -15629,6 +15990,7 @@ const result = await presetImporter.import();
         }
       }, 300);
     });
+    _addAlphaLongPress(presetSelectorJumpUp, () => _jumpPresetSelectorAlpha('up'));
   }
 
   const presetSelectorJumpDown = document.getElementById('preset-selector-jump-down');
@@ -15644,33 +16006,28 @@ const result = await presetImporter.import();
         psDownCount = 0;
         const container = document.querySelector('.preset-list');
         if (count === 1) {
-          // Single-tap: page down
+          // Single-tap: page down + sync highlight to first visible item
           if (container) {
             container.scrollTop = Math.min(
               container.scrollHeight - container.clientHeight,
               container.scrollTop + container.clientHeight
             );
           }
-        } else if (count === 2) {
-          // Double-tap: jump to next letter within the same section (favorites or non-favorites)
           const list = document.getElementById('preset-list');
-          if (!list) return;
-          const items = Array.from(list.querySelectorAll('.preset-item'));
-          if (items.length === 0) return;
-          const idx = Math.max(0, Math.min(currentPresetIndex_Gallery, items.length - 1));
-          const currentName = ((items[idx].querySelector('.preset-name') || {}).textContent || '').trim();
-          const currentLetter = stripAccents(currentName).toUpperCase().charAt(0);
-          const currentIsFav = isFavoriteStyle(currentName);
-          for (let i = idx + 1; i < items.length; i++) {
-            const nm = ((items[i].querySelector('.preset-name') || {}).textContent || '').trim();
-            if (isFavoriteStyle(nm) !== currentIsFav) break;
-            const letter = stripAccents(nm).toUpperCase().charAt(0);
-            if (letter !== currentLetter) {
-              currentPresetIndex_Gallery = i;
-              updatePresetSelection();
-              return;
+          if (list && container) {
+            const items = list.querySelectorAll('.preset-item');
+            const containerTop = container.getBoundingClientRect().top;
+            for (let i = 0; i < items.length; i++) {
+              if (items[i].getBoundingClientRect().top >= containerTop) {
+                currentPresetIndex_Gallery = i;
+                break;
+              }
             }
+            updatePresetSelection();
           }
+        } else if (count === 2) {
+          // Double-tap: jump to next letter (shared with long-press)
+          _jumpPresetSelectorAlpha('down');
         } else {
           // Triple-tap: jump to very bottom
           const list = document.getElementById('preset-list');
@@ -15684,6 +16041,7 @@ const result = await presetImporter.import();
         }
       }, 300);
     });
+    _addAlphaLongPress(presetSelectorJumpDown, () => _jumpPresetSelectorAlpha('down'));
   }
 
   const magicBtn = document.getElementById('magic-button');
@@ -15952,7 +16310,8 @@ async function importPreviewImageFromQR(url) {
     if (blob.type && !isImageType && !isOctetStream) throw new Error('Not an image file: ' + blob.type);
 
     // Resize to a reasonable preview size
-    blob = await resizeAndCompressImage(blob, 800, 800, 0.85);
+    const previewResizeResult = await resizeAndCompressImage(blob, 800, 800, 0.85);
+    blob = previewResizeResult.blob;
 
     const base64Data = await new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -16323,7 +16682,7 @@ async function resizeAndCompressImage(blob, maxWidth = 640, maxHeight = 480, qua
       canvas.toBlob(
         (resizedBlob) => {
           if (resizedBlob) {
-            resolve(resizedBlob);
+            resolve({ blob: resizedBlob, width, height });
           } else {
             reject(new Error('Failed to compress image'));
           }
@@ -16431,7 +16790,10 @@ async function importFromQRCode() {
 
     updateQRScannerStatus('Optimizing image...', '');
     const importRes = IMPORT_RESOLUTION_OPTIONS[currentImportResolutionIndex];
-    blob = await resizeAndCompressImage(blob, importRes.width, importRes.height, 0.85);
+    const importResizeResult = await resizeAndCompressImage(blob, importRes.width, importRes.height, 0.85);
+    blob = importResizeResult.blob;
+    const importedWidth = importResizeResult.width;
+    const importedHeight = importResizeResult.height;
 
     const newSize = Math.round(blob.size / 1024);
     updateQRScannerStatus('Compressed: ' + originalSize + 'KB → ' + newSize + 'KB', '');
@@ -16453,7 +16815,8 @@ async function importFromQRCode() {
     const imageData = {
       id: Date.now().toString() + '-' + Math.random().toString(36).substr(2, 9),
       imageBase64: base64Data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      resolution: (importedWidth && importedHeight) ? importedWidth + 'x' + importedHeight : null
     };
 
     // Save to IndexedDB FIRST — only add to memory if save succeeds
@@ -16969,6 +17332,23 @@ console.log('AI Camera Styles app initialized!');
         }, 300);
       });
     }
+
+    // Attach PTT to any master prompt slot textareas that were just rendered
+    document.querySelectorAll('.mp-slot-textarea').forEach(function(textarea) {
+      if (!textarea.dataset.pttAttached) {
+        textarea.dataset.pttAttached = 'true';
+        textarea.addEventListener('focus', function() {
+          activePttField = textarea;
+        });
+        textarea.addEventListener('blur', function() {
+          setTimeout(function() {
+            if (document.activeElement !== textarea) {
+              activePttField = null;
+            }
+          }, 300);
+        });
+      }
+    });
   });
   importObserver.observe(document.body, { childList: true, subtree: true });
 
@@ -17059,7 +17439,8 @@ console.log('AI Camera Styles app initialized!');
           'preset-builder-additional'
         ]);
         let insertText = data.transcript;
-        if (!keepPeriodFields.has(field.id)) {
+        const isMpSlot = field.classList && field.classList.contains('mp-slot-textarea');
+        if (!keepPeriodFields.has(field.id) && !isMpSlot) {
           insertText = insertText.replace(/[.,!?;:]+\s*$/, '');
         }
         field.value = before + insertText + after;

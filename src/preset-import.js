@@ -497,6 +497,8 @@ export class PresetImporter {
       modal.style.display = 'flex';
       modal.style.zIndex = '10000';
       modal.id = 'import-preset-modal';
+      modal.style.backdropFilter = 'none';
+      modal.style.webkitBackdropFilter = 'none';
 
       const content = document.createElement('div');
       content.className = 'styles-menu-content';
@@ -527,7 +529,7 @@ export class PresetImporter {
       // Filter input (sticky at top, immediately below header)
       const filterSection = document.createElement('div');
       filterSection.className = 'menu-section';
-      filterSection.style.cssText = 'position: sticky; top: 0; background: #1a1a1a; z-index: 10; padding: 5px 0; margin: 0; border-bottom: 1px solid #333;';
+      filterSection.style.cssText = 'background: #1a1a1a; padding: 5px 0; margin: 0; border-bottom: 1px solid #333; flex-shrink: 0;';
       filterSection.innerHTML = `
         <div class="filter-row" style="margin: 0; padding-right: calc(8vw + 2vw);">
           <input type="text" id="import-preset-filter" class="style-filter" placeholder="Filter..." style="margin: 0; height: 24px; font-size: 12px;">
@@ -655,6 +657,53 @@ export class PresetImporter {
       presetsList.className = 'menu-list';
       presetsList.id = 'import-presets-list';
 
+      // Single delegated long-press listener for the whole list (replaces per-item listeners)
+      const _presetsLookup = new Map(availablePresets.map(p => [p.name, p]));
+      let _delegatedLongPressTimer = null;
+      const LONG_PRESS_MS = 600;
+
+      presetsList.addEventListener('touchstart', (e) => {
+        const item = e.target.closest('.menu-item');
+        if (!item) return;
+        const preset = _presetsLookup.get(item.dataset.presetName);
+        if (!preset) return;
+        _delegatedLongPressTimer = setTimeout(() => { showPreview(preset); }, LONG_PRESS_MS);
+      }, { passive: true });
+
+      presetsList.addEventListener('touchend', () => {
+        clearTimeout(_delegatedLongPressTimer);
+        _delegatedLongPressTimer = null;
+      }, { passive: true });
+
+      presetsList.addEventListener('touchmove', () => {
+        clearTimeout(_delegatedLongPressTimer);
+        _delegatedLongPressTimer = null;
+      }, { passive: true });
+
+      presetsList.addEventListener('touchcancel', () => {
+        clearTimeout(_delegatedLongPressTimer);
+        _delegatedLongPressTimer = null;
+        hidePreview();
+      }, { passive: true });
+
+      presetsList.addEventListener('mousedown', (e) => {
+        const item = e.target.closest('.menu-item');
+        if (!item) return;
+        const preset = _presetsLookup.get(item.dataset.presetName);
+        if (!preset) return;
+        _delegatedLongPressTimer = setTimeout(() => { showPreview(preset); }, LONG_PRESS_MS);
+      });
+
+      presetsList.addEventListener('mouseup', () => {
+        clearTimeout(_delegatedLongPressTimer);
+        _delegatedLongPressTimer = null;
+      });
+
+      presetsList.addEventListener('mouseleave', () => {
+        clearTimeout(_delegatedLongPressTimer);
+        _delegatedLongPressTimer = null;
+      });
+
       const renderPresetsList = () => {
         const filteredPresets = this.getFilteredPresets(availablePresets);
         const countElement = document.getElementById('import-preset-count');
@@ -698,17 +747,17 @@ export class PresetImporter {
           const periodIndex = msg.indexOf('.');
           const firstLine = periodIndex !== -1 ? msg.substring(0, periodIndex + 1).trim() : msg.substring(0, 160).trim();
 
-          const item = document.createElement('button');
+          const item = document.createElement('div');
           item.className = 'menu-item';
           item.dataset.presetIndex = index;
           item.dataset.presetName = preset.name;
-          item.style.cssText = 'display: flex; align-items: flex-start; padding: 6px 15px; width: 100%; justify-content: flex-start; margin-bottom: 2px;';
+          item.style.cssText = 'display: flex; align-items: flex-start; padding: 6px 15px; width: 100%; justify-content: flex-start; margin-bottom: 2px; touch-action: pan-y; contain: layout style;';
 
           const checkbox = document.createElement('input');
           checkbox.type = 'checkbox';
           checkbox.id = `import-preset-${index}`;
           checkbox.checked = this.checkboxStates.get(preset.name) || false;
-          checkbox.style.cssText = 'width:18px;height:18px;min-width:18px;min-height:18px;margin-right:10px;cursor:pointer;accent-color:#4CAF50;flex-shrink:0;';
+          checkbox.style.cssText = 'width:18px;height:18px;min-width:18px;min-height:18px;margin-right:10px;cursor:pointer;accent-color:#4CAF50;flex-shrink:0;touch-action:pan-y;';
 
           const nameSpan = document.createElement('span');
           nameSpan.className = 'menu-item-name';
@@ -766,49 +815,6 @@ export class PresetImporter {
 
           item.appendChild(checkbox);
           item.appendChild(nameSpan);
-
-          // Long-press to show sample image preview
-          let _longPressTimer = null;
-          const LONG_PRESS_MS = 600;
-
-          item.addEventListener('touchstart', (e) => {
-            _longPressTimer = setTimeout(() => {
-              showPreview(preset);
-            }, LONG_PRESS_MS);
-          }, { passive: true });
-
-          item.addEventListener('touchend', () => {
-            clearTimeout(_longPressTimer);
-            _longPressTimer = null;
-          });
-
-          item.addEventListener('touchmove', () => {
-            clearTimeout(_longPressTimer);
-            _longPressTimer = null;
-          });
-
-          item.addEventListener('touchcancel', () => {
-            clearTimeout(_longPressTimer);
-            _longPressTimer = null;
-            hidePreview();
-          });
-
-          // Mouse support (for testing on desktop)
-          item.addEventListener('mousedown', () => {
-            _longPressTimer = setTimeout(() => {
-              showPreview(preset);
-            }, LONG_PRESS_MS);
-          });
-
-          item.addEventListener('mouseup', () => {
-            clearTimeout(_longPressTimer);
-            _longPressTimer = null;
-          });
-
-          item.addEventListener('mouseleave', () => {
-            clearTimeout(_longPressTimer);
-            _longPressTimer = null;
-          });
 
           // Spend credit immediately on check; refund immediately on uncheck (if not yet imported)
 
@@ -876,7 +882,7 @@ export class PresetImporter {
           if (this.currentImportScrollIndex === 0) {
             scrollContainer.scrollTop = 0;
           } else {
-            currentItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            currentItem.scrollIntoView({ behavior: window._alphaLongPressActive ? 'instant' : 'smooth', block: 'nearest' });
           }
         }
       };
@@ -913,10 +919,10 @@ footerSection.innerHTML = `
   </button>
 `;
 
-      scrollContainer.appendChild(filterSection);
       scrollContainer.appendChild(presetsSection);
 
       content.appendChild(header);
+      content.appendChild(filterSection);
       content.appendChild(scrollContainer);
       modal.appendChild(content);
       modal.appendChild(footerSection);
@@ -955,7 +961,7 @@ footerSection.innerHTML = `
         if (importFilterDebounce) clearTimeout(importFilterDebounce);
         importFilterDebounce = setTimeout(() => {
           renderPresetsList();
-        }, 150);
+        }, 300);
       });
 
       document.getElementById('import-mute-toggle').onclick = () => {
@@ -1091,6 +1097,59 @@ footerSection.innerHTML = `
         }, 200);
       };
 
+      // ── Reusable alpha jump functions (used by both double-tap and hard-press) ──
+      const _importJumpUp = () => {
+        const items = Array.from(presetsList.querySelectorAll('.menu-item'));
+        if (!items.length) return;
+        const idx = Math.max(0, Math.min(this.currentImportScrollIndex, items.length - 1));
+        const currentItem = items[idx];
+        const currentName = (currentItem.dataset.presetName || '').trim();
+        const currentLetter = stripAccents(currentName).toUpperCase().charAt(0);
+        const currentIsNewOrUpdated = !!currentItem.querySelector('.preset-ticket');
+        for (let i = idx - 1; i >= 0; i--) {
+          const item = items[i];
+          if (!!item.querySelector('.preset-ticket') !== currentIsNewOrUpdated) break;
+          const nm = (item.dataset.presetName || '').trim();
+          const letter = stripAccents(nm).toUpperCase().charAt(0);
+          if (letter !== currentLetter) {
+            let firstOfLetter = i;
+            while (firstOfLetter > 0) {
+              const prevItem = items[firstOfLetter - 1];
+              if (!!prevItem.querySelector('.preset-ticket') !== currentIsNewOrUpdated) break;
+              const prevNm = (prevItem.dataset.presetName || '').trim();
+              if (stripAccents(prevNm).toUpperCase().charAt(0) !== letter) break;
+              firstOfLetter--;
+            }
+            this.currentImportScrollIndex = firstOfLetter;
+            updateImportSelection();
+            if (window._showAlphaOverlay) window._showAlphaOverlay(letter);
+            return;
+          }
+        }
+      };
+
+      const _importJumpDown = () => {
+        const items = Array.from(presetsList.querySelectorAll('.menu-item'));
+        if (!items.length) return;
+        const idx = Math.max(0, Math.min(this.currentImportScrollIndex, items.length - 1));
+        const currentItem = items[idx];
+        const currentName = (currentItem.dataset.presetName || '').trim();
+        const currentLetter = stripAccents(currentName).toUpperCase().charAt(0);
+        const currentIsNewOrUpdated = !!currentItem.querySelector('.preset-ticket');
+        for (let i = idx + 1; i < items.length; i++) {
+          const item = items[i];
+          if (!!item.querySelector('.preset-ticket') !== currentIsNewOrUpdated) break;
+          const nm = (item.dataset.presetName || '').trim();
+          const letter = stripAccents(nm).toUpperCase().charAt(0);
+          if (letter !== currentLetter) {
+            this.currentImportScrollIndex = i;
+            updateImportSelection();
+            if (window._showAlphaOverlay) window._showAlphaOverlay(letter);
+            return;
+          }
+        }
+      };
+
       let importUpTimer = null;
       let importUpCount = 0;
       document.getElementById('import-jump-to-top').onclick = () => {
@@ -1101,39 +1160,19 @@ footerSection.innerHTML = `
           const count = importUpCount;
           importUpCount = 0;
           if (count === 1) {
-            // Single-tap: page up
             scrollContainer.scrollTop = Math.max(0, scrollContainer.scrollTop - scrollContainer.clientHeight);
-          } else if (count === 2) {
-            // Double-tap: jump to previous letter within the same section (new/updated or owned/imported)
-            const items = Array.from(presetsList.querySelectorAll('.menu-item'));
-            if (items.length === 0) return;
-            const idx = Math.max(0, Math.min(this.currentImportScrollIndex, items.length - 1));
-            const currentItem = items[idx];
-            const currentName = (currentItem.dataset.presetName || '').trim();
-            const currentLetter = stripAccents(currentName).toUpperCase().charAt(0);
-            const currentIsNewOrUpdated = !!currentItem.querySelector('.preset-ticket');
-            for (let i = idx - 1; i >= 0; i--) {
-              const item = items[i];
-              if (!!item.querySelector('.preset-ticket') !== currentIsNewOrUpdated) break;
-              const nm = (item.dataset.presetName || '').trim();
-              const letter = stripAccents(nm).toUpperCase().charAt(0);
-              if (letter !== currentLetter) {
-                const targetLetter = letter;
-                let firstOfLetter = i;
-                while (firstOfLetter > 0) {
-                  const prevItem = items[firstOfLetter - 1];
-                  if (!!prevItem.querySelector('.preset-ticket') !== currentIsNewOrUpdated) break;
-                  const prevNm = (prevItem.dataset.presetName || '').trim();
-                  if (stripAccents(prevNm).toUpperCase().charAt(0) !== targetLetter) break;
-                  firstOfLetter--;
-                }
-                this.currentImportScrollIndex = firstOfLetter;
-                updateImportSelection();
-                return;
+            const items = presetsList.querySelectorAll('.menu-item');
+            const containerTop = scrollContainer.getBoundingClientRect().top;
+            for (let i = 0; i < items.length; i++) {
+              if (items[i].getBoundingClientRect().top >= containerTop) {
+                this.currentImportScrollIndex = i;
+                break;
               }
             }
+            updateImportSelection();
+          } else if (count === 2) {
+            _importJumpUp();
           } else {
-            // Triple-tap: jump to very top
             scrollContainer.scrollTop = 0;
             this.currentImportScrollIndex = 0;
             updateImportSelection();
@@ -1151,33 +1190,22 @@ footerSection.innerHTML = `
           const count = importDownCount;
           importDownCount = 0;
           if (count === 1) {
-            // Single-tap: page down
             scrollContainer.scrollTop = Math.min(
               scrollContainer.scrollHeight - scrollContainer.clientHeight,
               scrollContainer.scrollTop + scrollContainer.clientHeight
             );
-          } else if (count === 2) {
-            // Double-tap: jump to next letter within the same section (new/updated or owned/imported)
-            const items = Array.from(presetsList.querySelectorAll('.menu-item'));
-            if (items.length === 0) return;
-            const idx = Math.max(0, Math.min(this.currentImportScrollIndex, items.length - 1));
-            const currentItem = items[idx];
-            const currentName = (currentItem.dataset.presetName || '').trim();
-            const currentLetter = stripAccents(currentName).toUpperCase().charAt(0);
-            const currentIsNewOrUpdated = !!currentItem.querySelector('.preset-ticket');
-            for (let i = idx + 1; i < items.length; i++) {
-              const item = items[i];
-              if (!!item.querySelector('.preset-ticket') !== currentIsNewOrUpdated) break;
-              const nm = (item.dataset.presetName || '').trim();
-              const letter = stripAccents(nm).toUpperCase().charAt(0);
-              if (letter !== currentLetter) {
+            const items = presetsList.querySelectorAll('.menu-item');
+            const containerTop = scrollContainer.getBoundingClientRect().top;
+            for (let i = 0; i < items.length; i++) {
+              if (items[i].getBoundingClientRect().top >= containerTop) {
                 this.currentImportScrollIndex = i;
-                updateImportSelection();
-                return;
+                break;
               }
             }
+            updateImportSelection();
+          } else if (count === 2) {
+            _importJumpDown();
           } else {
-            // Triple-tap: jump to very bottom
             scrollContainer.scrollTop = scrollContainer.scrollHeight;
             const items = presetsList.querySelectorAll('.menu-item');
             this.currentImportScrollIndex = items.length - 1;
@@ -1185,6 +1213,18 @@ footerSection.innerHTML = `
           }
         }, 300);
       };
+
+      // Wire up hard-press (long press) jump for import buttons
+      if (window._addAlphaLongPress) {
+        window._addAlphaLongPress(
+          document.getElementById('import-jump-to-top'),
+          _importJumpUp
+        );
+        window._addAlphaLongPress(
+          document.getElementById('import-jump-to-bottom'),
+          _importJumpDown
+        );
+      }
 
       this.scrollImportUp = () => {
         const items = presetsList.querySelectorAll('.menu-item');
@@ -1201,6 +1241,7 @@ footerSection.innerHTML = `
       };
 
       scrollContainer.style.overflowY = 'auto';
+      scrollContainer.style.overscrollBehavior = 'contain';
     });
   }
 
