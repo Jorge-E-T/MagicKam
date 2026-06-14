@@ -4,12 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Magic Kamera</title>
-    <link rel="stylesheet" href="./assets/style.css">
+    <link rel="stylesheet" href="./src/style.css">
 </head>
 <body>
     <div id="app">
-        <div class="start-screen" id="start-screen">
+    <div class="start-screen" id="start-screen">
+
+    <!-- Floating background particles -->
+    <div class="stars-bg" aria-hidden="true">
+        <div class="star star-1"></div>
+        <div class="star star-2"></div>
+        <div class="star star-3"></div>
+        <div class="star star-4"></div>
+        <div class="star star-5"></div>
+        <div class="star star-6"></div>
+    </div>
+
     <div class="camera-animation">
+
+        <!-- Radar pulse rings -->
+        <div class="sparkles">
+            <div class="sparkle sparkle-1">✨</div>
+            <div class="sparkle sparkle-2">✨</div>
+            <div class="sparkle sparkle-3">✨</div>
+            <div class="sparkle sparkle-4">✨</div>
+            <div class="radar-ring radar-ring-1" aria-hidden="true"></div>
+            <div class="radar-ring radar-ring-2" aria-hidden="true"></div>
+            <div class="radar-ring radar-ring-3" aria-hidden="true"></div>
+        </div>
+
         <div class="camera-body">
             <div class="camera-lens">
                 <div class="lens-inner"></div>
@@ -19,12 +42,6 @@
             <div class="camera-button-top"></div>
             <div class="camera-viewfinder"></div>
         </div>
-        <div class="sparkles">
-            <div class="sparkle sparkle-1">✨</div>
-            <div class="sparkle sparkle-2">✨</div>
-            <div class="sparkle sparkle-3">✨</div>
-            <div class="sparkle sparkle-4">✨</div>
-        </div>
     </div>
     <h1 class="magic-title">✨ Magic Kamera ✨</h1>
     <p class="start-text">Tutorial located in menu (☰) under settings (⚙️)</p>
@@ -32,7 +49,7 @@
         <button id="start-button" class="start-button" style="min-width:0;flex:1;max-width:42vw;padding:5vw 3vw;font-size:5vw;">Start</button>
         <button id="splash-tour-button" class="start-button" style="min-width:0;flex:1;max-width:42vw;padding:5vw 3vw;font-size:5vw;background:linear-gradient(135deg,#333 0%,#111 100%);border-color:#FE5F00;box-shadow:0 6px 25px rgba(254,95,0,0.3);">▶ Tour</button>
     </div>
-    <p id="app-version" style="font-size:10px;color:#888;margin-top:8px;"></p>    
+    <p id="app-version" style="font-size:10px;color:#888;margin-top:8px;"></p>
     </div>
         <div class="camera-container" id="camera-container" style="display: none;">
             <video id="video" autoplay playsinline muted></video>
@@ -337,8 +354,9 @@
                     <button id="restore-deleted-back" class="close-button">×</button>
                 </div>
                 <div class="pfs-tab-bar">
-                    <div class="pfs-tab active" id="restore-tab-presets">Deleted Presets</div>
-                    <div class="pfs-tab" id="restore-tab-images">Deleted Images</div>
+                    <div class="pfs-tab active" id="restore-tab-presets">Presets</div>
+                    <div class="pfs-tab" id="restore-tab-images">Images</div>
+                    <div class="pfs-tab" id="restore-tab-mp">Master</div>
                 </div>
                 <!-- Sticky action bar — Select All left, Restore + Delete right, same height as close button -->
                 <div style="display:flex;align-items:center;justify-content:space-between;padding:2vw;background:#000;border-bottom:1px solid #333;flex-shrink:0;gap:2vw;">
@@ -355,6 +373,9 @@
                     </div>
                     <div id="restore-panel-images" style="display:none;">
                         <div id="restore-images-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:2vw;padding:2vw;align-content:start;"></div>
+                    </div>
+                    <div id="restore-panel-mp" style="display:none;">
+                        <div id="restore-mp-list"></div>
                     </div>
                 </div>
             </div>
@@ -544,22 +565,19 @@
     <div class="submenu-content">
         <div class="submenu-header">
             <h3>MASTER PROMPT</h3>
+            <button id="master-prompt-toggle-btn" class="close-button" style="width:auto;padding:0 3vw;font-size:3.8vw;font-weight:700;margin-right:2vw;">OFF</button>
             <button id="master-prompt-back" class="close-button">×</button>
         </div>
-        <div class="submenu-list">
-            <div class="master-prompt-setting-item">
-                <label class="master-prompt-checkbox-label">
-                    <input type="checkbox" id="master-prompt-enabled" class="master-prompt-checkbox">
-                    <span>Enable Master Prompt</span>
-                </label>
-            </div>
-            <div class="master-prompt-setting-item">
-                <label for="master-prompt-text">Master Prompt Text:</label>
-                <textarea id="master-prompt-text" class="master-prompt-textarea" placeholder="Enter text to append to all prompts..." maxlength="900"></textarea>
-                <div class="master-prompt-char-count">
-                    <span id="master-prompt-char-count">0</span> / 900 characters
-                </div>
-            </div>
+        <!-- Sticky ADD / REMOVE toolbar -->
+        <div id="mp-toolbar" style="display:flex;align-items:center;padding:2vw;background:#000;border-bottom:1px solid #333;flex-shrink:0;gap:2vw;">
+            <button id="mp-add-btn" class="close-button" style="width:auto;padding:0 4vw;font-size:3.8vw;font-weight:700;height:7vw;min-height:0;">ADD</button>
+            <button id="mp-remove-btn" class="close-button" style="width:auto;padding:0 4vw;font-size:3.8vw;font-weight:700;height:7vw;min-height:0;">REMOVE</button>
+            <button id="mp-remove-confirm-btn" class="close-button" style="display:none;width:auto;padding:0 4vw;font-size:3.8vw;font-weight:700;height:7vw;min-height:0;background:#d32f2f;border-color:#d32f2f;color:#fff;">DELETE</button>
+            <button id="mp-remove-cancel-btn" class="close-button" style="display:none;width:auto;padding:0 4vw;font-size:3.8vw;font-weight:700;height:7vw;min-height:0;">CANCEL</button>
+        </div>
+        <!-- Scrollable slots list -->
+        <div id="mp-slots-container" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:2vw;display:flex;flex-direction:column;gap:3vw;">
+            <!-- Rendered dynamically by JS -->
         </div>
     </div>
 </div>
@@ -1013,7 +1031,7 @@
                             <strong>⏱️ Timer Mode:</strong> Set a countdown (3-10s) and optional repeat intervals<br>
                             <strong>📸⚡ Burst Mode:</strong> Capture 3-10 photos rapidly (slow/medium/fast)<br>
                             <strong>👁️ Motion Detection:</strong> Automatically captures when movement is detected. Interval settings for repeat capture. Repeat capture is default. You must uncheck repeat capture to do single capture. Select start delay from 3 seconds to 30 minutes. This mode triggers when you press the eye icon and activates/starts when you press the side button. Motion detection deactivates/stops when you press the eye icon again. The eye pulses if motion detection is triggered.<br>
-                            <strong>🎞️ Multi Preset:</strong> Select up to 20 presets to apply to a single photo in sequence. Tap the 🎞️ MULTI button in the carousel to open the preset selector. Choose your presets and tap Apply Selected. The footer and screen will show MULTI PRESETS while active. When you take a photo, all selected presets are queued and sent one by one with a 3 second interval between each. Works with Timer Mode — multi preset stays active until the timer is turned off. Cannot be used with Burst, Motion Detection, Random Mode, or No Magic Mode. If Manually Select Options is enabled, you will be prompted to choose options for each selected preset before the photo is taken. Multi preset is a one-shot mode — it resets automatically after all presets are sent, unless Timer Mode is active.<br>
+                            <strong>🎞️ Multi Preset:</strong> Select up to 20 presets to apply to a single photo in sequence. Tap the 🎞️ MULTI button in the carousel to open the preset selector. Choose your presets and tap Apply Selected. The footer and screen will show MULTI PRESETS while active. When you take a photo, all selected presets are queued and sent one by one with a 3 second interval between each. Works with Timer Mode — multi preset stays active until the timer is turned off. Cannot be used with Burst, Motion Detection, Random Mode, or No Magic Mode. If Manually Select Options is enabled, you will be prompted to choose options for each selected preset before the photo is taken (If you click CANCEL, it will randomize your option). Multi preset is a one-shot mode — it resets automatically after all presets are sent, unless Timer Mode is active.<br>
                             <strong>🖼️🖼️ Combine images:</strong> Works with either a selected preset or by speaking your preset. Take a picture of two images to combine them to feed to r1 thereby creating AI generated images from two images. Only works with random mode or multi-select presets mode in main camera screen.<br>
                             <strong>📑 Layer presets:</strong> Select up to 5 presets to combine and apply to a photo. Tap the 📑 LAYER button in the carousel to open the preset selector. Choose your presets starting with the primary (or dominant) layer. Then select up to 4 more presets to add as layers to that primary preset. Once you finish selecting, tap Apply Selected. Cannot be used with Random Mode or No Magic Mode. If Manually Select Options is enabled, you will be prompted once to choose options for each selected preset before the photo is taken. Once Layer is enabled, it will continue applying same chosen layers with selected options until it is disabled.<br>
                             <strong>📝 MASTER and 🎛️ OPTIONS Buttons (Left Carousel):</strong> Below the Menu (☰) button on the left side within a carousel(which also includes the MENU (☰) and GALLERY (🖼️) Buttons). The MASTER button (📝) accesses Master Prompt settings. Glows green when enabled. The OPTIONS (🎛️) button toggles Manually Select Options mode on or off. Glows green when enabled. All the camera buttons (except for the switch camera (📷) button) are in carousels and are visible by default. However, you can hide them (except for the switch camera (📷) button) by single clicking on the main camera screen to hide/reveal buttons. This may be adjusted in the Button Settings subsection within settings.<br><br>
@@ -1049,7 +1067,7 @@
                             <strong>Bottom Bar — Four Buttons:</strong><br>
                             • <strong>PROMPT:</strong> Opens an editor based on whether a preset is loaded. If no preset is loaded, opens the Preset Builder so you can create a new preset.<br>
                             • <strong>LOAD:</strong> Opens the preset selector so you can choose a preset to apply to this image.<br>
-                            • <strong>MULTI:</strong> Opens the multi-preset selector to apply several presets in sequence to this image.<br>
+                            • <strong>MULTI:</strong> Opens the multi-preset selector to apply several presets in sequence to this image. If Manually Select Options is enabled, you will be prompted to choose options for each selected preset before the photo is taken (If you click CANCEL, it will randomize your option).<br>
                             • <strong>✨ MAGIC:</strong> Sends the image for AI transformation using the loaded preset. If no preset is loaded and nothing has been entered, it picks a random preset automatically.                           
                         </p>
                     </div>
@@ -1140,7 +1158,7 @@
                             <strong>Burst:</strong> Number of photos and capture speed<br>
                             <!-- <strong>White Balance:</strong> Adjust color temperature of image so white objects appear white and colors realistic<br> -->
                             <strong>Timer:</strong> Countdown time and repeat interval<br>
-                            <strong>Master Prompt:</strong> Append text to every AI transformation to customize. This can be accessed from the main camera screen and the gallery by pressing the MASTER button in the gallery or the 📝 MASTER button in the left side carousel in main camera screen.<br>
+                            <strong>Master Prompt:</strong> Append text to every AI transformation to customize. This can be accessed from the main camera screen and the gallery by pressing the MASTER button in the gallery or the 📝 MASTER button in the left side carousel in main camera screen. You may add text fields with different master prompts to combine. Hard press to activate the desired text field(s). If you delete a text field, you may recover within the Restore Deleted Items section in Settings (under the MASTER tab).<br>
                             <strong>Motion Detection:</strong> Sensitivity, start delay, continuous capture<br>
                             <strong>Visible Presets:</strong> Select the imported presets you want to see in preset menus. Default all. Can select all, remove individually or remove all (the Ron setting). Each preset has categories indicated at the bottom of the visible preset menu.<br>
                             <strong>Preset Builder:</strong> Made to follow a sequence. Click return to go to next selection. Select prompt templates and chips to help you create new and exciting presets. Categories must be separated by commas. You can also create multiple option presets with single or multi-selection! This is a very useful tool that includes prompting tips. You can access the Preset Builder from Settings, or directly from the main menu by tapping the <strong>+</strong> button in the menu header.<br>
@@ -1228,13 +1246,13 @@
                         <p class="tutorial-text">
                             <strong>Tutorial Searching:</strong> The tutorial has a search engine. Type your search using individual words or sentences. The back and forward arrows cycle through the text to find typed words.<br>
 
-                            <strong>Navigating:</strong> Up and down arrows in the sections with preset lists move up/down per page when clicked once.  Double-clicking jumps to the next or previous letter of the alphabet within that section (favorites and non-favorites are navigated separately).  Triple-clicking jumps all the way to the top or bottom of the list. In the select options modal (When options are enabled), single clicking the up/down arrows move to the next option and double clicking jumps to the next options group. In the settings menu, single click the up/down arrows moves to next setting up/down and double click jumps all the way up/down the list.<br>
+                            <strong>Navigating:</strong> Up and down arrows in the sections with preset lists move up/down per page when clicked once.  Double-clicking (or hard pressing) jumps to the next or previous letter of the alphabet within that section (favorites and non-favorites are navigated separately).  Triple-clicking jumps all the way to the top or bottom of the list. In the select options modal (When options are enabled), single clicking the up/down arrows move to the next option and double clicking jumps to the next options group. In the settings menu, single click the up/down arrows moves to next setting up/down and double click jumps all the way up/down the list.<br>
 
                             <strong>Hiding/Reveal Buttons:</strong> There are left and right carousels in the main camera screen and the image viewer in the gallery. Single click the screen to hide/reveal the carousels. You may adjust these settings (as well as the opacity of the carousel buttons) within settings (in the Main Camera Screen and Gallery Image Viewer Screen subsections).<br>
 
                             <strong>Category Searching:</strong> All presets are categorized. You can see these categories at the bottom of the Visible Preset list menu when a particular preset is highlighted. Therefore, if you see a preset that you like, you can do a search for similar presets that share that category (*best to do this in the Visible Preset Menu). You can also click on the desired category on the bottom to filter all presets in that category as well.<br>
 
-                            <strong>Master Prompt:</strong> Append text to every AI transformation to customize. Many presets benefit from this feature. For example, if you activate Master Prompt (this must be done first) and add two lines: The first line- name: Ron G and the second line- it is Easter. Then you select preset HAPPY HOLIDAYS...this will transform the subject of the picture into a picture of the subject wearing an Easter bunny costume (preferably pink) and the resulting picture will be captioned with the name Ron G. Since all presets are categorized you can do a search for "master" or "master prompt" and presets that benefit from master prompting appear (*best to do this in the Visible Preset Menu). Regardless of designation, all images may be affected by the master prompt.
+                            <strong>Master Prompt:</strong> Append text to every AI transformation to customize. Many presets benefit from this feature. For example, if you activate Master Prompt (this must be done first) and add two lines: The first line- name: Ron G and the second line- it is Easter. Then you select preset HAPPY HOLIDAYS...this will transform the subject of the picture into a picture of the subject wearing an Easter bunny costume (preferably pink) and the resulting picture will be captioned with the name Ron G. Since all presets are categorized you can do a search for "master" or "master prompt" and presets that benefit from master prompting appear (*best to do this in the Visible Preset Menu). Regardless of designation, all images may be affected by the master prompt. You can add several master prompts to your image. Activate the ones you want to use.
                         </p>
                     </div>
 
@@ -1777,8 +1795,13 @@ All of the presets are optimized to avoid "camera ran dry" or "content filter" i
             </div>
         </div>
     </div>
+<!-- Alpha letter jump overlay: shows current letter when jumping alphabetically -->
+    <div id="alpha-letter-overlay">
+        <span class="alpha-overlay-letter">A</span>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
-    <script src="./assets/main.js"></script>
+    <script type="module" src="./src/main.js"></script>
 </body>
 </html>
